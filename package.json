@@ -1,0 +1,29 @@
+{
+  "name": "iconsol",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "fetch-icons": "node --import tsx scripts/fetch-icons.ts",
+    "generate": "node --import tsx scripts/generate-components.ts",
+    "clean": "turbo run clean",
+    "copy-icons": "node --import tsx scripts/copy-icons-to-public.ts"
+  },
+  "devDependencies": {
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-prettier": "^8.1.0",
+    "@svgr/plugin-svgo": "^8.1.0",
+    "agentation": "^3.0.2",
+    "svgo": "^4.0.0",
+    "tsx": "^4.19.2",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.3"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  }
+}

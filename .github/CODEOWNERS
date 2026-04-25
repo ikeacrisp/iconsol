@@ -1,0 +1,8 @@
+# Default owner — all PRs require review by @ikeacrisp
+*       @ikeacrisp
+
+# Security-sensitive surfaces — keep this list tight
+/apps/web/src/app/api/   @ikeacrisp
+/.github/workflows/      @ikeacrisp
+/.github/dependabot.yml  @ikeacrisp
+/SECURITY.md             @ikeacrisp

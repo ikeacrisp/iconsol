@@ -1,0 +1,42 @@
+name: Logo request
+description: Request a new logo or update an existing one
+labels: ["logo-request"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Project name
+    validations:
+      required: true
+  - type: input
+    id: ticker
+    attributes:
+      label: Ticker (if applicable)
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - tokens
+        - defi
+        - wallets
+        - nft
+        - infrastructure
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Official website
+    validations:
+      required: true
+  - type: input
+    id: brand
+    attributes:
+      label: Link to official brand assets (SVG preferred)
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

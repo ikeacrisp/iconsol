@@ -1,0 +1,13 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Zora">
+<g clip-path="url(#clip0_100_2512)">
+<rect width="32" height="32" rx="8" fill="var(--fill-0, #3FFF00)"/>
+<path id="Vector" d="M12.3333 1.90735e-06L0 11.2V20.8L12.3333 9.6V32H19.7333V9.6L32 20.8V11.2L19.7333 0L12.3333 1.90735e-06Z" fill="var(--fill-0, black)"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_100_2512">
+<rect width="32" height="32" rx="8" fill="white"/>
+</clipPath>
+</defs>
+</svg>

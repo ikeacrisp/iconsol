@@ -1,0 +1,50 @@
+# Dependencies / build output
+node_modules/
+.next/
+.turbo/
+dist/
+out/
+build/
+*.tsbuildinfo
+coverage/
+.nyc_output/
+
+# Local environment
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.production.local
+.env.test.local
+
+# Vercel
+.vercel/
+.vercel
+
+# OS / editor / agent runtime
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.claude/
+.cursor/
+.aider*
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets / keys (defence-in-depth)
+*.pem
+*.key
+*.cert
+id_rsa*
+*.p12
+*.pfx
+.npmrc

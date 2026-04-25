@@ -1,0 +1,738 @@
+[
+  {
+    "id": "sol",
+    "name": "Solana",
+    "ticker": "SOL",
+    "category": "tokens",
+    "aliases": ["solana", "sol"],
+    "tags": ["native", "gas", "staking"],
+    "mintAddress": "So11111111111111111111111111111111111111112",
+    "website": "https://solana.com",
+    "description": "Solana is a high-performance layer 1 network powering online capital markets, payments, and cryptocurrency applications.",
+    "relatedIds": ["jup", "usdc", "jitosol", "jupsol"]
+  },
+  {
+    "id": "jup",
+    "name": "Jupiter",
+    "ticker": "JUP",
+    "category": "tokens",
+    "aliases": ["jupiter", "jup.ag"],
+    "tags": ["governance", "dex", "aggregator"],
+    "mintAddress": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+    "website": "https://jup.ag",
+    "description": "Jupiter is Solana's leading swap and routing layer for discovering liquidity across tokens, perps, and new markets.",
+    "relatedIds": ["jupsol", "jupusd", "jupiter-lend", "sol"]
+  },
+  {
+    "id": "ray",
+    "name": "Raydium",
+    "ticker": "RAY",
+    "category": "tokens",
+    "aliases": ["raydium"],
+    "tags": ["governance", "dex", "amm"],
+    "mintAddress": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
+  },
+  {
+    "id": "jto",
+    "name": "Jito",
+    "ticker": "JTO",
+    "category": "tokens",
+    "aliases": ["jito"],
+    "tags": ["governance", "liquid-staking"],
+    "mintAddress": "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL",
+    "website": "https://jito.network",
+    "description": "JTO is the governance token of Jito, coordinating decisions across Jito's staking and MEV infrastructure on Solana.",
+    "relatedIds": ["jito", "jitosol", "sol"]
+  },
+  {
+    "id": "bonk",
+    "name": "BONK",
+    "ticker": "BONK",
+    "category": "tokens",
+    "aliases": ["bonk"],
+    "tags": ["meme"],
+    "mintAddress": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    "website": "https://bonkcoin.com",
+    "description": "BONK is Solana's original community meme coin, widely distributed across the network's users, apps, and ecosystem.",
+    "relatedIds": ["pump-fun", "jup", "moonshot"]
+  },
+  {
+    "id": "usdc",
+    "name": "USD Coin",
+    "ticker": "USDC",
+    "category": "tokens",
+    "aliases": ["usd-coin", "circle"],
+    "tags": ["stablecoin"],
+    "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    "website": "https://www.circle.com/usdc",
+    "description": "USDC is Circle's fully reserved US dollar stablecoin and the most widely used dollar-backed asset on Solana.",
+    "relatedIds": ["usdt", "sol", "jup"]
+  },
+  {
+    "id": "usdt",
+    "name": "Tether USD",
+    "ticker": "USDT",
+    "category": "tokens",
+    "aliases": ["tether"],
+    "tags": ["stablecoin"],
+    "mintAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+    "website": "https://tether.to",
+    "description": "USDT is Tether's US dollar stablecoin, the largest dollar-denominated crypto asset, available on Solana.",
+    "relatedIds": ["usdc", "sol", "jup"]
+  },
+  {
+    "id": "msol",
+    "name": "Marinade Staked SOL",
+    "ticker": "mSOL",
+    "category": "tokens",
+    "aliases": ["marinade-staked-sol"],
+    "tags": ["liquid-staking", "defi"],
+    "mintAddress": "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So"
+  },
+  {
+    "id": "jitosol",
+    "name": "Jito Staked SOL",
+    "ticker": "JitoSOL",
+    "category": "tokens",
+    "aliases": ["jitosol", "jito-staked-sol"],
+    "tags": ["liquid-staking", "defi"],
+    "mintAddress": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+    "website": "https://jito.network",
+    "description": "JitoSOL is the Jito liquid staking token, representing SOL staked with MEV-optimized validator operations.",
+    "relatedIds": ["jito", "jto", "sol"]
+  },
+  {
+    "id": "cloud",
+    "name": "Sanctum",
+    "ticker": "CLOUD",
+    "category": "tokens",
+    "aliases": ["sanctum"],
+    "tags": ["governance", "liquid-staking"],
+    "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu"
+  },
+  {
+    "id": "pyth",
+    "name": "Pyth Network",
+    "ticker": "PYTH",
+    "category": "tokens",
+    "aliases": ["pyth", "pyth-network"],
+    "tags": ["oracle", "infrastructure"],
+    "mintAddress": "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3"
+  },
+  {
+    "id": "w",
+    "name": "Wormhole",
+    "ticker": "W",
+    "category": "tokens",
+    "aliases": ["wormhole"],
+    "tags": ["bridge", "interoperability"],
+    "mintAddress": "85VBFQZC9TZkfaptBWjvUw7YbZjy52A6mjtPGjstQAmQ"
+  },
+  {
+    "id": "hnt",
+    "name": "Helium",
+    "ticker": "HNT",
+    "category": "tokens",
+    "aliases": ["helium"],
+    "tags": ["depin", "iot"],
+    "mintAddress": "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux"
+  },
+  {
+    "id": "pengu",
+    "name": "Pudgy Penguins",
+    "ticker": "PENGU",
+    "category": "tokens",
+    "aliases": ["pudgy-penguins", "pengu"],
+    "tags": ["meme", "nft"],
+    "mintAddress": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv"
+  },
+  {
+    "id": "jupiter-protocol",
+    "name": "Jupiter",
+    "category": "defi",
+    "aliases": ["jup", "jup.ag", "jupiter aggregator"],
+    "tags": ["dex", "aggregator", "perps"],
+    "website": "https://jup.ag"
+  },
+  {
+    "id": "raydium-protocol",
+    "name": "Raydium",
+    "category": "defi",
+    "aliases": ["ray", "raydium dex"],
+    "tags": ["dex", "amm", "liquidity"],
+    "website": "https://raydium.io",
+    "description": "Raydium is a Solana liquidity venue for swaps, pools, launches, and active market participation across the ecosystem.",
+    "relatedIds": ["jup", "meteora", "sol"]
+  },
+  {
+    "id": "orca",
+    "name": "Orca",
+    "category": "defi",
+    "aliases": ["orca dex", "whirlpool"],
+    "tags": ["dex", "amm", "concentrated-liquidity"],
+    "website": "https://orca.so"
+  },
+  {
+    "id": "marinade",
+    "name": "Marinade Finance",
+    "category": "defi",
+    "aliases": ["marinade", "marinade.finance"],
+    "tags": ["liquid-staking", "defi"],
+    "website": "https://marinade.finance",
+    "description": "Marinade is a Solana liquid staking protocol issuing mSOL and coordinating stake across a diverse, decentralized validator set.",
+    "relatedIds": ["jito", "jitosol", "sanctum"]
+  },
+  {
+    "id": "drift",
+    "name": "Drift Protocol",
+    "category": "defi",
+    "aliases": ["drift"],
+    "tags": ["perps", "derivatives", "margin"],
+    "website": "https://drift.trade"
+  },
+  {
+    "id": "kamino",
+    "name": "Kamino Finance",
+    "category": "defi",
+    "aliases": ["kamino"],
+    "tags": ["yield", "lending", "liquidity"],
+    "website": "https://kamino.finance",
+    "description": "Kamino is a Solana DeFi platform for lending, vaults, leverage, and capital-efficient yield strategies.",
+    "relatedIds": ["marginfi", "jup", "marinade"]
+  },
+  {
+    "id": "marginfi",
+    "name": "MarginFi",
+    "category": "defi",
+    "aliases": ["marginfi", "margin.fi"],
+    "tags": ["lending", "margin", "leverage"],
+    "website": "https://marginfi.com",
+    "description": "MarginFi is a Solana lending and borrowing protocol offering overcollateralized markets and leveraged strategies.",
+    "relatedIds": ["kamino", "jup", "marinade"]
+  },
+  {
+    "id": "jito-protocol",
+    "name": "Jito",
+    "category": "defi",
+    "aliases": ["jito", "jito network"],
+    "tags": ["liquid-staking", "mev"],
+    "website": "https://jito.network",
+    "description": "Jito builds validator and MEV infrastructure designed to make Solana execution more efficient, performant, and aligned.",
+    "relatedIds": ["jitosol", "jto", "sol"]
+  },
+  {
+    "id": "sanctum",
+    "name": "Sanctum",
+    "category": "defi",
+    "aliases": ["sanctum"],
+    "tags": ["liquid-staking"],
+    "website": "https://sanctum.so",
+    "description": "Sanctum is a Solana liquid staking infrastructure protocol unifying LSTs into a single, interoperable staking economy.",
+    "relatedIds": ["infsol", "scloud", "jitosol", "marinade"]
+  },
+  {
+    "id": "solend",
+    "name": "Solend",
+    "category": "defi",
+    "aliases": ["solend"],
+    "tags": ["lending", "borrowing"],
+    "website": "https://solend.fi"
+  },
+  {
+    "id": "mango",
+    "name": "Mango Markets",
+    "category": "defi",
+    "aliases": ["mango", "mango markets"],
+    "tags": ["margin", "perps", "trading"],
+    "website": "https://mango.markets"
+  },
+  {
+    "id": "lifinity",
+    "name": "Lifinity",
+    "category": "defi",
+    "aliases": ["lifinity"],
+    "tags": ["dex", "amm", "proactive-market-making"],
+    "website": "https://lifinity.io"
+  },
+  {
+    "id": "phoenix",
+    "name": "Phoenix",
+    "category": "defi",
+    "aliases": ["phoenix", "phoenix protocol"],
+    "tags": ["clob", "orderbook", "dex"],
+    "website": "https://phoenix.trade"
+  },
+  {
+    "id": "phantom",
+    "name": "Phantom",
+    "category": "wallets",
+    "aliases": ["phantom wallet"],
+    "tags": ["wallet", "browser-extension", "mobile"],
+    "website": "https://phantom.app",
+    "description": "Phantom is a widely used Solana wallet for signing, sending, swapping, and exploring apps, collectibles, and onchain assets.",
+    "relatedIds": ["sol", "jup", "magic-eden"]
+  },
+  {
+    "id": "solflare",
+    "name": "Solflare",
+    "category": "wallets",
+    "aliases": ["solflare wallet"],
+    "tags": ["wallet", "browser-extension", "mobile"],
+    "website": "https://solflare.com",
+    "description": "Solflare is a long-standing Solana wallet for staking, swaps, portfolio access, and secure account management across devices.",
+    "relatedIds": ["sol", "jup", "phantom"]
+  },
+  {
+    "id": "backpack",
+    "name": "Backpack",
+    "category": "wallets",
+    "aliases": ["backpack wallet", "xnft"],
+    "tags": ["wallet", "browser-extension", "xnft"],
+    "website": "https://backpack.app",
+    "description": "Backpack is a wallet and product suite focused on simple, secure Solana access across apps, assets, and mobile flows.",
+    "relatedIds": ["madlads", "sol", "jup"]
+  },
+  {
+    "id": "magic-eden",
+    "name": "Magic Eden",
+    "category": "nft",
+    "aliases": ["magic eden", "me"],
+    "tags": ["marketplace", "nft", "trading"],
+    "website": "https://magiceden.io",
+    "description": "Magic Eden is a consumer marketplace and launch platform for collectibles, creators, and community-led digital products.",
+    "relatedIds": ["madlads", "claynosaurz", "phantom"]
+  },
+  {
+    "id": "tensor",
+    "name": "Tensor",
+    "category": "nft",
+    "aliases": ["tensor", "tensor.trade"],
+    "tags": ["marketplace", "nft", "defi", "amm"],
+    "website": "https://tensor.trade"
+  },
+  {
+    "id": "metaplex",
+    "name": "Metaplex",
+    "category": "nft",
+    "aliases": ["metaplex"],
+    "tags": ["nft", "standard", "infrastructure"],
+    "website": "https://metaplex.com",
+    "description": "Metaplex provides Solana standards and tooling for minting, managing, and distributing digital assets and collectibles.",
+    "relatedIds": ["magic-eden", "madlads", "claynosaurz"]
+  },
+  {
+    "id": "helius",
+    "name": "Helius",
+    "category": "infrastructure",
+    "aliases": ["helius"],
+    "tags": ["rpc", "api", "developer"],
+    "website": "https://helius.dev",
+    "description": "Helius provides Solana developer infrastructure for RPC, indexing, webhooks, and real-time data delivery at scale.",
+    "relatedIds": ["sol", "jup", "phantom"]
+  },
+  {
+    "id": "pump-fun",
+    "name": "Pump.fun",
+    "category": "infrastructure",
+    "aliases": ["pump", "pump.fun"],
+    "tags": ["token-launch", "meme", "launchpad"],
+    "website": "https://pump.fun",
+    "description": "Pump.fun is a consumer launch surface for discovering and trading fast-moving, community-driven tokens on Solana.",
+    "relatedIds": ["bonk", "moonshot", "sol"]
+  },
+  {
+    "id": "mayan",
+    "name": "Mayan Finance",
+    "category": "infrastructure",
+    "aliases": ["mayan"],
+    "tags": ["bridge", "cross-chain", "swap"],
+    "website": "https://mayan.finance"
+  },
+  {
+    "id": "realms",
+    "name": "Realms",
+    "category": "infrastructure",
+    "aliases": ["realms", "spl-governance"],
+    "tags": ["dao", "governance"],
+    "website": "https://realms.today"
+  },
+  {
+    "id": "helium-protocol",
+    "name": "Helium",
+    "category": "infrastructure",
+    "aliases": ["helium", "helium network"],
+    "tags": ["depin", "iot", "wireless"],
+    "website": "https://helium.com"
+  },
+  {
+    "id": "wormhole",
+    "name": "Wormhole",
+    "category": "infrastructure",
+    "aliases": ["wormhole bridge"],
+    "tags": ["bridge", "interoperability", "cross-chain"],
+    "website": "https://wormhole.com"
+  },
+  {
+    "id": "step-finance",
+    "name": "Step Finance",
+    "category": "infrastructure",
+    "aliases": ["step"],
+    "tags": ["portfolio", "dashboard", "analytics"],
+    "website": "https://step.finance"
+  },
+  {
+    "id": "meteora",
+    "name": "Meteora",
+    "category": "defi",
+    "aliases": ["meteora"],
+    "tags": ["liquidity", "amm", "yield"],
+    "website": "https://meteora.ag",
+    "description": "Meteora is a Solana liquidity platform offering dynamic pools and capital-efficient market-making primitives.",
+    "relatedIds": ["jup", "raydium", "kamino"]
+  },
+  {
+    "id": "eurc",
+    "name": "EURC",
+    "ticker": "EURC",
+    "category": "tokens",
+    "aliases": ["eurc", "euro-coin"],
+    "tags": ["stablecoin", "euro"],
+    "mintAddress": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+    "website": "https://www.circle.com/eurc",
+    "description": "EURC is Circle's euro-denominated stablecoin, fully reserved and issued onchain for payments and trading.",
+    "relatedIds": ["usdc", "circle", "usdt"]
+  },
+  {
+    "id": "jupsol",
+    "name": "JupSOL",
+    "ticker": "JupSOL",
+    "category": "tokens",
+    "aliases": ["jupsol", "jupiter-staked-sol"],
+    "tags": ["liquid-staking", "jupiter"],
+    "mintAddress": "jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v",
+    "website": "https://jup.ag",
+    "description": "JupSOL is Jupiter's liquid staking token, routing SOL stake through high-performance validator operations.",
+    "relatedIds": ["jup", "jupusd", "sol"]
+  },
+  {
+    "id": "jupusd",
+    "name": "JupUSD",
+    "ticker": "JupUSD",
+    "category": "tokens",
+    "aliases": ["jupusd"],
+    "tags": ["stablecoin", "jupiter"],
+    "mintAddress": "JUPUSDC8NZHaUKKJUBeFMh2h3N2Y7ACCHpkKfpHjuAN",
+    "website": "https://jup.ag",
+    "description": "JupUSD is Jupiter's US dollar stablecoin, integrated directly into Jupiter's routing and trading surfaces.",
+    "relatedIds": ["jup", "jupsol", "usdc"]
+  },
+  {
+    "id": "usd-prime",
+    "name": "USD Prime",
+    "ticker": "USDPrime",
+    "category": "tokens",
+    "aliases": ["usd-prime", "usdprime"],
+    "tags": ["stablecoin"],
+    "description": "USD Prime is a Solana-native stablecoin designed for institutional flows and deep onchain liquidity.",
+    "relatedIds": ["usdc", "usdt", "perena"]
+  },
+  {
+    "id": "usd-star",
+    "name": "USD★",
+    "ticker": "USD★",
+    "category": "tokens",
+    "aliases": ["usd-star", "usdstar"],
+    "tags": ["stablecoin"],
+    "description": "USD★ is a yield-bearing stablecoin on Solana designed to pass native onchain returns directly to holders.",
+    "relatedIds": ["perena", "usdc", "usdt"]
+  },
+  {
+    "id": "oro",
+    "name": "Oro",
+    "ticker": "ORO",
+    "category": "tokens",
+    "aliases": ["oro"],
+    "tags": ["defi"],
+    "website": "https://oro.so",
+    "description": "Oro is a Solana-native product for tokenized gold, offering onchain exposure to the physical metal.",
+    "relatedIds": ["jup", "usdc", "sol"]
+  },
+  {
+    "id": "squads",
+    "name": "Squads",
+    "category": "infrastructure",
+    "aliases": ["squads", "squads-protocol"],
+    "tags": ["multisig", "treasury", "governance"],
+    "website": "https://squads.so",
+    "description": "Squads builds multi-signature and treasury tooling that helps teams manage permissions, assets, and operational workflows.",
+    "relatedIds": ["sol", "phantom", "marginfi"]
+  },
+  {
+    "id": "zora",
+    "name": "Zora",
+    "category": "nft",
+    "aliases": ["zora"],
+    "tags": ["marketplace", "nft", "creator"],
+    "website": "https://zora.co",
+    "description": "Zora is a creator protocol for minting, trading, and distributing media as onchain digital objects.",
+    "relatedIds": ["magic-eden", "metaplex", "crossmint"]
+  },
+  {
+    "id": "sanctum-gateway",
+    "name": "Sanctum Gateway",
+    "category": "defi",
+    "aliases": ["sanctum-gateway"],
+    "tags": ["liquid-staking", "gateway"],
+    "website": "https://sanctum.so",
+    "description": "Sanctum Gateway is the routing layer that unifies liquidity and swaps across every Sanctum liquid staking token.",
+    "relatedIds": ["sanctum", "infsol", "jitosol"]
+  },
+  {
+    "id": "helius-orb",
+    "name": "Helius Orb",
+    "category": "infrastructure",
+    "aliases": ["helius-orb", "helius orb"],
+    "tags": ["rpc", "api", "developer"],
+    "website": "https://helius.dev",
+    "description": "Orb is Helius' consumer-facing product surface built on top of its Solana RPC and developer infrastructure.",
+    "relatedIds": ["helius", "sol", "jup"]
+  },
+  {
+    "id": "perena",
+    "name": "Perena",
+    "category": "defi",
+    "aliases": ["perena"],
+    "tags": ["stablecoin", "amm", "liquidity"],
+    "website": "https://perena.org",
+    "description": "Perena is a Solana stablecoin liquidity protocol building deep pools and yield rails for the stablecoin economy.",
+    "relatedIds": ["usdc", "usdt", "usd-star"]
+  },
+  {
+    "id": "arcium",
+    "name": "Arcium",
+    "category": "infrastructure",
+    "aliases": ["arcium"],
+    "tags": ["privacy", "mpc", "confidential-computing"],
+    "website": "https://arcium.com",
+    "description": "Arcium is a confidential computing network enabling encrypted compute and MPC-based privacy for Solana apps.",
+    "relatedIds": ["sol", "helius", "umbra"]
+  },
+  {
+    "id": "moonpay",
+    "name": "MoonPay",
+    "category": "infrastructure",
+    "aliases": ["moonpay"],
+    "tags": ["payments", "onramp", "fiat"],
+    "website": "https://moonpay.com",
+    "description": "MoonPay connects users to digital assets through payments, onboarding, and checkout experiences across crypto products.",
+    "relatedIds": ["usdc", "sol", "phantom"]
+  },
+  {
+    "id": "crossmint",
+    "name": "Crossmint",
+    "category": "infrastructure",
+    "aliases": ["crossmint"],
+    "tags": ["nft", "api", "developer"],
+    "website": "https://crossmint.com",
+    "description": "Crossmint provides developer infrastructure for onboarding users, minting NFTs, and accepting payments across chains.",
+    "relatedIds": ["sol", "phantom", "magic-eden"]
+  },
+  {
+    "id": "colosseum",
+    "name": "Colosseum",
+    "category": "infrastructure",
+    "aliases": ["colosseum"],
+    "tags": ["hackathon", "grants", "ecosystem"],
+    "website": "https://colosseum.org",
+    "description": "Colosseum runs Solana's flagship hackathons and helps winning teams grow into funded startups.",
+    "relatedIds": ["superteam", "sol", "sendai"]
+  },
+  {
+    "id": "superteam",
+    "name": "Superteam",
+    "category": "infrastructure",
+    "aliases": ["superteam"],
+    "tags": ["dao", "ecosystem", "community"],
+    "website": "https://superteam.fun",
+    "description": "Superteam helps founders, operators, and creators contribute to Solana through programs, bounties, education, and support.",
+    "relatedIds": ["colosseum", "sol", "sendai"]
+  },
+  {
+    "id": "moonshot",
+    "name": "Moonshot",
+    "category": "infrastructure",
+    "aliases": ["moonshot"],
+    "tags": ["token-launch", "launchpad"],
+    "website": "https://moonshot.money",
+    "description": "Moonshot is a consumer mobile app for buying, selling, and launching tokens on Solana.",
+    "relatedIds": ["pump-fun", "bonk", "sol"]
+  },
+  {
+    "id": "drip-haus",
+    "name": "Drip Haus",
+    "category": "nft",
+    "aliases": ["drip-haus", "drip"],
+    "tags": ["nft", "creator", "drops"],
+    "website": "https://drip.haus",
+    "description": "Drip Haus is a Solana creator platform distributing free collectible drops to engaged audiences.",
+    "relatedIds": ["magic-eden", "madlads", "metaplex"]
+  },
+  {
+    "id": "madlads",
+    "name": "Mad Lads",
+    "category": "nft",
+    "aliases": ["madlads", "mad-lads"],
+    "tags": ["nft", "collection", "backpack"],
+    "website": "https://madlads.com",
+    "description": "Mad Lads is a flagship Solana NFT collection closely tied to the Backpack wallet and xNFT ecosystem.",
+    "relatedIds": ["backpack", "magic-eden", "claynosaurz"]
+  },
+  {
+    "id": "seeker",
+    "name": "Seeker",
+    "category": "wallets",
+    "aliases": ["seeker", "solana-seeker"],
+    "tags": ["wallet", "mobile", "hardware"],
+    "website": "https://solanamobile.com",
+    "description": "Seeker is Solana Mobile's crypto-native smartphone, shipping with wallet access and deep app integrations.",
+    "relatedIds": ["phantom", "backpack", "solflare"]
+  },
+  {
+    "id": "altitude",
+    "name": "Altitude",
+    "category": "defi",
+    "aliases": ["altitude"],
+    "tags": ["defi", "yield"],
+    "website": "https://altitude.fi",
+    "description": "Altitude is a Solana-native yield protocol for looped staking and leveraged liquid staking strategies.",
+    "relatedIds": ["jup", "kamino", "marinade"]
+  },
+  {
+    "id": "fuse",
+    "name": "Fuse",
+    "category": "defi",
+    "aliases": ["fuse"],
+    "tags": ["defi", "yield", "restaking"],
+    "website": "https://fuse.fi",
+    "description": "Fuse is a Solana restaking and yield protocol enabling new security and reward primitives on top of existing LSTs.",
+    "relatedIds": ["sol", "jito", "marinade"]
+  },
+  {
+    "id": "umbra",
+    "name": "Umbra",
+    "category": "defi",
+    "aliases": ["umbra"],
+    "tags": ["privacy", "stealth", "defi"],
+    "website": "https://umbra.cash",
+    "description": "Umbra brings private, stealth-address-style transactions to Solana for confidential payments and flows.",
+    "relatedIds": ["sol", "jup", "arcium"]
+  },
+  {
+    "id": "dflow",
+    "name": "DFlow",
+    "category": "defi",
+    "aliases": ["dflow"],
+    "tags": ["dex", "order-flow", "payments"],
+    "website": "https://dflow.net",
+    "description": "DFlow is an order flow marketplace connecting wallets and apps to execution venues with price improvement.",
+    "relatedIds": ["jup", "phantom", "sol"]
+  },
+  {
+    "id": "carrot",
+    "name": "Carrot",
+    "category": "defi",
+    "aliases": ["carrot"],
+    "tags": ["yield", "liquid-staking"],
+    "website": "https://carrot.so",
+    "description": "Carrot is a yield-bearing product on Solana that allocates deposits across curated onchain yield strategies.",
+    "relatedIds": ["jitosol", "marinade", "jup"]
+  },
+  {
+    "id": "fomo",
+    "name": "FOMO",
+    "category": "defi",
+    "aliases": ["fomo"],
+    "tags": ["defi", "trading"],
+    "website": "https://fomo.fund",
+    "description": "FOMO is a Solana social trading platform focused on live markets and community-driven discovery.",
+    "relatedIds": ["sol", "jup", "bonk"]
+  },
+  {
+    "id": "jupiter-lend",
+    "name": "Jupiter Lend",
+    "category": "defi",
+    "aliases": ["jupiter-lend", "jup-lend"],
+    "tags": ["lending", "borrowing", "jupiter"],
+    "website": "https://jup.ag",
+    "description": "Jupiter Lend is Jupiter's lending market for borrowing and earning against major Solana assets.",
+    "relatedIds": ["jup", "jupsol", "jupusd"]
+  },
+  {
+    "id": "kast",
+    "name": "Kast",
+    "category": "defi",
+    "aliases": ["kast"],
+    "tags": ["debit-card", "payments", "defi"],
+    "website": "https://kast.app",
+    "description": "Kast is a stablecoin-powered debit card and spending app for everyday payments onchain.",
+    "relatedIds": ["sol", "usdc", "moonpay"]
+  },
+  {
+    "id": "xstock",
+    "name": "xStock",
+    "category": "defi",
+    "aliases": ["xstock"],
+    "tags": ["stocks", "tokenized", "trading"],
+    "website": "https://xstock.io",
+    "description": "xStock brings tokenized public equities onchain, letting Solana users access stock exposure around the clock.",
+    "relatedIds": ["usdc", "jup", "sol"]
+  },
+  {
+    "id": "bags",
+    "name": "Bags",
+    "category": "defi",
+    "aliases": ["bags"],
+    "tags": ["defi", "portfolio"],
+    "website": "https://bags.fm",
+    "description": "Bags is a Solana social wallet and portfolio experience built around shared onchain discovery.",
+    "relatedIds": ["jup", "sol", "phantom"]
+  },
+  {
+    "id": "avici",
+    "name": "Avici",
+    "category": "defi",
+    "aliases": ["avici"],
+    "tags": ["defi"],
+    "website": "https://avici.io",
+    "description": "Avici is a Solana DeFi product focused on capital-efficient onchain strategies.",
+    "relatedIds": ["jup", "sol", "kamino"]
+  },
+  {
+    "id": "asgard",
+    "name": "Asgard",
+    "category": "defi",
+    "aliases": ["asgard"],
+    "tags": ["defi", "yield"],
+    "website": "https://asgard.finance",
+    "description": "Asgard is a Solana yield and structured product platform for onchain capital strategies.",
+    "relatedIds": ["jup", "sol", "kamino"]
+  },
+  {
+    "id": "opos",
+    "name": "OPOS",
+    "category": "infrastructure",
+    "aliases": ["opos", "only-possible-on-solana"],
+    "tags": ["branding", "ecosystem", "solana"],
+    "description": "The 'Only Possible On Solana' mark celebrates products and moments that showcase Solana's unique capabilities.",
+    "relatedIds": ["sol", "powered-by-solana", "superteam"]
+  },
+  {
+    "id": "powered-by-solana",
+    "name": "Powered by Solana",
+    "category": "infrastructure",
+    "aliases": ["powered-by-solana"],
+    "tags": ["branding", "ecosystem", "solana"],
+    "description": "The 'Powered by Solana' mark identifies products and apps built on the Solana network.",
+    "relatedIds": ["sol", "opos", "superteam"]
+  }
+]

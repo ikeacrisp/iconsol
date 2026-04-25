@@ -1,0 +1,56 @@
+{
+  "name": "iconsol",
+  "version": "0.1.0",
+  "description": "High-quality React components for Solana ecosystem logos and icons",
+  "author": "iconsol",
+  "license": "MIT",
+  "homepage": "https://iconsol.me",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikeacrisp/iconsol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ikeacrisp/iconsol/issues"
+  },
+  "keywords": [
+    "solana",
+    "icons",
+    "react",
+    "svg",
+    "defi",
+    "web3",
+    "blockchain"
+  ],
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist"
+  },
+  "peerDependencies": {
+    "react": ">=17",
+    "react-dom": ">=17"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3"
+  }
+}

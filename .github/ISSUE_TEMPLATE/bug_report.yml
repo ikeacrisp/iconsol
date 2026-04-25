@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a bug on the iconsol site or library
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps so we can reproduce locally.
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: URL where the bug occurred
+      placeholder: https://iconsol.me/...
+  - type: input
+    id: browser
+    attributes:
+      label: Browser / OS
+      placeholder: e.g. Chrome 132 on macOS 15
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
