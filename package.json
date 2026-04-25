@@ -20,7 +20,7 @@
     "svgo": "^4.0.0",
     "tsx": "^4.19.2",
     "turbo": "^2.3.3",
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.3"
   },
   "packageManager": "pnpm@9.15.4",
   "engines": {
