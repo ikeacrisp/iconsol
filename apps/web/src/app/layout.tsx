@@ -11,7 +11,7 @@ const AgentationToolbar = dynamic(
 export const metadata: Metadata = {
   title: "iconsol",
   description:
-    "A curated directory of high-quality logos and icons for the Solana ecosystem. Tokens, DeFi protocols, wallets, NFT platforms, and infrastructure. Download SVG, copy as React/Vue/Svelte component, or npm install.",
+    "A curated directory of high-quality logos and icons for the Solana ecosystem. Tokens, DeFi protocols, wallets, NFT platforms, and infrastructure. Download SVG, copy as React, React Native, Swift, HTML, or SVG.",
   keywords: [
     "solana",
     "icons",
@@ -19,8 +19,9 @@ export const metadata: Metadata = {
     "defi",
     "web3",
     "react",
-    "vue",
-    "svelte",
+    "react native",
+    "swift",
+    "html",
     "svg",
     "iconsol",
   ],

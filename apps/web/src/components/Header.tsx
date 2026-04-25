@@ -14,15 +14,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
 import { ICON_COUNT } from "@/lib/icon-count";
 
-type Framework = "react" | "vue" | "svelte";
+type Framework = "react" | "react-native" | "swift" | "html" | "svg";
 
 const FRAMEWORK_CONFIG: Record<
   Framework,
   { label: string; npmPrefix: string; npmPkg: string }
 > = {
   react: { label: "React", npmPrefix: "npm", npmPkg: " i iconsol" },
-  vue: { label: "Vue", npmPrefix: "npm", npmPkg: " i iconsol" },
-  svelte: { label: "Svelte", npmPrefix: "npm", npmPkg: " i iconsol" },
+  "react-native": { label: "React Native", npmPrefix: "npm", npmPkg: " i iconsol" },
+  swift: { label: "Swift", npmPrefix: "npm", npmPkg: " i iconsol" },
+  html: { label: "HTML", npmPrefix: "npm", npmPkg: " i iconsol" },
+  svg: { label: "SVG", npmPrefix: "npm", npmPkg: " i iconsol" },
 };
 
 function SearchIcon() {
@@ -141,34 +143,44 @@ function ReactIcon() {
   return <ImageIcon src="/ui/react-badge.svg" size={20} alt="React" />;
 }
 
-function VueIcon() {
+function ReactNativeIcon() {
+  return <ImageIcon src="/ui/react-badge.svg" size={20} alt="React Native" />;
+}
+
+function SwiftIcon() {
   return (
-    <svg width="20" height="17.133" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 4h4.1L12 12.1 16.9 4H21L12 20 3 4Z" fill="#41b883" />
-      <path d="M7 4h3.2l1.8 3 1.8-3H17l-5 8-5-8Z" fill="#35495e" />
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M20.5 17.6c-.1-.2-.2-.4-.4-.6 3.5-4.6 1.4-9.2.6-10.5C18.6 3 14.4 1 10.4 1H1v22h11.7c1.7 0 3.4-.4 4.7-1 .4-.2.7-.4 1-.7v.1c1 .8 2.4.7 3 .4 1-.2 1.7-1 2.2-2 .3-.6.4-1.4.4-2.2zM15 18.6c-3-1.7-5.6-4.2-7.6-7.2 2 1.8 4.4 3.3 7 4.4-2-1.5-3.8-3.3-5.4-5.3 2.7 2.6 5.7 4.4 9.6 5.5-.1-1.6-.7-3-1.5-4.3 1 2 1.4 4.3 1.2 6.5-.5.4-1 .8-1.7 1.1-.5-.4-1-.6-1.6-.7z"
+        fill="#F05138"
+      />
     </svg>
   );
 }
 
-function SvelteIcon() {
+function HtmlIcon() {
   return (
-    <svg width="16.631" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M3 2h18l-1.6 18L12 22l-7.4-2L3 2z" fill="#E44D26" />
+      <path d="M12 4v16.4l6-1.7L19.3 4H12z" fill="#F16529" />
       <path
-        d="M16.7 2.6c-2.2-1.4-5-.7-6.4 1.5L8.7 6.8a4.5 4.5 0 0 0-.8 3.4c.1.5.3 1 .6 1.5-.7.6-1.2 1.4-1.4 2.4-.3 1.7 0 3.2 1 4.5 1.4 2.2 4.3 2.8 6.4 1.4l2.8-1.8a4.6 4.6 0 0 0 2.1-3.1c.1-.8 0-1.6-.3-2.4.8-.6 1.3-1.4 1.5-2.4.2-1.7-.1-3.3-1-4.6-1-.9-1.6-1.6-2.9-2.1Z"
-        fill="#ff3e00"
-      />
-      <path
-        d="M10.1 18.3c-1.3 0-2.5-.6-3.3-1.8l1.4-.9c.6.8 1.4 1.1 2.3 1.1.5 0 .9-.1 1.2-.3l2.8-1.8c.4-.3.6-.6.7-1.1.1-.4 0-.9-.3-1.2-.6-.8-1.5-1-2.4-.5l-1.4.9c-2 1.3-4.7.7-6-1.3-.6-1-.9-2.1-.7-3.3.1-1.2.8-2.2 1.8-2.8L9 4.7c2-1.3 4.7-.7 6 1.3l-1.4.9c-.6-.8-1.4-1.1-2.3-1.1-.5 0-.9.1-1.2.3L7.3 7.9c-.4.3-.6.6-.7 1.1-.1.4 0 .9.3 1.2.6.8 1.5 1 2.4.5l1.4-.9c2-1.3 4.7-.7 6 1.3.6 1 .9 2.1.7 3.3-.1 1.2-.8 2.2-1.8 2.8L13 17.9c-.8.3-1.8.4-2.9.4Z"
+        d="M7.5 8.5l.2 2h4.3v-2H7.5zm.4 4l.6 6.4 3.5 1v-2.1l-1.7-.5-.1-1.4H8.4l.1 2H7.9zM12 8.5v2h4.4l-.4 4.4-4 1.1v2.1l3.5-1 .6-6.4h-3.7v-2h3.9l.2-2H12z"
         fill="#fff"
       />
     </svg>
   );
 }
 
+function SvgIcon() {
+  return <ImageIcon src="/ui/svg-file.svg" size={20} alt="SVG" />;
+}
+
 const FRAMEWORK_ICONS: Record<Framework, ComponentType> = {
   react: ReactIcon,
-  vue: VueIcon,
-  svelte: SvelteIcon,
+  "react-native": ReactNativeIcon,
+  swift: SwiftIcon,
+  html: HtmlIcon,
+  svg: SvgIcon,
 };
 
 function AnimatedFrameworkIcon({ framework }: { framework: Framework }) {
