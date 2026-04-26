@@ -36,6 +36,7 @@ interface IconGridProps {
 }
 
 const HOVER_SPRING = { stiffness: 400, damping: 35 };
+const HOVER_OPACITY_SPRING = { stiffness: 1200, damping: 40 };
 const CARD_PATH_SETTLE_THRESHOLD = 0.75;
 const CARD_SIZE = 160;
 const FOOTER_FADE_ZONE = 73;
@@ -379,7 +380,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const springToggleActiveWidth = useSpring(toggleActiveWidth, HOVER_SPRING);
   const springCardX = useSpring(cardX, HOVER_SPRING);
   const springCardY = useSpring(cardY, HOVER_SPRING);
-  const springCardOpacity = useSpring(cardOpacity, HOVER_SPRING);
+  const springCardOpacity = useSpring(cardOpacity, HOVER_OPACITY_SPRING);
 
   useEffect(() => {
     setSearchQuery(searchParams.get("q") ?? "");
@@ -652,7 +653,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
         cardOpacity.set(0);
 
         const unsub = springCardOpacity.on("change", (v) => {
-          if (v <= 0.05) {
+          if (v <= 0.2) {
             unsub();
             diagonalUnsubRef.current = null;
             cardX.jump(targetX);
