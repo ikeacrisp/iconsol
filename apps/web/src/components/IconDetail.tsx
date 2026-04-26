@@ -36,6 +36,8 @@ const PANEL_FADE_BG = easingGradient(
   "rgba(255,255,255,0.01)",
 );
 
+const PREVIEW_FRAME_BG = easingGradient("180deg", "#17181B", "#101215");
+
 const EXTERNAL_LINK_ICON = "/ui/external-link.svg";
 const SVG_FILE_ICON = "/ui/download-svg.svg";
 const PNG_FILE_ICON = "/ui/download-png.svg";
@@ -1435,10 +1437,7 @@ export function IconDetail({
                         height: PREVIEW_CARD_SIZE,
                         borderRadius: PREVIEW_CARD_RADIUS,
                         border: "1px solid #1F2124",
-                        background:
-                          PANEL_FADE_BG,
-                        backdropFilter: "blur(2px)",
-                        WebkitBackdropFilter: "blur(2px)",
+                        background: PREVIEW_FRAME_BG,
                         boxSizing: "border-box",
                         boxShadow: "0 0 0 2px #0d0f12",
                         rotateX: springPreviewRotateX,
