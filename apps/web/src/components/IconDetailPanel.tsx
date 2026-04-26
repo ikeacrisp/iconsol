@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useSound } from "@web-kits/audio/react";
 import type { Icon } from "@/lib/icon-data";
 import { CATEGORY_COLORS } from "@/lib/icon-data";
+import { confetti } from "@/lib/audio/core";
 
 interface IconDetailPanelProps {
   icon: Icon;
@@ -14,6 +16,7 @@ type CopiedKey = "svg" | "jsx" | "npm" | null;
 export function IconDetailPanel({ icon, onClose }: IconDetailPanelProps) {
   const [bg, setBg] = useState<"dark" | "light" | "grid">("dark");
   const [copied, setCopied] = useState<CopiedKey>(null);
+  const playConfetti = useSound(confetti);
 
   const color = CATEGORY_COLORS[icon.category];
   const componentName = toPascalCase(icon.id);
@@ -23,6 +26,7 @@ export function IconDetailPanel({ icon, onClose }: IconDetailPanelProps) {
   const npmCode = `npm install @solana-icons/react`;
 
   const copyText = async (text: string, key: CopiedKey) => {
+    playConfetti();
     await navigator.clipboard.writeText(text);
     setCopied(key);
     setTimeout(() => setCopied(null), 1800);

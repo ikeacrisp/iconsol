@@ -11,8 +11,10 @@ import {
 } from "react";
 import type { ComponentType, MouseEvent } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useSound } from "@web-kits/audio/react";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
 import { ICON_COUNT } from "@/lib/icon-count";
+import { confetti } from "@/lib/audio/core";
 
 type Framework = "react" | "react-native" | "swift" | "html" | "svg";
 
@@ -594,12 +596,14 @@ export function Header({
   }, [dropdownOpen]);
 
   const npmCommand = FRAMEWORK_CONFIG[framework].npmPrefix + FRAMEWORK_CONFIG[framework].npmPkg;
+  const playConfetti = useSound(confetti);
 
   const handleCopy = useCallback(async () => {
+    playConfetti();
     await navigator.clipboard.writeText(npmCommand);
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
-  }, [npmCommand]);
+  }, [npmCommand, playConfetti]);
 
   const handleSearchSubmit = useCallback(() => {
     const query = searchQuery.trim();
@@ -688,6 +692,7 @@ export function Header({
                 <button
                   type="button"
                   onClick={async () => {
+                    playConfetti();
                     await navigator.clipboard.writeText("npm i iconsol");
                     setCopied(true);
                     window.setTimeout(() => setCopied(false), 1800);

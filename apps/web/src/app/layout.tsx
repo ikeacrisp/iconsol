@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
+import { AudioProvider } from "@/components/AudioProvider";
 import "./globals.css";
 
 const AgentationToolbar = dynamic(
@@ -43,7 +44,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable}`}>
-        {children}
+        <AudioProvider>{children}</AudioProvider>
         {showAgentation && <AgentationToolbar enabled />}
       </body>
     </html>

@@ -1,5 +1,8 @@
 "use client";
 
+import { useSound } from "@web-kits/audio/react";
+import { confetti } from "@/lib/audio/core";
+
 interface HeroProps {
   stats: {
     total: number;
@@ -82,7 +85,9 @@ export function Hero({ stats }: HeroProps) {
 }
 
 function CopyNpmButton() {
+  const playConfetti = useSound(confetti);
   const copy = () => {
+    playConfetti();
     navigator.clipboard?.writeText("npm install @solana-icons/react");
   };
   return (

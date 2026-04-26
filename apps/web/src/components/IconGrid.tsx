@@ -12,6 +12,9 @@ import {
   useState,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSound } from "@web-kits/audio/react";
+import { swoosh } from "@/lib/audio/crisp";
+import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
 import { BlurFade } from "@/components/BlurFade";
 import { DotField } from "@/components/DotField";
@@ -350,6 +353,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const searchParams = useSearchParams();
   const [activeCategory, setActiveCategory] = useState<IconCategory | "all">("all");
   const [solidMode, setSolidMode] = useState(false);
+  const playToggleOn = useSound(toggleOn);
+  const playToggleOff = useSound(toggleOff);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
   const [isScrolling, setIsScrolling] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -1001,14 +1006,20 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                 <BrandToggle
                   buttonRef={toggleBrandRef}
                   active={!solidMode}
-                  onClick={() => setSolidMode(false)}
+                  onClick={() => {
+                    playToggleOff();
+                    setSolidMode(false);
+                  }}
                 >
                   Brand
                 </BrandToggle>
                 <BrandToggle
                   buttonRef={toggleSolidRef}
                   active={solidMode}
-                  onClick={() => setSolidMode(true)}
+                  onClick={() => {
+                    playToggleOn();
+                    setSolidMode(true);
+                  }}
                 >
                   Solid
                 </BrandToggle>
@@ -1315,6 +1326,7 @@ function IconCard({
   registerRef: (node: HTMLAnchorElement | null) => void;
 }) {
   const router = useRouter();
+  const playSwoosh = useSound(swoosh, { volume: 0.35 });
   const href = solidMode ? `/icon/${icon.id}?mode=solid` : `/icon/${icon.id}`;
   const showNeutralBrandShell =
     !solidMode && !logoVariantHasIntrinsicSurface(icon.id, "brand");
@@ -1372,9 +1384,10 @@ function IconCard({
         height: 160,
         flex: "0 0 160px",
       }}
-      onMouseEnter={(event) =>
-        onActivate({ x: event.clientX, y: event.clientY })
-      }
+      onMouseEnter={(event) => {
+        playSwoosh();
+        onActivate({ x: event.clientX, y: event.clientY });
+      }}
       onMouseLeave={onDeactivate}
       onFocus={() => onActivate()}
       onBlur={onDeactivate}

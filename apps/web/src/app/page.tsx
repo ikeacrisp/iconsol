@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSound } from "@web-kits/audio/react";
+import { confetti } from "@/lib/audio/core";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -357,6 +359,7 @@ export default function Home() {
   const [desktopQuery, setDesktopQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
   const [copied, setCopied] = useState(false);
+  const playConfetti = useSound(confetti);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -371,10 +374,11 @@ export default function Home() {
   }, []);
 
   const handleCopy = useCallback(async () => {
+    playConfetti();
     await navigator.clipboard.writeText("npm i iconsol");
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
-  }, []);
+  }, [playConfetti]);
 
   const submitSearch = useCallback(
     (query: string) => {

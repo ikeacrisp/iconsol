@@ -11,9 +11,12 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSound } from "@web-kits/audio/react";
 import { BlurFade } from "@/components/BlurFade";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
+import { confetti } from "@/lib/audio/core";
+import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import {
   BRAND_LOGO_ASSETS,
   SOLID_LOGO_ASSETS,
@@ -1137,6 +1140,9 @@ export function IconDetail({
   ]);
 
   const copyableCode = currentCode;
+  const playConfetti = useSound(confetti);
+  const playToggleOn = useSound(toggleOn);
+  const playToggleOff = useSound(toggleOff);
 
   const handlePreviewMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -1158,11 +1164,12 @@ export function IconDetail({
   }, [previewRotateX, previewRotateY]);
 
   const handleCodeCopy = useCallback(async () => {
+    playConfetti();
     await navigator.clipboard.writeText(copyableCode);
     setCopiedCode(true);
     setCopyBurstTick((value) => value + 1);
     window.setTimeout(() => setCopiedCode(false), 1800);
-  }, [copyableCode]);
+  }, [copyableCode, playConfetti]);
 
   const handleLogoCopy = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -1418,10 +1425,24 @@ export function IconDetail({
                             width: springToggleActiveWidth,
                           }}
                         />
-                        <Toggle buttonRef={toggleBrandRef} active={!solidMode} onClick={() => setSolidMode(false)}>
+                        <Toggle
+                          buttonRef={toggleBrandRef}
+                          active={!solidMode}
+                          onClick={() => {
+                            playToggleOff();
+                            setSolidMode(false);
+                          }}
+                        >
                           Brand
                         </Toggle>
-                        <Toggle buttonRef={toggleSolidRef} active={solidMode} onClick={() => setSolidMode(true)}>
+                        <Toggle
+                          buttonRef={toggleSolidRef}
+                          active={solidMode}
+                          onClick={() => {
+                            playToggleOn();
+                            setSolidMode(true);
+                          }}
+                        >
                           Solid
                         </Toggle>
                       </div>
