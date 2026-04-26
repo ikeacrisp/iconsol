@@ -181,7 +181,7 @@ function HomeSearchBar({
       style={{
         height: 36,
         background: SEARCH_INPUT_BG,
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,0.12)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.18)",
         borderRadius: 24,
         padding: showShortcut ? "0 12px 0 12px" : "0 12px",
         backdropFilter: "blur(40px)",
