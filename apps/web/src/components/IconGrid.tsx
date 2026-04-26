@@ -18,7 +18,7 @@ import { DotField } from "@/components/DotField";
 import { MaskIcon } from "@/components/UiIcon";
 import { easingGradient } from "@/lib/easing-gradient";
 
-const SIDEBAR_BG = easingGradient("180deg", "#141619", "#0F1015");
+const SIDEBAR_BG = easingGradient("180deg", "#141619", "rgba(13,15,18,0.5)");
 import {
   getDocumentViewTransition,
   ICON_ART_TRANSITION_NAME,
@@ -729,6 +729,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
               borderRadius: 32,
               border: "2px solid rgba(255,255,255,0.05)",
               background: SIDEBAR_BG,
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
               paddingLeft: 12,
               paddingRight: 12,
             }}
