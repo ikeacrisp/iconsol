@@ -97,8 +97,6 @@ function CategoryIcon({
   category: IconCategory | "all";
   state: "active" | "hover" | "idle";
 }) {
-  const color = state === "active" ? "#7478ff" : "#ffffff";
-  const opacity = state === "active" ? 1 : state === "hover" ? 0.8 : UI_ICON_OPACITY;
   const pathLength = useMotionValue(1);
   const prevState = useRef(state);
 
@@ -121,26 +119,60 @@ function CategoryIcon({
   const spec = CATEGORY_ICON_PATHS[category];
   if (!spec) return null;
 
+  const showOverlay = state === "hover" || state === "active";
+  const overlayColor = state === "active" ? "#7478ff" : "#ffffff";
+  const overlayOpacity = state === "active" ? 1 : 0.8;
+  const overlayPathLength = state === "active" ? 1 : pathLength;
+
+  const baseSvgStyle = {
+    position: "absolute" as const,
+    inset: 0,
+    width: 16,
+    height: 16,
+    display: "block" as const,
+  };
+
   return (
-    <span aria-hidden="true" style={{ opacity, transition: "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)" }}>
-      <svg
-        viewBox={spec.viewBox}
-        fill="none"
-        style={{ display: "block", width: 16, height: 16, flexShrink: 0 }}
-      >
+    <span
+      aria-hidden="true"
+      style={{
+        position: "relative",
+        display: "inline-block",
+        width: 16,
+        height: 16,
+        flexShrink: 0,
+      }}
+    >
+      <svg viewBox={spec.viewBox} fill="none" style={baseSvgStyle}>
         {spec.paths.map((d, i) => (
-          <motion.path
+          <path
             key={i}
             d={d}
-            stroke={color}
+            stroke="#ffffff"
+            strokeOpacity={UI_ICON_OPACITY}
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            pathLength={1}
-            style={{ pathLength }}
           />
         ))}
       </svg>
+      {showOverlay ? (
+        <svg viewBox={spec.viewBox} fill="none" style={baseSvgStyle}>
+          {spec.paths.map((d, i) => (
+            <motion.path
+              key={i}
+              d={d}
+              stroke={overlayColor}
+              strokeOpacity={overlayOpacity}
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              pathLength={1}
+              style={{ pathLength: overlayPathLength }}
+            />
+          ))}
+        </svg>
+      ) : null}
     </span>
   );
 }
