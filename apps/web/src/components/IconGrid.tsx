@@ -13,6 +13,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
+import { hover, sync } from "@/lib/audio/core";
 import { swoosh } from "@/lib/audio/crisp";
 import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
@@ -355,6 +356,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const [solidMode, setSolidMode] = useState(false);
   const playToggleOn = useSound(toggleOn);
   const playToggleOff = useSound(toggleOff);
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
   const [isScrolling, setIsScrolling] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -804,8 +807,14 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                         categoryRefs.current[category.value] = node;
                       }}
                       type="button"
-                      onClick={() => setActiveCategory(category.value)}
-                      onPointerEnter={() => setHoveredCategory(category.value)}
+                      onClick={() => {
+                        if (activeCategory !== category.value) playSync();
+                        setActiveCategory(category.value);
+                      }}
+                      onPointerEnter={() => {
+                        if (hoveredCategory !== category.value) playHover();
+                        setHoveredCategory(category.value);
+                      }}
                       onPointerLeave={() => setHoveredCategory((prev) => (prev === category.value ? null : prev))}
                       onFocus={() => setHoveredCategory(category.value)}
                       onBlur={() => setHoveredCategory(null)}

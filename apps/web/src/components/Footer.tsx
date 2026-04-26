@@ -9,6 +9,7 @@ const SOLANA_URL = "https://solana.com";
 const JUICEBOX_URL = "https://juicebox.it";
 const MIT_LICENSE_URL = "https://opensource.org/license/mit";
 const PACKAGE_VERSION_LABEL = `v${iconsolPackage.version}`;
+const RELEASE_URL = `https://github.com/ikeacrisp/iconsol/releases/tag/${PACKAGE_VERSION_LABEL}`;
 
 function FooterBrandRow() {
   return (
@@ -93,7 +94,12 @@ function FooterMetaRow() {
       >
         MIT Licensed
       </a>
-      <div
+      <a
+        href={RELEASE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View ${PACKAGE_VERSION_LABEL} release on GitHub`}
+        className="pressable pressable-soft"
         style={{
           width: 52,
           height: 23,
@@ -102,6 +108,7 @@ function FooterMetaRow() {
           justifyContent: "center",
           borderRadius: 8,
           background: "rgba(255,255,255,0.05)",
+          textDecoration: "none",
         }}
       >
         <p
@@ -116,7 +123,7 @@ function FooterMetaRow() {
         >
           {PACKAGE_VERSION_LABEL}
         </p>
-      </div>
+      </a>
     </div>
   );
 }

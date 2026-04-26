@@ -160,14 +160,17 @@ function CopyBurstOverlay({
     canvas.height = Math.max(1, Math.floor(rect.height * dpr));
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const columns = Math.ceil(rect.width / 5) + 1;
-    const rows = Math.ceil(rect.height / 5) + 1;
+    const cellSize = 8;
+    const dotSize = 6;
+    const columns = Math.ceil(rect.width / cellSize) + 1;
+    const rows = Math.ceil(rect.height / cellSize) + 1;
     const startX = origin?.x ?? Math.max(0, rect.width - 26);
     const startY = origin?.y ?? 26;
     const maxRadius =
       Math.hypot(Math.max(startX, rect.width - startX), Math.max(startY, rect.height - startY)) +
       40;
-    const duration = prefersReducedMotion ? 320 : 780;
+    const duration = prefersReducedMotion ? 280 : 680;
+    const bandWidth = 130;
     const startedAt = performance.now();
     let frame = 0;
 
@@ -179,23 +182,28 @@ function CopyBurstOverlay({
       }
 
       const radius = elapsed * maxRadius;
-      const opacity = 1 - 0.4 * elapsed;
+      const expansion = radius / maxRadius;
+      const opacity = (1 - expansion) * (1 - expansion);
       context.clearRect(0, 0, rect.width, rect.height);
 
       for (let row = 0; row < rows; row += 1) {
         for (let column = 0; column < columns; column += 1) {
           const distance = Math.abs(
-            Math.hypot(5 * column + 2.5 - startX, 5 * row + 2.5 - startY) - radius
+            Math.hypot(
+              cellSize * column + cellSize / 2 - startX,
+              cellSize * row + cellSize / 2 - startY
+            ) - radius
           );
 
-          if (distance > 55) continue;
+          if (distance > bandWidth) continue;
 
-          const intensity = 1 - distance / 55;
-          if (burstNoise(column, row) > 0.92 * intensity) continue;
+          const ramp = 1 - distance / bandWidth;
+          const intensity = ramp * ramp;
+          if (burstNoise(column, row) > 0.78 * intensity) continue;
 
-          const alpha = 0.42 * intensity * opacity;
+          const alpha = 0.03 * intensity * opacity;
           context.fillStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
-          context.fillRect(5 * column, 5 * row, 4, 4);
+          context.fillRect(cellSize * column, cellSize * row, dotSize, dotSize);
         }
       }
 
@@ -222,6 +230,7 @@ function CopyBurstOverlay({
     />
   );
 }
+
 
 function toPascalCase(value: string) {
   return value
@@ -1165,9 +1174,9 @@ export function IconDetail({
 
   const handleCodeCopy = useCallback(async () => {
     playConfetti();
+    setCopyBurstTick((value) => value + 1);
     await navigator.clipboard.writeText(copyableCode);
     setCopiedCode(true);
-    setCopyBurstTick((value) => value + 1);
     window.setTimeout(() => setCopiedCode(false), 1800);
   }, [copyableCode, playConfetti]);
 

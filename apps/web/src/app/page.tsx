@@ -326,11 +326,17 @@ function MobileFooter() {
           >
             MIT Licensed
           </a>
-          <div
+          <a
+            href="https://github.com/ikeacrisp/iconsol/releases/tag/v0.1.0"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="View v0.1.0 release on GitHub"
+            className="pressable pressable-soft"
             style={{
               padding: "8px 12px",
               borderRadius: 8,
               background: "rgba(255,255,255,0.05)",
+              textDecoration: "none",
             }}
           >
             <p
@@ -345,7 +351,7 @@ function MobileFooter() {
             >
               v0.1.0
             </p>
-          </div>
+          </a>
         </div>
       </div>
     </footer>
