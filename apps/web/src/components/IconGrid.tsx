@@ -1327,6 +1327,7 @@ function IconCard({
 }) {
   const router = useRouter();
   const playSwoosh = useSound(swoosh, { volume: 0.35 });
+  const swooshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const href = solidMode ? `/icon/${icon.id}?mode=solid` : `/icon/${icon.id}`;
   const showNeutralBrandShell =
     !solidMode && !logoVariantHasIntrinsicSurface(icon.id, "brand");
@@ -1385,10 +1386,20 @@ function IconCard({
         flex: "0 0 160px",
       }}
       onMouseEnter={(event) => {
-        playSwoosh();
+        if (swooshTimerRef.current) clearTimeout(swooshTimerRef.current);
+        swooshTimerRef.current = setTimeout(() => {
+          playSwoosh();
+          swooshTimerRef.current = null;
+        }, 110);
         onActivate({ x: event.clientX, y: event.clientY });
       }}
-      onMouseLeave={onDeactivate}
+      onMouseLeave={() => {
+        if (swooshTimerRef.current) {
+          clearTimeout(swooshTimerRef.current);
+          swooshTimerRef.current = null;
+        }
+        onDeactivate();
+      }}
       onFocus={() => onActivate()}
       onBlur={onDeactivate}
       onClick={handleNavigate}
