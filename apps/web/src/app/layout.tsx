@@ -43,6 +43,18 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="dark">
+      <head>
+        {/* Preload Geist Pixel so it's ready before any text using it paints,
+            preventing a brief flash of the fallback font. Paired with
+            `font-display: block` in globals.css. */}
+        <link
+          rel="preload"
+          href="/GeistPixel-Square.otf"
+          as="font"
+          type="font/otf"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable}`}>
         <AudioProvider>{children}</AudioProvider>
         {showAgentation && <AgentationToolbar enabled />}

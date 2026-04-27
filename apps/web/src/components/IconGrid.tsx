@@ -1103,7 +1103,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                     >
                       <g>
                         <g>
-                          <g>
+                          <g className="empty-state-icon-bounce">
                             <rect
                               x="35.1921"
                               y="32.8522"
@@ -1138,6 +1138,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                             />
                           </g>
                           <path
+                            className="empty-state-sparkles"
+                            pathLength={1}
                             d="M146.244 9.22386L147.395 1.7006M157.579 19.4973L161.607 18.611M152.906 12.5646L160.936 2.93988"
                             stroke="#323436"
                             strokeWidth="3"
@@ -1145,6 +1147,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                           />
                         </g>
                         <path
+                          className="empty-state-squiggle"
                           d="M11.5066 148.106C-20.9894 119.495 36.2988 103.454 27.443 122.619C20.2291 138.23 -18.8231 90.0889 36.2988 90.0889"
                           stroke="white"
                           strokeOpacity="0.1"
@@ -1196,8 +1199,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                       <p
                         style={{
                           fontFamily: '"Geist Pixel", var(--font-geist-sans), sans-serif',
-                          fontSize: 24,
-                          lineHeight: "28px",
+                          fontSize: 18,
+                          lineHeight: "22px",
                           whiteSpace: "nowrap",
                           background:
                             "linear-gradient(to right, #ffffff, rgba(255,255,255,0.6))",
@@ -1210,8 +1213,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                       </p>
                       <p
                         style={{
-                          fontSize: 24,
-                          lineHeight: "30px",
+                          fontSize: 18,
+                          lineHeight: "22px",
                           fontWeight: 400,
                           color: "rgba(255,255,255,0.4)",
                           whiteSpace: "nowrap",

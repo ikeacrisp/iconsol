@@ -23,7 +23,10 @@
   src: url("/GeistPixel-Square.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  /* `block` keeps text invisible briefly until the font loads, instead of
+     swapping fonts mid-render. The font is preloaded in <head> so the
+     blocking period is effectively zero. */
+  font-display: block;
 }
 
 * {
@@ -488,6 +491,54 @@ input[type="text"]:focus-visible {
   *::before,
   *::after {
     corner-shape: superellipse(1.1);
+  }
+}
+
+/* Empty-state illustration loop — 4s, three independent layers
+   sharing the same period so the loop reads as one motion. */
+@keyframes empty-icon-bounce {
+  0%   { transform: rotate(0deg); }
+  9%   { transform: rotate(-7deg); }
+  18%  { transform: rotate(5deg); }
+  27%  { transform: rotate(-3deg); }
+  36%  { transform: rotate(2deg); }
+  45%  { transform: rotate(-1deg); }
+  52%  { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes empty-squiggle-march {
+  0%   { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: -24; }
+}
+
+@keyframes empty-sparkle-draw {
+  0%, 8%   { stroke-dashoffset: 1; opacity: 0; }
+  30%      { stroke-dashoffset: 0; opacity: 1; }
+  72%      { stroke-dashoffset: 0; opacity: 1; }
+  92%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.empty-state-icon-bounce {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: empty-icon-bounce 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.empty-state-squiggle {
+  animation: empty-squiggle-march 4s linear infinite;
+}
+
+.empty-state-sparkles {
+  stroke-dasharray: 1;
+  animation: empty-sparkle-draw 4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-state-icon-bounce,
+  .empty-state-squiggle,
+  .empty-state-sparkles {
+    animation: none;
   }
 }
 
