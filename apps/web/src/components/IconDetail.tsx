@@ -1355,12 +1355,15 @@ export function IconDetail({
       previewRotateX.set((0.5 - y) * 14);
       previewRotateY.set((x - 0.5) * 14);
 
-      // Drive the .preview-shine pseudo-element from the same cursor
-      // position the tilt is computed from, so the highlight reads as a
-      // light reflecting off the tilted surface.
+      // Drive the .preview-shine pseudo-element to the OPPOSITE corner
+      // from the cursor — when the card tilts toward the cursor, the
+      // far face is what catches the light, so the highlight should
+      // appear on the side opposite the pointer.
       const target = event.currentTarget;
-      target.style.setProperty("--shine-x", `${event.clientX - rect.left}px`);
-      target.style.setProperty("--shine-y", `${event.clientY - rect.top}px`);
+      const cursorX = event.clientX - rect.left;
+      const cursorY = event.clientY - rect.top;
+      target.style.setProperty("--shine-x", `${rect.width - cursorX}px`);
+      target.style.setProperty("--shine-y", `${rect.height - cursorY}px`);
       target.style.setProperty("--shine-opacity", "1");
     },
     [prefersReducedMotion, previewRotateX, previewRotateY]
