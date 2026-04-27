@@ -844,14 +844,17 @@ function ContributorAvatar({
   contributor,
   index,
   total,
+  isHovered,
+  onShow,
+  onHide,
 }: {
   contributor: Contributor;
   index: number;
   total: number;
+  isHovered: boolean;
+  onShow: (index: number) => void;
+  onHide: (index: number) => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const hideTimerRef = useRef<number | null>(null);
-
   const username = contributor.github;
   const displayName = contributor.name ?? username ?? "Contributor";
   const profileUrl = username ? `https://github.com/${username}` : undefined;
@@ -862,30 +865,8 @@ function ContributorAvatar({
   const baseZ = total - index;
   const hoverZ = total + 10;
 
-  useEffect(() => {
-    return () => {
-      if (hideTimerRef.current !== null) {
-        window.clearTimeout(hideTimerRef.current);
-      }
-    };
-  }, []);
-
-  const showTooltip = () => {
-    if (hideTimerRef.current !== null) {
-      window.clearTimeout(hideTimerRef.current);
-      hideTimerRef.current = null;
-    }
-    setHovered(true);
-  };
-  const scheduleHide = () => {
-    if (hideTimerRef.current !== null) {
-      window.clearTimeout(hideTimerRef.current);
-    }
-    hideTimerRef.current = window.setTimeout(() => {
-      setHovered(false);
-      hideTimerRef.current = null;
-    }, 120);
-  };
+  const handleEnter = () => onShow(index);
+  const handleLeave = () => onHide(index);
 
   const avatarSpan = (
     <span
@@ -899,7 +880,7 @@ function ContributorAvatar({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        transform: isHovered ? "translateY(-3px)" : "translateY(0)",
         transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
         willChange: "transform",
       }}
@@ -943,14 +924,14 @@ function ContributorAvatar({
 
   return (
     <div
-      onMouseEnter={showTooltip}
-      onMouseLeave={scheduleHide}
-      onFocus={showTooltip}
-      onBlur={scheduleHide}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
       style={{
         position: "relative",
         marginRight: isLast ? 0 : -6,
-        zIndex: hovered ? hoverZ : baseZ,
+        zIndex: isHovered ? hoverZ : baseZ,
         display: "inline-flex",
       }}
     >
@@ -967,14 +948,14 @@ function ContributorAvatar({
       ) : (
         avatarSpan
       )}
-      {hovered ? (
+      {isHovered ? (
         profileUrl ? (
           <a
             href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            onMouseEnter={showTooltip}
-            onMouseLeave={scheduleHide}
+            onMouseEnter={handleEnter}
+            onMouseLeave={handleLeave}
             style={tooltipBaseStyle}
           >
             {displayName}
@@ -987,6 +968,59 @@ function ContributorAvatar({
           </span>
         )
       ) : null}
+    </div>
+  );
+}
+
+/**
+ * Owns hover state for the row so only one tooltip can be visible at a
+ * time. Moving from one avatar straight to another flips the active
+ * index immediately (no overlap); the brief hide delay only applies when
+ * the cursor leaves the row entirely (covers the gap-to-tooltip jump).
+ */
+function ContributorRow({ contributors }: { contributors: Contributor[] }) {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const hideTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current !== null) {
+        window.clearTimeout(hideTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleShow = useCallback((index: number) => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    setHoveredIndex(index);
+  }, []);
+
+  const handleHide = useCallback((index: number) => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+    }
+    hideTimerRef.current = window.setTimeout(() => {
+      setHoveredIndex((prev) => (prev === index ? null : prev));
+      hideTimerRef.current = null;
+    }, 100);
+  }, []);
+
+  return (
+    <div className="flex items-center" style={{ paddingRight: 6 }}>
+      {contributors.map((contributor, index, all) => (
+        <ContributorAvatar
+          key={`${contributor.github ?? contributor.name ?? "anon"}-${index}`}
+          contributor={contributor}
+          index={index}
+          total={all.length}
+          isHovered={hoveredIndex === index}
+          onShow={handleShow}
+          onHide={handleHide}
+        />
+      ))}
     </div>
   );
 }
@@ -1916,18 +1950,9 @@ export function IconDetail({
                   >
                     Contributors:
                   </p>
-                  <div className="flex items-center" style={{ paddingRight: 6 }}>
-                    {(icon.contributors ?? DEFAULT_CONTRIBUTORS).map(
-                      (contributor, index, all) => (
-                        <ContributorAvatar
-                          key={`${contributor.github ?? contributor.name ?? "anon"}-${index}`}
-                          contributor={contributor}
-                          index={index}
-                          total={all.length}
-                        />
-                      )
-                    )}
-                  </div>
+                  <ContributorRow
+                    contributors={icon.contributors ?? DEFAULT_CONTRIBUTORS}
+                  />
                 </div>
               </div>
 

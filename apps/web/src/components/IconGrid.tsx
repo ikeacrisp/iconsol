@@ -393,6 +393,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const toggleSolidRef = useRef<HTMLButtonElement | null>(null);
   const gridContainerRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const sidebarRef = useRef<HTMLDivElement | null>(null);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const diagonalUnsubRef = useRef<(() => void) | null>(null);
@@ -427,6 +428,47 @@ export function IconGrid({ icons, categories }: IconGridProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Cursor-tracked sidebar shine. Updates the radial highlight position
+  // and intensity on mousemove (rAF-throttled), with intensity falling
+  // off as the cursor moves further than ~240px from the sidebar edge.
+  useEffect(() => {
+    const el = sidebarRef.current;
+    if (!el || typeof window === "undefined") return;
+
+    let raf = 0;
+    let lastX = 0;
+    let lastY = 0;
+
+    const apply = () => {
+      raf = 0;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const x = lastX - rect.left;
+      const y = lastY - rect.top;
+      const dx = Math.max(rect.left - lastX, lastX - rect.right, 0);
+      const dy = Math.max(rect.top - lastY, lastY - rect.bottom, 0);
+      const distance = Math.hypot(dx, dy);
+      const proximity = Math.max(0, 1 - distance / 240);
+      el.style.setProperty("--shine-x", `${x}px`);
+      el.style.setProperty("--shine-y", `${y}px`);
+      el.style.setProperty("--shine-opacity", String(proximity));
+    };
+
+    const onMove = (event: globalThis.MouseEvent) => {
+      lastX = event.clientX;
+      lastY = event.clientY;
+      if (raf) return;
+      raf = requestAnimationFrame(apply);
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -754,12 +796,13 @@ export function IconGrid({ icons, categories }: IconGridProps) {
             <DotField />
           </div>
           <div
-            className="flex h-full min-h-0 flex-col frost-dither"
+            ref={sidebarRef}
+            className="flex h-full min-h-0 flex-col frost-dither sidebar-shine"
             style={{
               position: "relative",
               height: `calc(100% - ${FOOTER_FADE_ZONE}px)`,
               borderRadius: 32,
-              border: "2px solid rgba(255,255,255,0.05)",
+              border: "1px solid #16181B",
               background: SIDEBAR_BG,
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",

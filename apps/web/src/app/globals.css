@@ -495,6 +495,45 @@ input[type="text"]:focus-visible {
   }
 }
 
+/* Sidebar border with a cursor-tracked radial shine. The base ring is a
+   1px #16181B inline border on the element; this pseudo-element lays a
+   masked radial gradient on top of just the border ring. JS updates
+   --shine-x / --shine-y / --shine-opacity from the cursor position so
+   the highlight glides along the border as the cursor approaches. */
+.sidebar-shine {
+  position: relative;
+}
+
+.sidebar-shine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    circle 360px at var(--shine-x, 50%) var(--shine-y, 50%),
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: var(--shine-opacity, 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  transition: opacity 320ms var(--ease-ui);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-shine::before {
+    transition: none;
+  }
+}
+
 /* Empty-state illustration loop — 4s, three independent layers
    sharing the same period so the loop reads as one motion. */
 @keyframes empty-icon-bounce {
