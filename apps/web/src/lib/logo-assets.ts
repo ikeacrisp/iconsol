@@ -72,6 +72,7 @@ export interface IconMetaOverride {
   ticker?: string;
   description?: string;
   relatedIds?: string[];
+  contributors?: import("./icon-data").Contributor[];
 }
 
 export interface LogoAssetLayer {

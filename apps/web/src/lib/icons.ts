@@ -5,7 +5,12 @@
 import "server-only";
 
 import manifest from "../../../../icons/manifest.json";
-import type { Icon, IconCategory } from "./icon-data";
+import {
+  DEFAULT_CONTRIBUTORS,
+  type Contributor,
+  type Icon,
+  type IconCategory,
+} from "./icon-data";
 import {
   BRAND_LOGO_ASSETS,
   LOGO_ORDER,
@@ -14,8 +19,8 @@ import {
   type LogoId,
 } from "./logo-assets";
 
-export type { Icon, IconCategory } from "./icon-data";
-export { CATEGORIES, CATEGORY_COLORS } from "./icon-data";
+export type { Contributor, Icon, IconCategory } from "./icon-data";
+export { CATEGORIES, CATEGORY_COLORS, DEFAULT_CONTRIBUTORS } from "./icon-data";
 
 type ManifestIcon = {
   id: string;
@@ -28,6 +33,7 @@ type ManifestIcon = {
   website?: string;
   description?: string;
   relatedIds?: string[];
+  contributors?: Contributor[];
 };
 
 const MANIFEST_BY_ID = new Map<string, ManifestIcon>(
@@ -63,6 +69,8 @@ function buildIcon(id: LogoId): Icon {
     website: override?.website ?? base?.website,
     description: override?.description ?? base?.description,
     relatedIds: override?.relatedIds ?? base?.relatedIds,
+    contributors:
+      override?.contributors ?? base?.contributors ?? DEFAULT_CONTRIBUTORS,
     src: BRAND_LOGO_ASSETS[id].layers[0]?.src ?? "",
     hasLocalFile: true,
     fileType: "svg",

@@ -30,7 +30,11 @@ import {
   ICON_ART_TRANSITION_NAME,
   ICON_FRAME_TRANSITION_NAME,
 } from "@/lib/icon-view-transition";
-import type { Icon } from "@/lib/icon-data";
+import {
+  DEFAULT_CONTRIBUTORS,
+  type Contributor,
+  type Icon,
+} from "@/lib/icon-data";
 import { easingGradient } from "@/lib/easing-gradient";
 
 const PANEL_FADE_BG = easingGradient(
@@ -44,10 +48,6 @@ const PREVIEW_FRAME_BG = easingGradient("180deg", "#17181B", "#101215");
 const EXTERNAL_LINK_ICON = "/ui/external-link.svg";
 const SVG_FILE_ICON = "/ui/download-svg.svg";
 const PNG_FILE_ICON = "/ui/download-png.svg";
-const CONTRIBUTOR_IMAGES = [
-  "/ui/contributor-1.png",
-  "/ui/contributor-2.png",
-] as const;
 const HOVER_SPRING = { stiffness: 400, damping: 35 };
 const RIGHT_COLUMN_WIDTH = 720;
 const LEFT_PANE_WIDTH = 756;
@@ -837,6 +837,157 @@ function PreviewGridSvg() {
         stroke="#1F2124"
       />
     </svg>
+  );
+}
+
+function ContributorAvatar({
+  contributor,
+  index,
+  total,
+}: {
+  contributor: Contributor;
+  index: number;
+  total: number;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const hideTimerRef = useRef<number | null>(null);
+
+  const username = contributor.github;
+  const displayName = contributor.name ?? username ?? "Contributor";
+  const profileUrl = username ? `https://github.com/${username}` : undefined;
+  const avatarSrc =
+    contributor.avatar ??
+    (username ? `https://github.com/${username}.png?size=80` : "");
+  const isLast = index === total - 1;
+  const baseZ = total - index;
+  const hoverZ = total + 10;
+
+  useEffect(() => {
+    return () => {
+      if (hideTimerRef.current !== null) {
+        window.clearTimeout(hideTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showTooltip = () => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+    setHovered(true);
+  };
+  const scheduleHide = () => {
+    if (hideTimerRef.current !== null) {
+      window.clearTimeout(hideTimerRef.current);
+    }
+    hideTimerRef.current = window.setTimeout(() => {
+      setHovered(false);
+      hideTimerRef.current = null;
+    }, 120);
+  };
+
+  const avatarSpan = (
+    <span
+      style={{
+        width: 20,
+        height: 20,
+        borderRadius: 999,
+        overflow: "hidden",
+        border: "2px solid #0d0f12",
+        background: "#4b4b4b",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        transition: "transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+        willChange: "transform",
+      }}
+    >
+      {avatarSrc ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={avatarSrc}
+          alt={displayName}
+          width={20}
+          height={20}
+          style={{
+            display: "block",
+            width: 20,
+            height: 20,
+            objectFit: "cover",
+          }}
+        />
+      ) : null}
+    </span>
+  );
+
+  const tooltipBaseStyle = {
+    position: "absolute" as const,
+    bottom: "calc(100% + 6px)",
+    left: "50%",
+    transform: "translateX(-50%)",
+    fontSize: 10,
+    lineHeight: "12px",
+    color: "rgba(255,255,255,0.85)",
+    background: "rgba(13,15,18,0.92)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 6,
+    padding: "3px 6px",
+    whiteSpace: "nowrap" as const,
+    textDecoration: "none",
+    fontFamily:
+      'var(--font-geist-sans), -apple-system, BlinkMacSystemFont, sans-serif',
+    boxShadow: "0 4px 12px rgba(0,0,0,0.32)",
+  };
+
+  return (
+    <div
+      onMouseEnter={showTooltip}
+      onMouseLeave={scheduleHide}
+      onFocus={showTooltip}
+      onBlur={scheduleHide}
+      style={{
+        position: "relative",
+        marginRight: isLast ? 0 : -6,
+        zIndex: hovered ? hoverZ : baseZ,
+        display: "inline-flex",
+      }}
+    >
+      {profileUrl ? (
+        <a
+          href={profileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Open ${displayName} on GitHub`}
+          style={{ display: "inline-flex", textDecoration: "none" }}
+        >
+          {avatarSpan}
+        </a>
+      ) : (
+        avatarSpan
+      )}
+      {hovered ? (
+        profileUrl ? (
+          <a
+            href={profileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onMouseEnter={showTooltip}
+            onMouseLeave={scheduleHide}
+            style={tooltipBaseStyle}
+          >
+            {displayName}
+          </a>
+        ) : (
+          <span
+            style={{ ...tooltipBaseStyle, pointerEvents: "none" }}
+          >
+            {displayName}
+          </span>
+        )
+      ) : null}
+    </div>
   );
 }
 
@@ -1766,39 +1917,16 @@ export function IconDetail({
                     Contributors:
                   </p>
                   <div className="flex items-center" style={{ paddingRight: 6 }}>
-                    {CONTRIBUTOR_IMAGES.map((src, index) => (
-                      <span
-                        key={src}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 999,
-                          overflow: "hidden",
-                          border: "2px solid #0d0f12",
-                          background: "#4b4b4b",
-                          marginRight: index === CONTRIBUTOR_IMAGES.length - 1 ? 0 : -6,
-                          position: "relative",
-                          zIndex: CONTRIBUTOR_IMAGES.length - index,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={src}
-                          alt={`Contributor ${index + 1}`}
-                          width={20}
-                          height={20}
-                          style={{
-                            display: "block",
-                            width: 20,
-                            height: 20,
-                            objectFit: "cover",
-                          }}
+                    {(icon.contributors ?? DEFAULT_CONTRIBUTORS).map(
+                      (contributor, index, all) => (
+                        <ContributorAvatar
+                          key={`${contributor.github ?? contributor.name ?? "anon"}-${index}`}
+                          contributor={contributor}
+                          index={index}
+                          total={all.length}
                         />
-                      </span>
-                    ))}
+                      )
+                    )}
                   </div>
                 </div>
               </div>
