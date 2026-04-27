@@ -624,17 +624,7 @@ export function Header({
   if (isDashboard) {
     return (
       <>
-        <MobileHeader onMenuOpen={() => setDropdownOpen(true)} className="mobile-only" />
-        {dropdownOpen ? (
-          <MobileMenu
-            onClose={() => setDropdownOpen(false)}
-            framework={framework}
-            setFramework={setFramework}
-            copied={copied}
-            onCopy={handleCopy}
-          />
-        ) : null}
-        <header className="desktop-only" style={{ width: "100%", padding: 24, flexShrink: 0 }}>
+        <header style={{ width: "100%", padding: 24, flexShrink: 0 }}>
           <div className="flex items-center justify-between" style={{ width: "100%", minHeight: 36 }}>
             <Link
               href="/"
@@ -656,7 +646,7 @@ export function Header({
                 <Link
                   href="/dashboard"
                   aria-label="Open dashboard"
-                  className="pressable pressable-soft flex items-center justify-center"
+                  className="desktop-only pressable pressable-soft flex items-center justify-center"
                   style={{
                     width: 32,
                     height: 32,
@@ -686,7 +676,7 @@ export function Header({
               </div>
 
               <div
-                className="flex items-center frost-dither"
+                className="desktop-only flex items-center frost-dither"
                 style={{
                   width: 176,
                   height: 32,

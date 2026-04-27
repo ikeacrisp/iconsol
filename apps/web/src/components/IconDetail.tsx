@@ -1748,7 +1748,7 @@ export function IconDetail({
                       <motion.button
                         type="button"
                         onClick={() => {
-                          playSync();
+                          playConfetti();
                           handleLogoCopy();
                         }}
                         onPointerEnter={() => {

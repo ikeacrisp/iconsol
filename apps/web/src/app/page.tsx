@@ -320,98 +320,6 @@ function HomeSearchBar({
   );
 }
 
-function MobileFooter() {
-  return (
-    <footer
-      style={{
-        width: "100%",
-        minHeight: 71,
-        padding: "24px 24px calc(24px + env(safe-area-inset-bottom, 0px))",
-        flexShrink: 0,
-        position: "relative",
-        zIndex: 1,
-      }}
-    >
-      <div
-        className="flex items-center justify-between"
-        style={{ width: "100%", minHeight: 23, gap: 12 }}
-      >
-        <p
-          style={{
-            fontSize: 12,
-            lineHeight: "normal",
-            color: "rgba(255,255,255,0.6)",
-            whiteSpace: "nowrap",
-          }}
-        >
-          built by{" "}
-          <a
-            href="https://x.com/juicebox_it"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pressable pressable-soft"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              verticalAlign: "middle",
-              opacity: 0.6,
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/ui/juicebox-logo.svg"
-              alt="Juicebox"
-              style={{ display: "block", height: 16, width: "auto" }}
-            />
-          </a>
-        </p>
-        <div className="flex items-center" style={{ gap: 10 }}>
-          <a
-            href="https://opensource.org/license/mit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pressable pressable-soft"
-            style={{
-              fontSize: 12,
-              lineHeight: "normal",
-              color: "rgba(255,255,255,0.6)",
-              whiteSpace: "nowrap",
-              textDecoration: "none",
-            }}
-          >
-            MIT Licensed
-          </a>
-          <a
-            href="https://github.com/ikeacrisp/iconsol/releases/tag/v0.1.0"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="View v0.1.0 release on GitHub"
-            className="pressable pressable-soft"
-            style={{
-              padding: "8px 12px",
-              borderRadius: 8,
-              background: "rgba(255,255,255,0.05)",
-              textDecoration: "none",
-            }}
-          >
-            <p
-              style={{
-                fontFamily:
-                  'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
-                fontSize: 12,
-                lineHeight: "16px",
-                color: "rgba(255,255,255,0.4)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              v0.1.0
-            </p>
-          </a>
-        </div>
-      </div>
-    </footer>
-  );
-}
 
 export default function Home() {
   const router = useRouter();
@@ -572,47 +480,7 @@ export default function Home() {
           <IconGlobe />
         </div>
 
-        <header
-          style={{
-            width: "100%",
-            padding: "24px 24px 0",
-            flexShrink: 0,
-            minHeight: 84,
-            position: "relative",
-            zIndex: 1,
-          }}
-        >
-          <div className="flex items-center justify-between" style={{ width: "100%", minHeight: 36 }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/iconsol-logo.svg"
-              alt="iconsol"
-              width={106.324}
-              height={23.898}
-              style={{ width: 106.324, height: 23.898 }}
-            />
-
-            <div className="flex items-center" style={{ gap: 14 }}>
-              <button
-                type="button"
-                onClick={() => router.push("/dashboard")}
-                className="pressable pressable-soft flex items-center justify-center"
-                style={{ width: 32, height: 32, borderRadius: 8, background: "transparent", opacity: 0.7 }}
-              >
-                <MaskIcon src="/ui/grid-dashboard.svg" size={16} color="#ffffff" opacity={1} />
-              </button>
-              <a
-                href="https://github.com/ikeacrisp/iconsol"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="pressable pressable-soft flex items-center justify-center"
-                style={{ width: 32, height: 32, borderRadius: 8, background: "transparent", opacity: 0.7 }}
-              >
-                <MaskIcon src="/ui/github.svg" size={16} color="#ffffff" opacity={1} />
-              </a>
-            </div>
-          </div>
-        </header>
+        <Header variant="home" />
 
         <div
           className="flex flex-col items-center"
@@ -683,7 +551,7 @@ export default function Home() {
           />
         </div>
 
-        <MobileFooter />
+        <Footer variant="home" />
       </div>
     </>
   );
