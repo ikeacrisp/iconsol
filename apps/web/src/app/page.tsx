@@ -458,7 +458,7 @@ export default function Home() {
                     <span
                       key={index}
                       className="surprise-letter"
-                      style={{ animationDelay: `${index * 0.06}s` }}
+                      style={{ animationDelay: `${index * 0.04}s` }}
                     >
                       {char === " " ? " " : char}
                     </span>

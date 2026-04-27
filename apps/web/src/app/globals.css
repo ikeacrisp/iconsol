@@ -544,7 +544,7 @@ input[type="text"]:focus-visible {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
   }
 }
 
@@ -576,7 +576,7 @@ input[type="text"]:focus-visible {
 }
 
 .surprise-button:hover .surprise-letter {
-  animation: surprise-wave 1.3s var(--ease-in-out-cubic);
+  animation: surprise-wave 0.6s var(--ease-in-out-cubic);
 }
 
 .surprise-button:hover .surprise-dice {
