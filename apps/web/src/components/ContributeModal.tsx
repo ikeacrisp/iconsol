@@ -32,6 +32,7 @@ const fieldLabel: React.CSSProperties = {
 const fieldInput: React.CSSProperties = {
   width: "100%",
   background: "rgba(255,255,255,0.03)",
+  backgroundClip: "padding-box",
   border: "1px solid rgba(255,255,255,0.05)",
   borderRadius: 10,
   padding: "10px 12px",
@@ -167,6 +168,7 @@ export function ContributeModal({ open, onClose }: ContributeModalProps) {
           display: "flex",
           flexDirection: "column",
           background: MODAL_FADE_BG,
+          backgroundClip: "padding-box",
           backdropFilter: "blur(40px)",
           WebkitBackdropFilter: "blur(40px)",
           border: "2px solid rgba(255,255,255,0.05)",
@@ -189,6 +191,7 @@ export function ContributeModal({ open, onClose }: ContributeModalProps) {
               height: 40,
               borderRadius: 12,
               background: "rgba(255,255,255,0.02)",
+              backgroundClip: "padding-box",
               border: "1.5px solid rgba(255,255,255,0.04)",
               padding: 4,
             }}
@@ -234,6 +237,7 @@ export function ContributeModal({ open, onClose }: ContributeModalProps) {
               height: 32,
               borderRadius: 8,
               background: "rgba(255,255,255,0.03)",
+              backgroundClip: "padding-box",
               border: "1px solid rgba(255,255,255,0.05)",
             }}
           >
@@ -466,6 +470,7 @@ export function ContributeModal({ open, onClose }: ContributeModalProps) {
                   height: 40,
                   borderRadius: 10,
                   background: "rgba(255,255,255,0.05)",
+                  backgroundClip: "padding-box",
                   border: "1px solid rgba(255,255,255,0.05)",
                   color: "#ffffff",
                   fontSize: 14,

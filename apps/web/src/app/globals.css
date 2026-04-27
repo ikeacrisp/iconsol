@@ -507,7 +507,10 @@ input[type="text"]:focus-visible {
 .sidebar-shine::before {
   content: "";
   position: absolute;
-  inset: 0;
+  /* Extend out to the border-box so the masked ring sits ON TOP of the
+     actual 1px border, not inside it (which would read as a second
+     parallel stroke). */
+  inset: -1px;
   pointer-events: none;
   border-radius: inherit;
   padding: 1px;
@@ -536,7 +539,9 @@ input[type="text"]:focus-visible {
 .preview-shine::before {
   content: "";
   position: absolute;
-  inset: 0;
+  /* See .sidebar-shine — overlays the existing 1px border instead of
+     drawing a second parallel ring inside it. */
+  inset: -1px;
   pointer-events: none;
   border-radius: inherit;
   padding: 1px;

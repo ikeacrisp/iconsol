@@ -912,6 +912,7 @@ function ContributorAvatar({
     lineHeight: "12px",
     color: "rgba(255,255,255,0.85)",
     background: "rgba(13,15,18,0.92)",
+    backgroundClip: "padding-box" as const,
     border: "1px solid rgba(255,255,255,0.08)",
     borderRadius: 6,
     padding: "3px 6px",
@@ -1674,6 +1675,7 @@ export function IconDetail({
                         borderRadius: PREVIEW_CARD_RADIUS,
                         border: "1px solid #1F2124",
                         background: PREVIEW_FRAME_BG,
+                        backgroundClip: "padding-box",
                         boxSizing: "border-box",
                         boxShadow: "0 0 0 2px #0d0f12",
                         rotateX: springPreviewRotateX,
@@ -2127,8 +2129,8 @@ export function IconDetail({
                   style={{
                     height: RELATED_ROW_HEIGHT,
                     borderRadius: 20,
-                    background:
-                      PANEL_FADE_BG,
+                    background: PANEL_FADE_BG,
+                    backgroundClip: "padding-box",
                     backdropFilter: "blur(2px)",
                     WebkitBackdropFilter: "blur(2px)",
                     border: "2px solid rgba(255,255,255,0.02)",
