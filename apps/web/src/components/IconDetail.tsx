@@ -43,12 +43,13 @@ const PANEL_FADE_BG = easingGradient(
   "rgba(255,255,255,0.01)",
 );
 
-// Tilt-responsive radial fill — the bright centre tracks the cursor.
-// The radius is much larger than the card so we only ever see a soft
-// slice of the falloff, which keeps the transition band-free. 14 eased
-// stops via easingGradientStops further smooth the inner curve.
+// Radial fill anchored ABOVE the card so the top of the surface always
+// reads as brightest and the bottom dims out. The centre nudges with
+// tilt for a subtle response, but never enters the visible area —
+// keeping the bright→dim direction stable. 14 eased stops + a 480px
+// radius give a band-free top-to-bottom falloff.
 const PREVIEW_FRAME_GRAD_STOPS = easingGradientStops("#17181B", "#101215");
-const PREVIEW_FRAME_BG = `radial-gradient(circle 560px at var(--preview-grad-x, 50%) var(--preview-grad-y, 0%), ${PREVIEW_FRAME_GRAD_STOPS})`;
+const PREVIEW_FRAME_BG = `radial-gradient(circle 480px at var(--preview-grad-x, 50%) var(--preview-grad-y, -50%), ${PREVIEW_FRAME_GRAD_STOPS})`;
 
 // Brand/Solid toggle shell: full page color at the top easing into a
 // 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
@@ -1383,12 +1384,15 @@ export function IconDetail({
       target.style.setProperty("--shine-y", `${rect.height - cursorY}px`);
       target.style.setProperty("--shine-opacity", "1");
 
-      // Tilt-responsive fill gradient: bright centre follows the cursor
-      // so the surface reads as catching a soft, near-side highlight.
-      // Pairs with the border shine (which sits opposite the cursor) to
-      // give a front+back reflection layered effect.
-      target.style.setProperty("--preview-grad-x", `${x * 100}%`);
-      target.style.setProperty("--preview-grad-y", `${y * 100}%`);
+      // Tilt-responsive radial centre: stays anchored above the card
+      // (so top stays brightest) but slides horizontally with the
+      // cursor and lifts/lowers in a small range for a subtle parallax.
+      // X: 20%..80% (cursor maps to 30%..70% across the card → 20..80)
+      // Y: -70%..-35% (always outside the top edge)
+      const shiftX = 50 + (x - 0.5) * 60; // 20..80
+      const shiftY = -50 + (y - 0.5) * 30; // -65..-35
+      target.style.setProperty("--preview-grad-x", `${shiftX}%`);
+      target.style.setProperty("--preview-grad-y", `${shiftY}%`);
     },
     [prefersReducedMotion, previewRotateX, previewRotateY]
   );
@@ -1399,7 +1403,7 @@ export function IconDetail({
       previewRotateY.set(0);
       event.currentTarget.style.setProperty("--shine-opacity", "0");
       event.currentTarget.style.setProperty("--preview-grad-x", "50%");
-      event.currentTarget.style.setProperty("--preview-grad-y", "0%");
+      event.currentTarget.style.setProperty("--preview-grad-y", "-50%");
     },
     [previewRotateX, previewRotateY]
   );
