@@ -16,6 +16,7 @@
 :root {
   --ease-ui: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-ui-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-cubic: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
 @font-face {
@@ -507,9 +508,14 @@ input[type="text"]:focus-visible {
   100% { transform: rotate(0deg); }
 }
 
-@keyframes empty-squiggle-march {
-  0%   { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -24; }
+/* Squiggle reveal: appear from the bottom (path start), hold, then erase
+   toward the top (path end). dasharray=1 with pathLength=1 means a single
+   full-length dash is offset in/out of view. */
+@keyframes empty-squiggle-reveal {
+  0%        { stroke-dashoffset: 1; }
+  22%       { stroke-dashoffset: 0; }
+  72%       { stroke-dashoffset: 0; }
+  94%, 100% { stroke-dashoffset: -1; }
 }
 
 @keyframes empty-sparkle-draw {
@@ -522,21 +528,23 @@ input[type="text"]:focus-visible {
 .empty-state-icon-bounce {
   transform-box: fill-box;
   transform-origin: center;
-  animation: empty-icon-bounce 4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  will-change: transform;
+  animation: empty-icon-bounce 4s var(--ease-in-out-cubic) infinite;
 }
 
-.empty-state-squiggle {
-  animation: empty-squiggle-march 4s linear infinite;
+.empty-state-squiggle-mask {
+  stroke-dasharray: 1;
+  animation: empty-squiggle-reveal 4s var(--ease-in-out-cubic) infinite;
 }
 
 .empty-state-sparkles {
   stroke-dasharray: 1;
-  animation: empty-sparkle-draw 4s ease-out infinite;
+  animation: empty-sparkle-draw 4s var(--ease-in-out-cubic) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .empty-state-icon-bounce,
-  .empty-state-squiggle,
+  .empty-state-squiggle-mask,
   .empty-state-sparkles {
     animation: none;
   }

@@ -1147,16 +1147,35 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                           />
                         </g>
                         <path
-                          className="empty-state-squiggle"
                           d="M11.5066 148.106C-20.9894 119.495 36.2988 103.454 27.443 122.619C20.2291 138.23 -18.8231 90.0889 36.2988 90.0889"
                           stroke="white"
                           strokeOpacity="0.1"
                           strokeWidth="3"
                           strokeLinejoin="round"
                           strokeDasharray="6 6"
+                          mask="url(#emptySquiggleMask)"
                         />
                       </g>
                       <defs>
+                        <mask
+                          id="emptySquiggleMask"
+                          maskUnits="userSpaceOnUse"
+                          x="-40"
+                          y="80"
+                          width="100"
+                          height="80"
+                        >
+                          <path
+                            className="empty-state-squiggle-mask"
+                            d="M11.5066 148.106C-20.9894 119.495 36.2988 103.454 27.443 122.619C20.2291 138.23 -18.8231 90.0889 36.2988 90.0889"
+                            stroke="white"
+                            strokeWidth="8"
+                            strokeLinejoin="round"
+                            strokeLinecap="round"
+                            fill="none"
+                            pathLength={1}
+                          />
+                        </mask>
                         <linearGradient
                           id="emptyGrad0"
                           x1="92.0418"
@@ -1622,6 +1641,7 @@ function MobileCategoryDrawer({
           background: "rgba(16,18,24,0.86)",
           border: "1px solid rgba(255,255,255,0.06)",
           animation: "modalIn 260ms cubic-bezier(0.16, 1, 0.3, 1)",
+          willChange: "transform",
         }}
       >
         <div

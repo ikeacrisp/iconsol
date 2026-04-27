@@ -430,6 +430,7 @@ function MobileMenu({
           padding: "20px 20px 24px",
           gap: 24,
           animation: "modalIn 260ms cubic-bezier(0.16, 1, 0.3, 1)",
+          willChange: "transform",
         }}
       >
         <div className="flex items-center justify-between">
@@ -966,6 +967,7 @@ export function Header({
                     animation: "dropdownIn 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                     transformOrigin: "top right",
                     zIndex: 20,
+                    willChange: "transform",
                   }}
                 >
                   {(Object.keys(FRAMEWORK_CONFIG) as Framework[]).map((option) => {

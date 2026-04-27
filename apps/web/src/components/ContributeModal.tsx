@@ -175,6 +175,7 @@ export function ContributeModal({ open, onClose }: ContributeModalProps) {
           animation: closing
             ? "modalOut 180ms var(--ease-ui) forwards"
             : "modalIn 240ms var(--ease-ui)",
+          willChange: "transform",
         }}
       >
         {/* Header: tabs + close */}
