@@ -2206,6 +2206,7 @@ export function IconDetail({
                         }}
                         onClick={(e) => {
                           if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+                          playSync();
                           const startVT = getDocumentViewTransition();
                           if (startVT) {
                             e.preventDefault();

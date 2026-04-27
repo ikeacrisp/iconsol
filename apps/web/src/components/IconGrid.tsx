@@ -168,6 +168,7 @@ function SuggestLogo() {
   const [contentHeight, setContentHeight] = useState(0);
   const playSlide = useSound(SUGGEST_SLIDE);
   const playPageExit = useSound(SUGGEST_PAGE_EXIT);
+  const playSync = useSound(sync);
 
   useLayoutEffect(() => {
     if (!contentRef.current) return;
@@ -314,6 +315,7 @@ function SuggestLogo() {
                 transition:
                   "background 180ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
               }}
+              onClick={() => playSync()}
               onMouseEnter={(event) => {
                 event.currentTarget.style.background = "rgba(255,255,255,0.05)";
                 event.currentTarget.style.color = "#ffffff";
@@ -1315,6 +1317,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                           textDecoration: "none",
                           boxSizing: "border-box",
                         }}
+                        onClick={() => playSync()}
                       >
                         contribute
                       </a>
@@ -1653,6 +1656,7 @@ function MobileCategoryDrawer({
 }) {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [suggestOpen, setSuggestOpen] = useState(false);
+  const playSync = useSound(sync);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -1836,6 +1840,7 @@ function MobileCategoryDrawer({
                 color: "rgba(255,255,255,0.7)",
                 textDecoration: "none",
               }}
+              onClick={() => playSync()}
             >
               contribute
             </a>

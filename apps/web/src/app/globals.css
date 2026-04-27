@@ -89,17 +89,6 @@ input::placeholder {
   transform: scale(0.985);
 }
 
-.surface-transition {
-  transition:
-    transform 0.18s var(--ease-ui),
-    opacity 0.18s var(--ease-ui),
-    background-color 0.18s var(--ease-ui),
-    border-color 0.18s var(--ease-ui),
-    box-shadow 0.18s var(--ease-ui),
-    color 0.18s var(--ease-ui),
-    filter 0.18s var(--ease-ui);
-}
-
 ::-webkit-scrollbar {
   display: none;
 }
@@ -112,35 +101,6 @@ input::placeholder {
 
 input[type="text"]:focus-visible {
   outline: none;
-}
-
-@keyframes glowBreathe {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-
-  50% {
-    opacity: 0.85;
-  }
-}
-
-.animate-glow-breathe {
-  animation: glowBreathe 4s ease-in-out infinite;
-}
-
-@keyframes glowSweep {
-  0% {
-    transform: translate(-28%);
-  }
-
-  100% {
-    transform: translate(34%);
-  }
-}
-
-.animate-glow-sweep {
-  animation: glowSweep 9s linear infinite;
 }
 
 @keyframes searchGlowLoop {
@@ -223,17 +183,6 @@ input[type="text"]:focus-visible {
   }
 }
 
-@keyframes cardPulse {
-  0%,
-  100% {
-    box-shadow: 0 0 transparent;
-  }
-
-  50% {
-    box-shadow: 0 0 0 3px rgba(153, 69, 255, 0.15);
-  }
-}
-
 @property --icon-border-angle {
   syntax: "<angle>";
   inherits: false;
@@ -248,47 +197,6 @@ input[type="text"]:focus-visible {
   100% {
     --icon-border-angle: 360deg;
   }
-}
-
-.icon-card-frame {
-  isolation: isolate;
-  position: relative;
-}
-
-.icon-card-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border-radius: 12px;
-  padding: 2px;
-  opacity: 0;
-  background: conic-gradient(
-    from var(--icon-border-angle),
-    #7478ff 0deg,
-    rgba(116, 120, 255, 0.74) 26deg,
-    rgba(116, 120, 255, 0.2) 98deg,
-    rgba(116, 120, 255, 0.2) 154deg,
-    #7478ff 180deg,
-    rgba(116, 120, 255, 0.74) 206deg,
-    rgba(116, 120, 255, 0.2) 278deg,
-    rgba(116, 120, 255, 0.2) 334deg,
-    #7478ff 360deg
-  );
-  transition: opacity 0.22s var(--ease-ui);
-  animation: iconBorderOrbit 7.6s linear infinite;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
-
-.icon-card-frame.is-active::before {
-  opacity: 1;
 }
 
 .dashboard-icon-card {
