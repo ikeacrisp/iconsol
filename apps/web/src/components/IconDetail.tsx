@@ -1665,7 +1665,7 @@ export function IconDetail({
                     </div>
 
                     <motion.div
-                      className="mobile-detail-preview relative flex items-center justify-center overflow-hidden frost-dither preview-shine"
+                      className="mobile-detail-preview relative flex items-center justify-center frost-dither preview-shine"
                       data-icon-frame=""
                       onMouseMove={handlePreviewMove}
                       onMouseLeave={handlePreviewLeave}
@@ -2040,13 +2040,13 @@ export function IconDetail({
                   <div
                     className="relative flex min-h-0 flex-1 flex-col frost-dither"
                     style={{
-                      background:
-                        PANEL_FADE_BG,
+                      background: PANEL_FADE_BG,
+                      backgroundClip: "padding-box",
                       backdropFilter: "blur(2px)",
                       WebkitBackdropFilter: "blur(2px)",
-                      borderWidth: "0 2px 2px 2px",
+                      borderWidth: "0 1px 1px 1px",
                       borderStyle: "solid",
-                      borderColor: "rgba(255,255,255,0.02)",
+                      borderColor: "#16181B",
                       borderRadius: 20,
                       overflow: "hidden",
                     }}
@@ -2133,7 +2133,7 @@ export function IconDetail({
                     backgroundClip: "padding-box",
                     backdropFilter: "blur(2px)",
                     WebkitBackdropFilter: "blur(2px)",
-                    border: "2px solid rgba(255,255,255,0.02)",
+                    border: "1px solid #16181B",
                     padding: "12px 12px 12px 24px",
                     flexShrink: 0,
                   }}
