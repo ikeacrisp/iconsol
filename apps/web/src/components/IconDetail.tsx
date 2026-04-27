@@ -840,6 +840,8 @@ function PreviewGridSvg() {
   );
 }
 
+const SPRING_TAP = { type: "spring", stiffness: 400, damping: 14 } as const;
+
 function Toggle({
   buttonRef,
   active,
@@ -852,11 +854,13 @@ function Toggle({
   children: ReactNode;
 }) {
   return (
-    <button
+    <motion.button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      className="pressable pressable-soft relative z-[1] flex items-center justify-center"
+      whileTap={{ scaleX: 0.9, scaleY: 0.95 }}
+      transition={SPRING_TAP}
+      className="relative z-[1] flex items-center justify-center"
       style={{
         width: 86,
         height: 30,
@@ -872,7 +876,7 @@ function Toggle({
       }}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
@@ -1533,10 +1537,12 @@ export function IconDetail({
                         gap: 12,
                       }}
                     >
-                      <button
+                      <motion.button
                         type="button"
                         onClick={handleLogoCopy}
-                        className="pressable pressable-soft flex items-center justify-center frost-dither"
+                        whileTap={{ scaleX: 0.92, scaleY: 0.96 }}
+                        transition={SPRING_TAP}
+                        className="flex items-center justify-center frost-dither"
                         style={{
                           width: 110,
                           flexShrink: 0,
@@ -1557,7 +1563,7 @@ export function IconDetail({
                         >
                           {copiedLogo ? "Copied" : "Copy Logo"}
                         </span>
-                      </button>
+                      </motion.button>
 
                       <div
                         className="flex items-center"
@@ -1804,14 +1810,16 @@ export function IconDetail({
                     const isActive = framework.id === activeFramework;
                     const tabSpec = FRAMEWORK_TAB_SPECS.find((item) => item.id === framework.id)!;
                     return (
-                      <button
+                      <motion.button
                         key={framework.id}
                         ref={(node) => {
                           frameworkButtonRefs.current[framework.id] = node;
                         }}
                         type="button"
                         onClick={() => setActiveFramework(framework.id)}
-                        className="pressable pressable-soft relative z-[1] flex items-center justify-center overflow-hidden"
+                        whileTap={{ scaleX: 0.92, scaleY: 0.95 }}
+                        transition={SPRING_TAP}
+                        className="relative z-[1] flex items-center justify-center overflow-hidden"
                         style={{
                           width: tabSpec.width,
                           height: 43,
@@ -1834,7 +1842,7 @@ export function IconDetail({
                           >
                             {framework.label}
                           </span>
-                      </button>
+                      </motion.button>
                       );
                   })}
                   <motion.div

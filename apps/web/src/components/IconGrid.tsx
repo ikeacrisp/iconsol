@@ -154,6 +154,9 @@ function SidebarSearchIcon() {
   return <MaskIcon src="/sidebar-bg/search.svg" size={16} color="#ffffff" opacity={0.4} />;
 }
 
+const SPRING = { type: "spring", stiffness: 300, damping: 12 } as const;
+const SPRING_TAP = { type: "spring", stiffness: 400, damping: 14 } as const;
+
 function SuggestLogo() {
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -183,7 +186,12 @@ function SuggestLogo() {
         zIndex: 10,
       }}
     >
-      <div
+      <motion.div
+        animate={{
+          scaleX: expanded ? 1 : 0.985,
+          scaleY: expanded ? 1 : 0.97,
+        }}
+        transition={SPRING}
         style={{
           background: "rgba(255,255,255,0.03)",
           borderRadius: 20,
@@ -191,7 +199,7 @@ function SuggestLogo() {
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          transition: "padding 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+          transformOrigin: "bottom center",
         }}
       >
         <div
@@ -306,7 +314,7 @@ function SuggestLogo() {
             </a>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -323,11 +331,13 @@ function BrandToggle({
   children: ReactNode;
 }) {
   return (
-    <button
+    <motion.button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      className="pressable pressable-soft flex items-center justify-center"
+      whileTap={{ scaleX: 0.9, scaleY: 0.95 }}
+      transition={SPRING_TAP}
+      className="flex items-center justify-center"
       style={{
         position: "relative",
         zIndex: 1,
@@ -345,7 +355,7 @@ function BrandToggle({
       }}
     >
       {children}
-    </button>
+    </motion.button>
   );
 }
 
