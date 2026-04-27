@@ -5,12 +5,67 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import { confetti } from "@/lib/audio/core";
+import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MaskIcon } from "@/components/UiIcon";
 import { ICON_COUNT } from "@/lib/icon-count";
+import { LOGO_ORDER } from "@/lib/logo-assets";
 import { easingGradient, easingGradientMulti } from "@/lib/easing-gradient";
+
+/**
+ * Pick a random logo id, but exclude the last `RECENT_LIMIT` picks so the
+ * same logo can't appear twice within that window. State persists across
+ * navigations via sessionStorage so /icon/{id} → back → "Surprise me"
+ * still respects the no-repeat rule.
+ */
+const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
+const SURPRISE_RECENT_LIMIT = 5;
+
+function pickSurpriseLogoId(): string {
+  let recent: string[] = [];
+  if (typeof window !== "undefined") {
+    try {
+      const raw = window.sessionStorage.getItem(SURPRISE_RECENT_KEY);
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          recent = parsed.filter((v): v is string => typeof v === "string");
+        }
+      }
+    } catch {
+      recent = [];
+    }
+  }
+
+  const eligible = LOGO_ORDER.filter((id) => !recent.includes(id));
+  const pool = eligible.length > 0 ? eligible : LOGO_ORDER;
+
+  // Prefer crypto for a uniform draw; fall back to Math.random.
+  let randomIndex = 0;
+  if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+    const buf = new Uint32Array(1);
+    window.crypto.getRandomValues(buf);
+    randomIndex = buf[0] % pool.length;
+  } else {
+    randomIndex = Math.floor(Math.random() * pool.length);
+  }
+  const picked = pool[randomIndex];
+
+  if (typeof window !== "undefined") {
+    const updated = [...recent.filter((id) => id !== picked), picked].slice(
+      -SURPRISE_RECENT_LIMIT,
+    );
+    try {
+      window.sessionStorage.setItem(SURPRISE_RECENT_KEY, JSON.stringify(updated));
+    } catch {
+      // sessionStorage may be blocked (private mode etc.) — silently ignore.
+    }
+  }
+
+  return picked;
+}
 
 const SEARCH_INPUT_BG = easingGradient(
   "180deg",
@@ -366,6 +421,12 @@ export default function Home() {
   const [mobileQuery, setMobileQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const playConfetti = useSound(confetti);
+  const playSurpriseHover = useSound(success, { volume: 0.35 });
+
+  const handleSurprise = useCallback(() => {
+    const id = pickSurpriseLogoId();
+    router.push(`/icon/${id}`);
+  }, [router]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -434,7 +495,8 @@ export default function Home() {
             <BlurFade delay={0.2} duration={0.5} yOffset={8}>
               <button
                 type="button"
-                onClick={() => router.push("/dashboard?surprise=1")}
+                onClick={handleSurprise}
+                onMouseEnter={() => playSurpriseHover()}
                 className="surprise-button pressable flex items-center"
                 style={{
                   gap: 6,
