@@ -536,3 +536,57 @@ input[type="text"]:focus-visible {
   }
 }
 
+/* "Surprise me" hover affordance — letters wave in sequence, dice does
+   two back-to-back 90° rotations. Each driven only on parent :hover. */
+@keyframes surprise-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes surprise-dice-spin {
+  0% {
+    transform: rotate(0deg);
+    animation-timing-function: var(--ease-in-out-cubic);
+  }
+  50% {
+    transform: rotate(90deg);
+    animation-timing-function: var(--ease-in-out-cubic);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+
+.surprise-letter {
+  display: inline-block;
+  will-change: transform;
+}
+
+.surprise-dice {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.surprise-button:hover .surprise-letter {
+  animation: surprise-wave 1.3s var(--ease-in-out-cubic);
+}
+
+.surprise-button:hover .surprise-dice {
+  animation: surprise-dice-spin 1s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .surprise-button:hover .surprise-letter,
+  .surprise-button:hover .surprise-dice {
+    animation: none;
+  }
+}
+

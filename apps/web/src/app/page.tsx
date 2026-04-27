@@ -183,7 +183,7 @@ function HomeSearchBar({
       style={{
         height: 36,
         background: SEARCH_INPUT_BG,
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.18)",
+        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.10)",
         borderRadius: 24,
         padding: showShortcut ? "0 12px 0 12px" : "0 12px",
         backdropFilter: "blur(40px)",
@@ -435,7 +435,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => router.push("/dashboard?surprise=1")}
-                className="pressable flex items-center"
+                className="surprise-button pressable flex items-center"
                 style={{
                   gap: 6,
                   marginTop: 24,
@@ -443,9 +443,26 @@ export default function Home() {
                     "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
-                <MaskIcon src="/ui/dice.svg" size={16} color="#ffffff" opacity={0.4} />
-                <span style={{ fontSize: 14, lineHeight: "normal", color: "rgba(255,255,255,0.6)" }}>
-                  Surprise me
+                <span className="surprise-dice" aria-hidden="true">
+                  <MaskIcon src="/ui/dice.svg" size={16} color="#ffffff" opacity={0.4} />
+                </span>
+                <span
+                  style={{
+                    fontSize: 14,
+                    lineHeight: "normal",
+                    color: "rgba(255,255,255,0.6)",
+                    display: "inline-flex",
+                  }}
+                >
+                  {Array.from("Surprise me").map((char, index) => (
+                    <span
+                      key={index}
+                      className="surprise-letter"
+                      style={{ animationDelay: `${index * 0.06}s` }}
+                    >
+                      {char === " " ? " " : char}
+                    </span>
+                  ))}
                 </span>
               </button>
             </BlurFade>
