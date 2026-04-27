@@ -7,7 +7,7 @@ const DASHBOARD_FOOTER_LOGO_HEIGHT =
   (3.67872 / 25.11525) * DASHBOARD_FOOTER_LOGO_WIDTH;
 const SOLANA_URL = "https://solana.com";
 const JUICEBOX_URL = "https://juicebox.it";
-const MIT_LICENSE_URL = "https://opensource.org/license/mit";
+const MIT_LICENSE_URL = "https://github.com/ikeacrisp/iconsol/blob/main/LICENSE";
 const PACKAGE_VERSION_LABEL = `v${iconsolPackage.version}`;
 const RELEASE_URL = `https://github.com/ikeacrisp/iconsol/releases/tag/${PACKAGE_VERSION_LABEL}`;
 

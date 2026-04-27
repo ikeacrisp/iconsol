@@ -158,12 +158,16 @@ function SidebarSearchIcon() {
 const SPRING = { type: "spring", stiffness: 300, damping: 12 } as const;
 const SPRING_TAP = { type: "spring", stiffness: 400, damping: 14 } as const;
 
+// Quieter variants for the SuggestLogo sheet — base patches are 0.1, halve.
+const SUGGEST_SLIDE = { ...slide, gain: 0.05 };
+const SUGGEST_PAGE_EXIT = { ...pageExit, gain: 0.05 };
+
 function SuggestLogo() {
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
-  const playSlide = useSound(slide);
-  const playPageExit = useSound(pageExit);
+  const playSlide = useSound(SUGGEST_SLIDE);
+  const playPageExit = useSound(SUGGEST_PAGE_EXIT);
 
   useLayoutEffect(() => {
     if (!contentRef.current) return;
