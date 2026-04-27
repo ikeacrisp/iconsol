@@ -1150,6 +1150,7 @@ export function IconDetail({
   const [copiedCode, setCopiedCode] = useState(false);
   const [copyBurstTick, setCopyBurstTick] = useState(0);
   const [copiedLogo, setCopiedLogo] = useState(false);
+  const [copyLogoHovered, setCopyLogoHovered] = useState(false);
   const [activeFramework, setActiveFramework] = useState<FrameworkId>("react");
   const [exactCodeByFramework, setExactCodeByFramework] = useState<CodeByFramework | null>(null);
   const toggleBrandRef = useRef<HTMLButtonElement | null>(null);
@@ -1750,7 +1751,13 @@ export function IconDetail({
                           playSync();
                           handleLogoCopy();
                         }}
-                        onPointerEnter={() => playHover()}
+                        onPointerEnter={() => {
+                          playHover();
+                          setCopyLogoHovered(true);
+                        }}
+                        onPointerLeave={() => setCopyLogoHovered(false)}
+                        onFocus={() => setCopyLogoHovered(true)}
+                        onBlur={() => setCopyLogoHovered(false)}
                         whileTap={{ scaleX: 0.92, scaleY: 0.96 }}
                         transition={SPRING_TAP}
                         className="flex items-center justify-center frost-dither"
@@ -1758,18 +1765,28 @@ export function IconDetail({
                           width: 110,
                           flexShrink: 0,
                           borderRadius: 50,
-                          background: "rgba(255,255,255,0.03)",
+                          background: copiedLogo
+                            ? "rgba(40,224,185,0.03)"
+                            : "rgba(255,255,255,0.03)",
                           backdropFilter: "blur(2px)",
                           WebkitBackdropFilter: "blur(2px)",
                           padding: 12,
+                          transition:
+                            "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                         }}
                       >
                         <span
                           style={{
                             fontSize: 14,
                             lineHeight: "19px",
-                            color: "rgba(255,255,255,0.6)",
+                            color: copiedLogo
+                              ? "rgba(40,224,185,0.6)"
+                              : copyLogoHovered
+                                ? "#ffffff"
+                                : "rgba(255,255,255,0.6)",
                             whiteSpace: "nowrap",
+                            transition:
+                              "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                           }}
                         >
                           {copiedLogo ? "Copied" : "Copy Logo"}
@@ -2007,7 +2024,6 @@ export function IconDetail({
                           playRadio();
                           setActiveFramework(framework.id);
                         }}
-                        onPointerEnter={() => playHover()}
                         whileTap={{ scaleX: 0.92, scaleY: 0.95 }}
                         transition={SPRING_TAP}
                         className="relative z-[1] flex items-center justify-center overflow-hidden"

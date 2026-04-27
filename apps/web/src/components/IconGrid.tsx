@@ -1425,6 +1425,7 @@ function IconCard({
 }) {
   const router = useRouter();
   const playSwoosh = useSound(swoosh, { volume: 0.35 });
+  const playSync = useSound(sync);
   const swooshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const href = solidMode ? `/icon/${icon.id}?mode=solid` : `/icon/${icon.id}`;
   const showNeutralBrandShell =
@@ -1441,6 +1442,8 @@ function IconCard({
     ) {
       return;
     }
+
+    playSync();
 
     if (!shouldUseIconViewTransition()) {
       return;

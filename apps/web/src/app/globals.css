@@ -547,7 +547,7 @@ input[type="text"]:focus-visible {
   padding: 1px;
   background: radial-gradient(
     circle 220px at var(--shine-x, 50%) var(--shine-y, 50%),
-    rgba(255, 255, 255, 0.10),
+    rgba(255, 255, 255, 0.07),
     rgba(255, 255, 255, 0) 70%
   );
   opacity: var(--shine-opacity, 0);
