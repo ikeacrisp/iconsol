@@ -16,6 +16,7 @@ import { useSound } from "@web-kits/audio/react";
 import { hover, sync } from "@/lib/audio/core";
 import { swoosh } from "@/lib/audio/crisp";
 import { toggleOff, toggleOn } from "@/lib/audio/minimal";
+import { pageExit, slide } from "@/lib/audio/playful";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
 import { BlurFade } from "@/components/BlurFade";
 import { DotField } from "@/components/DotField";
@@ -161,6 +162,8 @@ function SuggestLogo() {
   const [expanded, setExpanded] = useState(false);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [contentHeight, setContentHeight] = useState(0);
+  const playSlide = useSound(slide);
+  const playPageExit = useSound(pageExit);
 
   useLayoutEffect(() => {
     if (!contentRef.current) return;
@@ -177,7 +180,12 @@ function SuggestLogo() {
 
   return (
     <div
-      onMouseEnter={() => setExpanded(true)}
+      onMouseEnter={() => {
+        if (!expanded) {
+          playSlide();
+          setExpanded(true);
+        }
+      }}
       style={{
         position: "absolute",
         bottom: 12,
@@ -231,6 +239,7 @@ function SuggestLogo() {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
+              playPageExit();
               setExpanded(false);
             }}
             className="pressable pressable-soft"

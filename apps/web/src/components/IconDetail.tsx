@@ -15,7 +15,7 @@ import { useSound } from "@web-kits/audio/react";
 import { BlurFade } from "@/components/BlurFade";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
-import { confetti } from "@/lib/audio/core";
+import { confetti, progressTick } from "@/lib/audio/core";
 import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import {
   BRAND_LOGO_ASSETS,
@@ -959,6 +959,7 @@ export function IconDetail({
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const playProgressTick = useSound(progressTick);
   const [solidMode, setSolidMode] = useState(() => searchParams.get("mode") === "solid");
   const [copiedCode, setCopiedCode] = useState(false);
   const [copyBurstTick, setCopyBurstTick] = useState(0);
@@ -1017,6 +1018,7 @@ export function IconDetail({
   }, [icon, relatedIcons]);
 
   const handleBack = useCallback(() => {
+    playProgressTick();
     const navigateBack = () => {
       if (typeof window !== "undefined") {
         const hasSameOriginReferrer =
@@ -1038,7 +1040,7 @@ export function IconDetail({
     } else {
       navigateBack();
     }
-  }, [router]);
+  }, [router, playProgressTick]);
   const currentCode = exactCodeByFramework?.[activeFramework] ?? "// Loading exact code...";
   const codeLines = useMemo(() => toCodeLines(currentCode), [currentCode]);
 
