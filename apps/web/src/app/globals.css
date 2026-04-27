@@ -513,7 +513,7 @@ input[type="text"]:focus-visible {
   padding: 1px;
   background: radial-gradient(
     circle 360px at var(--shine-x, 50%) var(--shine-y, 50%),
-    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.10),
     rgba(255, 255, 255, 0) 70%
   );
   opacity: var(--shine-opacity, 0);
@@ -528,11 +528,12 @@ input[type="text"]:focus-visible {
   transition: opacity 320ms var(--ease-ui);
 }
 
-/* Same masked-border shine, sized for the icon preview card. The
-   --shine-x/--shine-y vars are written from the existing tilt handler
-   on mouse move so the highlight tracks the cursor (and therefore the
-   apparent tilt direction). */
-.preview-shine::after {
+/* Same masked-border shine, sized for the icon preview card. Uses
+   ::before because the preview also wears .frost-dither which owns
+   ::after. The --shine-x/--shine-y vars are written from the existing
+   tilt handler on mouse move so the highlight tracks the cursor (and
+   therefore the apparent tilt direction). */
+.preview-shine::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -541,7 +542,7 @@ input[type="text"]:focus-visible {
   padding: 1px;
   background: radial-gradient(
     circle 220px at var(--shine-x, 50%) var(--shine-y, 50%),
-    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0.10),
     rgba(255, 255, 255, 0) 70%
   );
   opacity: var(--shine-opacity, 0);
@@ -554,12 +555,15 @@ input[type="text"]:focus-visible {
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
   transition: opacity 320ms var(--ease-ui);
+  /* Nudge forward in the parent's preserve-3d context so it stays on
+     top of the icon art at the corners regardless of stacking quirks. */
+  transform: translateZ(0.1px);
   z-index: 3;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar-shine::before,
-  .preview-shine::after {
+  .preview-shine::before {
     transition: none;
   }
 }
