@@ -421,7 +421,13 @@ export default function Home() {
   const [mobileQuery, setMobileQuery] = useState("");
   const [copied, setCopied] = useState(false);
   const playConfetti = useSound(confetti);
-  const playSurpriseHover = useSound(success, { volume: 0.35 });
+  // Stretched ~1.5x with playbackRate 0.65 so the chord rings out a bit
+  // longer to match the hover wave, and dropped to volume 0.22 so it
+  // sits under the visual instead of competing with it.
+  const playSurpriseHover = useSound(success, {
+    volume: 0.22,
+    playbackRate: 0.65,
+  });
 
   const handleSurprise = useCallback(() => {
     const id = pickSurpriseLogoId();
