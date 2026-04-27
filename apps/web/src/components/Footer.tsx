@@ -14,7 +14,7 @@ const RELEASE_URL = `https://github.com/ikeacrisp/iconsol/releases/tag/${PACKAGE
 function FooterBrandRow() {
   return (
     <div
-      className="flex items-center"
+      className="footer-brand-row flex items-center"
       style={{ gap: 6, flexWrap: "wrap" }}
     >
       <p
@@ -145,7 +145,7 @@ export function Footer({
       }}
     >
       <div
-        className="flex items-center justify-between"
+        className="footer-row flex items-center justify-between"
         style={{ width: "100%", minHeight: 25, gap: 24, flexWrap: "wrap" }}
       >
         <FooterBrandRow />

@@ -342,6 +342,27 @@ export default function Home() {
     router.push(`/icon/${id}`);
   }, [router]);
 
+  // The home page is designed to fit the viewport on every breakpoint —
+  // lock <html>/<body> overflow while it's mounted so iOS rubber-band
+  // can't drag the page around when nothing should actually scroll.
+  // Restored on unmount so other routes scroll normally.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyOverscroll = body.style.overscrollBehavior;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+      body.style.overscrollBehavior = prevBodyOverscroll;
+    };
+  }, []);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {

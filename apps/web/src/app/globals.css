@@ -270,6 +270,19 @@ input[type="text"]:focus-visible {
   .desktop-only {
     display: none !important;
   }
+
+  /* Stack the brand row vertically (Twenty'26 / Built for…) and keep
+     the meta row pinned to the right edge — no wrapping to a 2nd line. */
+  .footer-row {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+  }
+  .footer-brand-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+  }
 }
 
 @media (min-width: 641px) {
