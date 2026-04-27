@@ -1354,14 +1354,26 @@ export function IconDetail({
 
       previewRotateX.set((0.5 - y) * 14);
       previewRotateY.set((x - 0.5) * 14);
+
+      // Drive the .preview-shine pseudo-element from the same cursor
+      // position the tilt is computed from, so the highlight reads as a
+      // light reflecting off the tilted surface.
+      const target = event.currentTarget;
+      target.style.setProperty("--shine-x", `${event.clientX - rect.left}px`);
+      target.style.setProperty("--shine-y", `${event.clientY - rect.top}px`);
+      target.style.setProperty("--shine-opacity", "1");
     },
     [prefersReducedMotion, previewRotateX, previewRotateY]
   );
 
-  const handlePreviewLeave = useCallback(() => {
-    previewRotateX.set(0);
-    previewRotateY.set(0);
-  }, [previewRotateX, previewRotateY]);
+  const handlePreviewLeave = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      previewRotateX.set(0);
+      previewRotateY.set(0);
+      event.currentTarget.style.setProperty("--shine-opacity", "0");
+    },
+    [previewRotateX, previewRotateY]
+  );
 
   const handleCodeCopy = useCallback(async () => {
     playConfetti();
@@ -1649,7 +1661,7 @@ export function IconDetail({
                     </div>
 
                     <motion.div
-                      className="mobile-detail-preview relative flex items-center justify-center overflow-hidden frost-dither"
+                      className="mobile-detail-preview relative flex items-center justify-center overflow-hidden frost-dither preview-shine"
                       data-icon-frame=""
                       onMouseMove={handlePreviewMove}
                       onMouseLeave={handlePreviewLeave}

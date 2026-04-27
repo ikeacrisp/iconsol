@@ -513,7 +513,7 @@ input[type="text"]:focus-visible {
   padding: 1px;
   background: radial-gradient(
     circle 360px at var(--shine-x, 50%) var(--shine-y, 50%),
-    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.13),
     rgba(255, 255, 255, 0) 70%
   );
   opacity: var(--shine-opacity, 0);
@@ -528,8 +528,38 @@ input[type="text"]:focus-visible {
   transition: opacity 320ms var(--ease-ui);
 }
 
+/* Same masked-border shine, sized for the icon preview card. The
+   --shine-x/--shine-y vars are written from the existing tilt handler
+   on mouse move so the highlight tracks the cursor (and therefore the
+   apparent tilt direction). */
+.preview-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    circle 220px at var(--shine-x, 50%) var(--shine-y, 50%),
+    rgba(255, 255, 255, 0.13),
+    rgba(255, 255, 255, 0) 70%
+  );
+  opacity: var(--shine-opacity, 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  transition: opacity 320ms var(--ease-ui);
+  z-index: 3;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sidebar-shine::before {
+  .sidebar-shine::before,
+  .preview-shine::after {
     transition: none;
   }
 }
