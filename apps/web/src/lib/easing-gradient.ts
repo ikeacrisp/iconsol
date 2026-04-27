@@ -96,6 +96,20 @@ export function easingGradient(
   easing: Easing = "easeInOut",
   steps = 13,
 ): string {
+  return `linear-gradient(${direction}, ${easingGradientStops(from, to, easing, steps)})`;
+}
+
+/**
+ * Returns just the comma-separated `<color> <pct>` stop list, without the
+ * wrapping `linear-gradient(...)`. Use when the gradient direction needs
+ * to come from a CSS custom property, e.g. for a tilt-driven gradient.
+ */
+export function easingGradientStops(
+  from: string,
+  to: string,
+  easing: Easing = "easeInOut",
+  steps = 13,
+): string {
   const c1 = parseColor(from);
   const c2 = parseColor(to);
   const ease = EASINGS[easing];
@@ -106,7 +120,7 @@ export function easingGradient(
     const c = lerpColor(c1, c2, t);
     stops.push(`${formatRGBA(c)} ${(x * 100).toFixed(2)}%`);
   }
-  return `linear-gradient(${direction}, ${stops.join(", ")})`;
+  return stops.join(", ");
 }
 
 // Multi-stop variant: eases between each consecutive pair of authored stops,

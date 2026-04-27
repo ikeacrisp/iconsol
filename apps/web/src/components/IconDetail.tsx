@@ -35,7 +35,7 @@ import {
   type Contributor,
   type Icon,
 } from "@/lib/icon-data";
-import { easingGradient } from "@/lib/easing-gradient";
+import { easingGradient, easingGradientStops } from "@/lib/easing-gradient";
 
 const PANEL_FADE_BG = easingGradient(
   "180deg",
@@ -43,7 +43,21 @@ const PANEL_FADE_BG = easingGradient(
   "rgba(255,255,255,0.01)",
 );
 
-const PREVIEW_FRAME_BG = easingGradient("180deg", "#17181B", "#101215");
+// Tilt-responsive radial fill — the bright centre tracks the cursor.
+// The radius is much larger than the card so we only ever see a soft
+// slice of the falloff, which keeps the transition band-free. 14 eased
+// stops via easingGradientStops further smooth the inner curve.
+const PREVIEW_FRAME_GRAD_STOPS = easingGradientStops("#17181B", "#101215");
+const PREVIEW_FRAME_BG = `radial-gradient(circle 560px at var(--preview-grad-x, 50%) var(--preview-grad-y, 0%), ${PREVIEW_FRAME_GRAD_STOPS})`;
+
+// Brand/Solid toggle shell: full page color at the top easing into a
+// 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
+const TOGGLE_SHELL_BG = easingGradient(
+  "180deg",
+  "#0D0F12",
+  "rgba(13,15,18,0.2)",
+);
+const TOGGLE_SHELL_BORDER = "1px solid #191B1E";
 
 const EXTERNAL_LINK_ICON = "/ui/external-link.svg";
 const SVG_FILE_ICON = "/ui/download-svg.svg";
@@ -1040,12 +1054,10 @@ function Toggle({
   children: ReactNode;
 }) {
   return (
-    <motion.button
+    <button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      whileTap={{ scaleX: 0.9, scaleY: 0.95 }}
-      transition={SPRING_TAP}
       className="relative z-[1] flex items-center justify-center"
       style={{
         width: 86,
@@ -1062,7 +1074,7 @@ function Toggle({
       }}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
 
@@ -1370,6 +1382,13 @@ export function IconDetail({
       target.style.setProperty("--shine-x", `${rect.width - cursorX}px`);
       target.style.setProperty("--shine-y", `${rect.height - cursorY}px`);
       target.style.setProperty("--shine-opacity", "1");
+
+      // Tilt-responsive fill gradient: bright centre follows the cursor
+      // so the surface reads as catching a soft, near-side highlight.
+      // Pairs with the border shine (which sits opposite the cursor) to
+      // give a front+back reflection layered effect.
+      target.style.setProperty("--preview-grad-x", `${x * 100}%`);
+      target.style.setProperty("--preview-grad-y", `${y * 100}%`);
     },
     [prefersReducedMotion, previewRotateX, previewRotateY]
   );
@@ -1379,6 +1398,8 @@ export function IconDetail({
       previewRotateX.set(0);
       previewRotateY.set(0);
       event.currentTarget.style.setProperty("--shine-opacity", "0");
+      event.currentTarget.style.setProperty("--preview-grad-x", "50%");
+      event.currentTarget.style.setProperty("--preview-grad-y", "0%");
     },
     [previewRotateX, previewRotateY]
   );
@@ -1626,7 +1647,9 @@ export function IconDetail({
                         style={{
                           width: TOGGLE_INNER_WIDTH,
                           borderRadius: 10,
-                          background: "rgba(255,255,255,0.02)",
+                          background: TOGGLE_SHELL_BG,
+                          backgroundClip: "padding-box",
+                          border: TOGGLE_SHELL_BORDER,
                           backdropFilter: "blur(2px)",
                           WebkitBackdropFilter: "blur(2px)",
                           padding: 2,
@@ -1681,7 +1704,7 @@ export function IconDetail({
                         background: PREVIEW_FRAME_BG,
                         backgroundClip: "padding-box",
                         boxSizing: "border-box",
-                        boxShadow: "0 0 0 2px #0d0f12",
+                        boxShadow: "0 0 0 3px #0d0f12",
                         rotateX: springPreviewRotateX,
                         rotateY: springPreviewRotateY,
                         transformPerspective: 1200,
@@ -2014,7 +2037,7 @@ export function IconDetail({
                     const isActive = framework.id === activeFramework;
                     const tabSpec = FRAMEWORK_TAB_SPECS.find((item) => item.id === framework.id)!;
                     return (
-                      <motion.button
+                      <button
                         key={framework.id}
                         ref={(node) => {
                           frameworkButtonRefs.current[framework.id] = node;
@@ -2024,8 +2047,6 @@ export function IconDetail({
                           playRadio();
                           setActiveFramework(framework.id);
                         }}
-                        whileTap={{ scaleX: 0.92, scaleY: 0.95 }}
-                        transition={SPRING_TAP}
                         className="relative z-[1] flex items-center justify-center overflow-hidden"
                         style={{
                           width: tabSpec.width,
@@ -2036,20 +2057,20 @@ export function IconDetail({
                           background: "transparent",
                           transition: "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                         }}
+                      >
+                        <span
+                          style={{
+                            fontSize: 14,
+                            lineHeight: "normal",
+                            color: isActive
+                              ? "#ffffff"
+                              : "rgba(255,255,255,0.5)",
+                            whiteSpace: "nowrap",
+                          }}
                         >
-                          <span
-                            style={{
-                              fontSize: 14,
-                              lineHeight: "normal",
-                              color: isActive
-                                ? "#ffffff"
-                                : "rgba(255,255,255,0.5)",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {framework.label}
-                          </span>
-                      </motion.button>
+                          {framework.label}
+                        </span>
+                      </button>
                       );
                   })}
                   <motion.div

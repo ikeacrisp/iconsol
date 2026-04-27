@@ -24,6 +24,14 @@ import { MaskIcon } from "@/components/UiIcon";
 import { easingGradient } from "@/lib/easing-gradient";
 
 const SIDEBAR_BG = easingGradient("180deg", "#141619", "rgba(13,15,18,0.5)");
+
+// Brand/Solid toggle shell — matches the icon detail page version.
+const TOGGLE_SHELL_BG = easingGradient(
+  "180deg",
+  "#0D0F12",
+  "rgba(13,15,18,0.2)",
+);
+const TOGGLE_SHELL_BORDER = "1px solid #191B1E";
 import {
   getDocumentViewTransition,
   ICON_ART_TRANSITION_NAME,
@@ -346,12 +354,10 @@ function BrandToggle({
   children: ReactNode;
 }) {
   return (
-    <motion.button
+    <button
       ref={buttonRef}
       type="button"
       onClick={onClick}
-      whileTap={{ scaleX: 0.9, scaleY: 0.95 }}
-      transition={SPRING_TAP}
       className="flex items-center justify-center"
       style={{
         position: "relative",
@@ -370,7 +376,7 @@ function BrandToggle({
       }}
     >
       {children}
-    </motion.button>
+    </button>
   );
 }
 
@@ -1062,7 +1068,9 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                   pointerEvents: "auto",
                   width: TOGGLE_INNER_WIDTH,
                   borderRadius: 10,
-                  background: "rgba(255,255,255,0.02)",
+                  background: TOGGLE_SHELL_BG,
+                  backgroundClip: "padding-box",
+                  border: TOGGLE_SHELL_BORDER,
                   backdropFilter: "blur(25px)",
                   WebkitBackdropFilter: "blur(25px)",
                   padding: 2,
