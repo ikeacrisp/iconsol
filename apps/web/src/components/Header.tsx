@@ -14,7 +14,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
 import { ICON_COUNT } from "@/lib/icon-count";
-import { confetti } from "@/lib/audio/core";
+import { confetti, hover, sync } from "@/lib/audio/core";
 
 type Framework = "react" | "react-native" | "swift" | "html" | "svg";
 
@@ -79,6 +79,8 @@ const GITHUB_REPO_URL = "https://github.com/ikeacrisp/iconsol";
 
 function GithubLink() {
   const [hovered, setHovered] = useState(false);
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
 
   return (
     <a
@@ -87,7 +89,11 @@ function GithubLink() {
       rel="noopener noreferrer"
       aria-label="iconsol on GitHub"
       className="pressable pressable-soft flex items-center justify-center"
-      onMouseEnter={() => setHovered(true)}
+      onClick={() => playSync()}
+      onMouseEnter={() => {
+        playHover();
+        setHovered(true);
+      }}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
       onBlur={() => setHovered(false)}
@@ -598,6 +604,8 @@ export function Header({
 
   const npmCommand = FRAMEWORK_CONFIG[framework].npmPrefix + FRAMEWORK_CONFIG[framework].npmPkg;
   const playConfetti = useSound(confetti);
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
 
   const handleCopy = useCallback(async () => {
     playConfetti();
@@ -658,7 +666,9 @@ export function Header({
                     transition:
                       "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
+                  onClick={() => playSync()}
                   onMouseEnter={(event) => {
+                    playHover();
                     event.currentTarget.style.opacity = "1";
                     event.currentTarget.style.background = "rgba(255,255,255,0.03)";
                   }}

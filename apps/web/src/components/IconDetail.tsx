@@ -15,7 +15,7 @@ import { useSound } from "@web-kits/audio/react";
 import { BlurFade } from "@/components/BlurFade";
 import { BrandLogo, SolidLogo } from "@/components/BrandLogo";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
-import { confetti, progressTick } from "@/lib/audio/core";
+import { confetti, hover, progressTick, radio, sync } from "@/lib/audio/core";
 import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import {
   BRAND_LOGO_ASSETS,
@@ -1344,6 +1344,9 @@ export function IconDetail({
   const playConfetti = useSound(confetti);
   const playToggleOn = useSound(toggleOn);
   const playToggleOff = useSound(toggleOff);
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
+  const playRadio = useSound(radio);
 
   const handlePreviewMove = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -1743,7 +1746,11 @@ export function IconDetail({
                     >
                       <motion.button
                         type="button"
-                        onClick={handleLogoCopy}
+                        onClick={() => {
+                          playSync();
+                          handleLogoCopy();
+                        }}
+                        onPointerEnter={() => playHover()}
                         whileTap={{ scaleX: 0.92, scaleY: 0.96 }}
                         transition={SPRING_TAP}
                         className="flex items-center justify-center frost-dither"
@@ -1792,8 +1799,12 @@ export function IconDetail({
                             transition:
                               "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                           }}
+                          onClick={() => {
+                            if (svgDownloadHref) playSync();
+                          }}
                           onMouseEnter={(event) => {
                             if (svgDownloadHref) {
+                              playHover();
                               event.currentTarget.style.opacity = "1";
                               event.currentTarget.style.background = "rgba(255,255,255,0.05)";
                             }
@@ -1810,7 +1821,10 @@ export function IconDetail({
 
                         <button
                           type="button"
-                          onClick={handlePngDownload}
+                          onClick={() => {
+                            playSync();
+                            handlePngDownload();
+                          }}
                           aria-label={`Download ${icon.name} PNG`}
                           className="pressable pressable-soft flex items-center justify-center"
                           style={{
@@ -1824,6 +1838,7 @@ export function IconDetail({
                               "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                           }}
                           onMouseEnter={(event) => {
+                            playHover();
                             event.currentTarget.style.opacity = "1";
                             event.currentTarget.style.background = "rgba(255,255,255,0.05)";
                           }}
@@ -1988,7 +2003,11 @@ export function IconDetail({
                           frameworkButtonRefs.current[framework.id] = node;
                         }}
                         type="button"
-                        onClick={() => setActiveFramework(framework.id)}
+                        onClick={() => {
+                          playRadio();
+                          setActiveFramework(framework.id);
+                        }}
+                        onPointerEnter={() => playHover()}
                         whileTap={{ scaleX: 0.92, scaleY: 0.95 }}
                         transition={SPRING_TAP}
                         className="relative z-[1] flex items-center justify-center overflow-hidden"
@@ -2081,7 +2100,10 @@ export function IconDetail({
 
                   <button
                     type="button"
-                    onClick={handleCodeCopy}
+                    onClick={() => {
+                      playSync();
+                      handleCodeCopy();
+                    }}
                     aria-label="Copy code"
                     className="pressable pressable-soft absolute"
                     style={{
@@ -2100,6 +2122,7 @@ export function IconDetail({
                         "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={(event) => {
+                      playHover();
                       event.currentTarget.style.opacity = "1";
                     }}
                     onMouseLeave={(event) => {
