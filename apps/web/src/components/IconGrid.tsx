@@ -847,6 +847,40 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                     caretColor: "rgba(255,255,255,0.6)",
                   }}
                 />
+                {searchQuery ? (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => {
+                      setSearchQuery("");
+                      searchInputRef.current?.focus();
+                    }}
+                    className="pressable pressable-soft flex items-center justify-center"
+                    style={{
+                      width: 16,
+                      height: 16,
+                      flexShrink: 0,
+                      background: "transparent",
+                      padding: 0,
+                      opacity: 0.4,
+                      transition:
+                        "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                    onMouseEnter={(event) => {
+                      event.currentTarget.style.opacity = "1";
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.opacity = "0.4";
+                    }}
+                  >
+                    <MaskIcon
+                      src="/ui/cancel.svg"
+                      size={16}
+                      color="#ffffff"
+                      opacity={1}
+                    />
+                  </button>
+                ) : null}
               </div>
 
               <div
@@ -1312,20 +1346,44 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                         style={{
                           width: 128,
                           height: 34,
-                          background: "rgba(255,255,255,0.05)",
+                          background: "rgba(255,255,255,0.03)",
                           padding: 12,
                           borderRadius: 8,
                           fontSize: 14,
                           fontWeight: 500,
                           lineHeight: "normal",
-                          color: "#ffffff",
+                          color: "rgba(255,255,255,0.4)",
                           whiteSpace: "nowrap",
                           border: "none",
                           cursor: "pointer",
                           textDecoration: "none",
                           boxSizing: "border-box",
+                          transition:
+                            "background 180ms cubic-bezier(0.16, 1, 0.3, 1), color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                         }}
                         onClick={() => playSync()}
+                        onMouseEnter={(event) => {
+                          event.currentTarget.style.background =
+                            "rgba(255,255,255,0.05)";
+                          event.currentTarget.style.color = "#ffffff";
+                        }}
+                        onMouseLeave={(event) => {
+                          event.currentTarget.style.background =
+                            "rgba(255,255,255,0.03)";
+                          event.currentTarget.style.color =
+                            "rgba(255,255,255,0.4)";
+                        }}
+                        onFocus={(event) => {
+                          event.currentTarget.style.background =
+                            "rgba(255,255,255,0.05)";
+                          event.currentTarget.style.color = "#ffffff";
+                        }}
+                        onBlur={(event) => {
+                          event.currentTarget.style.background =
+                            "rgba(255,255,255,0.03)";
+                          event.currentTarget.style.color =
+                            "rgba(255,255,255,0.4)";
+                        }}
                       >
                         contribute
                       </a>
