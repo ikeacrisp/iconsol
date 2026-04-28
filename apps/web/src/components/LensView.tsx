@@ -15,17 +15,34 @@ import { SolidLogo } from "@/components/BrandLogo";
 import { MaskIcon } from "@/components/UiIcon";
 import { hover, slideDown, sync } from "@/lib/audio/core";
 
-// Pointy-top hex grid geometry. Cell radius = distance from centre to
-// corner. Spacing chosen so the icon at scale 1 sits comfortably inside
-// the cell with breathing room.
+// -------------------------------------------------------------------
+// Lens model
+//
+// The "focused" icon is always drawn at viewport centre. The user pans
+// an *infinite* hex grid under the lens with the cursor or arrow keys;
+// only cells within MAX_RING of the lens centre are rendered, and they
+// scale + dim with their ring distance to suggest a magnifying lens.
+//
+// Infinity is achieved by wrapping the (q, r) axial coordinate space
+// around a small period and mapping each grid cell to an icon index
+// deterministically. Within the visible disk (radius MAX_RING) the
+// wrap period is large enough that no icon repeats, but if the user
+// pans far enough the same icons reappear — this is what makes the
+// grid feel endless.
+// -------------------------------------------------------------------
+
 const HEX_RADIUS = 56;
 const SPACING_X = Math.sqrt(3) * HEX_RADIUS;
 const SPACING_Y = 1.5 * HEX_RADIUS;
 const ICON_SIZE = 64;
-const MAX_RING = 4; // 1 + 3*4*5 = 61 cells, matches LOGO_ORDER count
+const MAX_RING = 4;
 
-// Visual decay per ring index. Centre cell is full size + opacity, each
-// further ring shrinks and dims to suggest a lens.
+// Wrap period in each axial direction. With WRAP = 9 and MAX_RING = 4,
+// the visible disk never contains two cells whose axial coordinates
+// are 9 apart, so no icon repeats within a single lens view.
+const WRAP_Q = 9;
+const WRAP_R = 9;
+
 const RING_DECAY: Array<{ scale: number; opacity: number }> = [
   { scale: 1.0, opacity: 1.0 },
   { scale: 0.85, opacity: 0.78 },
@@ -38,33 +55,64 @@ function ringIndex(q: number, r: number): number {
   return (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
 }
 
-interface Cell {
-  q: number;
-  r: number;
-  ring: number;
-  px: number;
-  py: number;
-  angle: number;
+// Stable mapping from a global axial coord to an icon index in
+// [0, total). Uses small primes on the wrapped coords so neighbouring
+// cells get different icons but the mapping repeats every WRAP_Q × WRAP_R
+// — that periodicity is invisible inside the lens because no two
+// visible cells are 9 axial units apart.
+function iconIndexAt(q: number, r: number, total: number): number {
+  const qw = ((q % WRAP_Q) + WRAP_Q) % WRAP_Q;
+  const rw = ((r % WRAP_R) + WRAP_R) % WRAP_R;
+  return (qw * 7 + rw * 13) % total;
 }
 
-function generateCells(maxRing: number): Cell[] {
-  const cells: Cell[] = [];
-  for (let q = -maxRing; q <= maxRing; q++) {
-    const rMin = Math.max(-maxRing, -q - maxRing);
-    const rMax = Math.min(maxRing, -q + maxRing);
-    for (let r = rMin; r <= rMax; r++) {
-      const ring = ringIndex(q, r);
-      const px = SPACING_X * (q + r / 2);
-      const py = SPACING_Y * r;
-      const angle = Math.atan2(py, px);
-      cells.push({ q, r, ring, px, py, angle });
+// Pixel → axial (pointy-top hex) with cube rounding for stability.
+function pixelToAxial(px: number, py: number): { q: number; r: number } {
+  const q = (Math.sqrt(3) / 3) * (px / HEX_RADIUS) - (1 / 3) * (py / HEX_RADIUS);
+  const r = (2 / 3) * (py / HEX_RADIUS);
+  return cubeRound(q, r);
+}
+
+function cubeRound(qf: number, rf: number): { q: number; r: number } {
+  const x = qf;
+  const z = rf;
+  const y = -x - z;
+  let rx = Math.round(x);
+  let ry = Math.round(y);
+  let rz = Math.round(z);
+  const dx = Math.abs(rx - x);
+  const dy = Math.abs(ry - y);
+  const dz = Math.abs(rz - z);
+  if (dx > dy && dx > dz) rx = -ry - rz;
+  else if (dy > dz) ry = -rx - rz;
+  else rz = -rx - ry;
+  return { q: rx, r: rz };
+}
+
+interface VisibleCell {
+  q: number;
+  r: number;
+  dq: number;
+  dr: number;
+  ring: number;
+}
+
+function visibleCellsAt(focusQ: number, focusR: number): VisibleCell[] {
+  const cells: VisibleCell[] = [];
+  for (let dq = -MAX_RING; dq <= MAX_RING; dq++) {
+    const drMin = Math.max(-MAX_RING, -dq - MAX_RING);
+    const drMax = Math.min(MAX_RING, -dq + MAX_RING);
+    for (let dr = drMin; dr <= drMax; dr++) {
+      cells.push({
+        q: focusQ + dq,
+        r: focusR + dr,
+        dq,
+        dr,
+        ring: ringIndex(dq, dr),
+      });
     }
   }
-  // Sort by ring, then by polar angle so icons spiral outward from centre
-  // in a stable order — useful when assigning LOGO_ORDER indices to cells.
-  return cells.sort(
-    (a, b) => a.ring - b.ring || a.angle - b.angle,
-  );
+  return cells;
 }
 
 export function LensView({ icons }: { icons: Icon[] }) {
@@ -73,90 +121,72 @@ export function LensView({ icons }: { icons: Icon[] }) {
   const playSync = useSound(sync);
   const playSlideDown = useSound(slideDown);
 
-  const cells = useMemo(() => generateCells(MAX_RING), []);
-  const cellCount = Math.min(cells.length, icons.length);
-
-  const [focusIdx, setFocusIdx] = useState(0);
+  // Focus is the (q, r) coordinate of the cell currently magnified at
+  // viewport centre. Both arrow keys and cursor proximity drive it.
+  const [focus, setFocus] = useState({ q: 0, r: 0 });
   const [searchQuery, setSearchQuery] = useState("");
   const [isPointerActive, setIsPointerActive] = useState(false);
 
-  const focusCell = cells[focusIdx];
-
-  // Layout offset = -focusedCell.pixelPos so the focused cell renders at
-  // viewport centre. Spring-driven for smooth shifts on focus changes.
-  const offsetX = useMotionValue(focusCell ? -focusCell.px : 0);
-  const offsetY = useMotionValue(focusCell ? -focusCell.py : 0);
+  // Layout offset = -focused-cell pixel position so the focused cell
+  // always renders at viewport centre. Spring-driven for smooth pan.
+  const offsetX = useMotionValue(0);
+  const offsetY = useMotionValue(0);
   const springX = useSpring(offsetX, { stiffness: 220, damping: 26 });
   const springY = useSpring(offsetY, { stiffness: 220, damping: 26 });
 
   useEffect(() => {
-    const cell = cells[focusIdx];
-    if (!cell) return;
-    offsetX.set(-cell.px);
-    offsetY.set(-cell.py);
-  }, [focusIdx, cells, offsetX, offsetY]);
+    offsetX.set(-SPACING_X * (focus.q + focus.r / 2));
+    offsetY.set(-SPACING_Y * focus.r);
+  }, [focus, offsetX, offsetY]);
 
-  // Resolve the cell at a given axial coordinate (for arrow-key nav).
-  const findCellIdx = useCallback(
-    (q: number, r: number): number => {
-      for (let i = 0; i < cellCount; i++) {
-        const c = cells[i];
-        if (c.q === q && c.r === r) return i;
-      }
-      return -1;
-    },
-    [cells, cellCount],
+  const focusedIcon = useMemo(
+    () => icons[iconIndexAt(focus.q, focus.r, icons.length)],
+    [icons, focus],
   );
 
-  // Arrow keys map to four of the six hex neighbour directions. Diagonal
-  // pairs are picked so arrows feel "up/down/left/right" enough.
+  const visible = useMemo(
+    () => visibleCellsAt(focus.q, focus.r),
+    [focus],
+  );
+
+  // ----- Arrow-key navigation -----
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept when search input is focused — user types there.
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) {
         return;
       }
-      const cur = cells[focusIdx];
-      if (!cur) return;
       let dq = 0;
       let dr = 0;
       switch (e.key) {
         case "ArrowLeft":
           dq = -1;
-          dr = 0;
           break;
         case "ArrowRight":
           dq = 1;
-          dr = 0;
           break;
         case "ArrowUp":
-          // NW in axial terms (pointy-top)
-          dq = 0;
           dr = -1;
           break;
         case "ArrowDown":
-          dq = 0;
           dr = 1;
           break;
         default:
           return;
       }
       e.preventDefault();
-      const nextIdx = findCellIdx(cur.q + dq, cur.r + dr);
-      if (nextIdx >= 0) {
-        playHover();
-        setFocusIdx(nextIdx);
-      }
+      playHover();
+      setFocus((prev) => ({ q: prev.q + dq, r: prev.r + dr }));
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [focusIdx, cells, findCellIdx, playHover]);
+  }, [playHover]);
 
-  // Cursor-driven focus: as the cursor moves over the lens area, find
-  // the cell closest to the cursor (in layout coordinates, accounting
-  // for the current focus offset) and shift focus to it. The spring
-  // smooths the resulting layout shift.
+  // ----- Cursor-driven focus -----
+  // Cursor position in viewport → cursor position in "world" (the
+  // infinite hex grid) by adding the current focus offset. The nearest
+  // hex (via cube rounding) becomes the new focus. Re-rendering shifts
+  // the layout via the spring so the new focus settles at centre.
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rafRef = useRef<number | null>(null);
   const pendingPointer = useRef<{ x: number; y: number } | null>(null);
@@ -164,10 +194,7 @@ export function LensView({ icons }: { icons: Icon[] }) {
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (event.pointerType !== "mouse") return;
-      pendingPointer.current = {
-        x: event.clientX,
-        y: event.clientY,
-      };
+      pendingPointer.current = { x: event.clientX, y: event.clientY };
       if (rafRef.current !== null) return;
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
@@ -177,30 +204,18 @@ export function LensView({ icons }: { icons: Icon[] }) {
         const rect = el.getBoundingClientRect();
         const cx = ptr.x - rect.left - rect.width / 2;
         const cy = ptr.y - rect.top - rect.height / 2;
-        const cur = cells[focusIdx];
-        if (!cur) return;
-        // Cursor in layout coordinates
-        const lx = cx + cur.px;
-        const ly = cy + cur.py;
-        let best = focusIdx;
-        let bestDist = Infinity;
-        for (let i = 0; i < cellCount; i++) {
-          const c = cells[i];
-          const dx = c.px - lx;
-          const dy = c.py - ly;
-          const d = dx * dx + dy * dy;
-          if (d < bestDist) {
-            bestDist = d;
-            best = i;
-          }
-        }
-        if (best !== focusIdx) {
+        // Map cursor (viewport-centred) to world coords by un-applying
+        // the focus offset that the layout currently has.
+        const worldX = cx + SPACING_X * (focus.q + focus.r / 2);
+        const worldY = cy + SPACING_Y * focus.r;
+        const next = pixelToAxial(worldX, worldY);
+        if (next.q !== focus.q || next.r !== focus.r) {
           playHover();
-          setFocusIdx(best);
+          setFocus(next);
         }
       });
     },
-    [cells, cellCount, focusIdx, playHover],
+    [focus, playHover],
   );
 
   useEffect(() => {
@@ -209,59 +224,77 @@ export function LensView({ icons }: { icons: Icon[] }) {
     };
   }, []);
 
-  // Search: matches name / id / ticker / aliases. Enter navigates to the
-  // best match. Typing also moves focus to the first match so the user
-  // sees the lens shifting toward what they're typing.
-  const filteredMatches = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return [] as Icon[];
-    const matches: Array<{ icon: Icon; idx: number; rank: number }> = [];
-    for (let i = 0; i < cellCount; i++) {
-      const icon = icons[i];
-      if (!icon) continue;
-      const name = icon.name.toLowerCase();
-      const id = icon.id.toLowerCase();
-      const ticker = icon.ticker?.toLowerCase() ?? "";
-      let rank = -1;
-      if (id === q || ticker === q || name === q) rank = 0;
-      else if (id.startsWith(q) || ticker.startsWith(q) || name.startsWith(q)) rank = 1;
-      else if (
-        id.includes(q) ||
-        name.includes(q) ||
-        ticker.includes(q) ||
-        icon.aliases.some((a) => a.toLowerCase().includes(q))
-      )
-        rank = 2;
-      if (rank >= 0) matches.push({ icon, idx: i, rank });
-    }
-    matches.sort((a, b) => a.rank - b.rank);
-    return matches.map((m) => ({ icon: m.icon, idx: m.idx }));
-  }, [icons, searchQuery, cellCount]) as Array<{ icon: Icon; idx: number }>;
+  // ----- Search -----
+  // Match against name / id / ticker / aliases. Typing live-shifts focus
+  // to the best match's cell (in the same wrapped-tile coordinate the
+  // grid uses, so the lens lands on the icon). Enter opens it.
+  const matchByQuery = useCallback(
+    (q: string): { icon: Icon; q: number; r: number } | null => {
+      if (!q) return null;
+      const lower = q.toLowerCase();
+      let best: { icon: Icon; rank: number; idx: number } | null = null;
+      for (let i = 0; i < icons.length; i++) {
+        const icon = icons[i];
+        const name = icon.name.toLowerCase();
+        const id = icon.id.toLowerCase();
+        const ticker = icon.ticker?.toLowerCase() ?? "";
+        let rank = -1;
+        if (id === lower || ticker === lower || name === lower) rank = 0;
+        else if (id.startsWith(lower) || ticker.startsWith(lower) || name.startsWith(lower))
+          rank = 1;
+        else if (
+          id.includes(lower) ||
+          name.includes(lower) ||
+          ticker.includes(lower) ||
+          icon.aliases.some((a) => a.toLowerCase().includes(lower))
+        )
+          rank = 2;
+        if (rank >= 0 && (!best || rank < best.rank)) {
+          best = { icon, rank, idx: i };
+        }
+      }
+      if (!best) return null;
+      // Find the (q, r) inside the canonical wrap window whose
+      // iconIndexAt matches this icon's index. Since iconIndexAt is a
+      // 1-to-1 mapping over (qw, rw) ∈ [0..WRAP_Q-1] × [0..WRAP_R-1]
+      // for the first WRAP_Q*WRAP_R indices, we can search there.
+      for (let qw = 0; qw < WRAP_Q; qw++) {
+        for (let rw = 0; rw < WRAP_R; rw++) {
+          if (iconIndexAt(qw, rw, icons.length) === best.idx) {
+            return { icon: best.icon, q: qw, r: rw };
+          }
+        }
+      }
+      return null;
+    },
+    [icons],
+  );
 
-  // Move focus to first match as the user types.
   useEffect(() => {
-    if (searchQuery.trim() && filteredMatches.length > 0) {
-      setFocusIdx(filteredMatches[0].idx);
-    }
-  }, [searchQuery, filteredMatches]);
+    if (!searchQuery.trim()) return;
+    const m = matchByQuery(searchQuery.trim());
+    if (m) setFocus({ q: m.q, r: m.r });
+  }, [searchQuery, matchByQuery]);
 
   const handleSearchKeyDown = (
     event: React.KeyboardEvent<HTMLInputElement>,
   ) => {
-    if (event.key === "Enter" && filteredMatches.length > 0) {
-      const target = filteredMatches[0].icon;
-      playSync();
-      router.push(`/icon/${target.id}`);
+    if (event.key === "Enter") {
+      const m = matchByQuery(searchQuery.trim());
+      const target = m?.icon ?? focusedIcon;
+      if (target) {
+        playSync();
+        router.push(`/icon/${target.id}`);
+      }
     }
   };
 
-  const handleCellClick = (idx: number, icon: Icon) => {
+  const handleCellClick = (icon: Icon, isFocus: boolean) => {
     playSync();
-    if (idx !== focusIdx) {
-      setFocusIdx(idx);
-      // Small delay so the layout shift visually completes before nav.
-      window.setTimeout(() => router.push(`/icon/${icon.id}`), 140);
+    if (isFocus) {
+      router.push(`/icon/${icon.id}`);
     } else {
+      // Quick re-focus, then nav so the user sees the lens land on it.
       router.push(`/icon/${icon.id}`);
     }
   };
@@ -280,9 +313,8 @@ export function LensView({ icons }: { icons: Icon[] }) {
       onPointerEnter={() => setIsPointerActive(true)}
       onPointerLeave={() => setIsPointerActive(false)}
     >
-      {/* Hex grid */}
+      {/* World layer: panned by spring so the focused cell is at centre. */}
       <motion.div
-        aria-hidden={false}
         style={{
           position: "absolute",
           left: "50%",
@@ -293,26 +325,31 @@ export function LensView({ icons }: { icons: Icon[] }) {
           height: 0,
         }}
       >
-        {cells.slice(0, cellCount).map((cell, idx) => {
+        {visible.map((cell) => {
+          const idx = iconIndexAt(cell.q, cell.r, icons.length);
           const icon = icons[idx];
           if (!icon) return null;
           const decay = RING_DECAY[Math.min(cell.ring, MAX_RING)];
-          const isFocused = idx === focusIdx;
+          const isFocus = cell.dq === 0 && cell.dr === 0;
+          const px = SPACING_X * (cell.q + cell.r / 2);
+          const py = SPACING_Y * cell.r;
           return (
             <motion.button
-              key={icon.id}
+              key={`${cell.q},${cell.r}`}
               type="button"
-              onClick={() => handleCellClick(idx, icon)}
+              onClick={() => handleCellClick(icon, isFocus)}
               aria-label={`Open ${icon.name}`}
               className="absolute flex items-center justify-center"
+              initial={{ opacity: 0, scale: 0.3 }}
               animate={{
-                opacity: isFocused ? 1 : decay.opacity,
-                scale: isFocused ? 1.05 : decay.scale,
+                opacity: isFocus ? 1 : decay.opacity,
+                scale: isFocus ? 1.05 : decay.scale,
               }}
+              exit={{ opacity: 0, scale: 0.3 }}
               transition={{ type: "spring", stiffness: 220, damping: 22 }}
               style={{
-                left: cell.px - ICON_SIZE / 2,
-                top: cell.py - ICON_SIZE / 2,
+                left: px - ICON_SIZE / 2,
+                top: py - ICON_SIZE / 2,
                 width: ICON_SIZE,
                 height: ICON_SIZE,
                 background: "transparent",
@@ -328,24 +365,43 @@ export function LensView({ icons }: { icons: Icon[] }) {
         })}
       </motion.div>
 
-      {/* Active focus ring marker — sits at viewport centre. Pure visual
-          affordance, doesn't capture pointer events. */}
+      {/* Lens marker at viewport centre — visual affordance only. */}
       <div
         aria-hidden="true"
         style={{
           position: "absolute",
           left: "50%",
           top: "50%",
-          width: ICON_SIZE + 16,
-          height: ICON_SIZE + 16,
+          width: ICON_SIZE + 20,
+          height: ICON_SIZE + 20,
           transform: "translate(-50%, -50%)",
           borderRadius: 999,
           border: "1px solid rgba(255,255,255,0.06)",
           pointerEvents: "none",
-          opacity: isPointerActive ? 0.8 : 0.5,
+          opacity: isPointerActive ? 0.9 : 0.5,
           transition: "opacity 220ms cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       />
+
+      {/* Focused icon name label */}
+      {focusedIcon ? (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "calc(50% + 64px)",
+            transform: "translateX(-50%)",
+            fontSize: 13,
+            color: "rgba(255,255,255,0.6)",
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            letterSpacing: "0.01em",
+          }}
+        >
+          {focusedIcon.name}
+        </div>
+      ) : null}
 
       {/* Bottom-centre search bar */}
       <div
@@ -383,7 +439,7 @@ export function LensView({ icons }: { icons: Icon[] }) {
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             onKeyDown={handleSearchKeyDown}
-            placeholder={`Search over ${cellCount} logos...`}
+            placeholder={`Search over ${icons.length} logos...`}
             className="sidebar-search-input flex-1 bg-transparent border-none outline-none"
             style={{
               color: searchQuery ? "#ffffff" : "rgba(255,255,255,0.4)",
@@ -430,7 +486,6 @@ export function LensView({ icons }: { icons: Icon[] }) {
           ) : null}
         </div>
 
-        {/* Hint row — keyboard affordance */}
         <p
           style={{
             marginTop: 12,
@@ -440,7 +495,7 @@ export function LensView({ icons }: { icons: Icon[] }) {
             whiteSpace: "nowrap",
           }}
         >
-          Use ← ↑ → ↓ or your cursor to focus, click to open.
+          Use ← ↑ → ↓ or your cursor to scan, click or Enter to open.
         </p>
       </div>
     </div>
