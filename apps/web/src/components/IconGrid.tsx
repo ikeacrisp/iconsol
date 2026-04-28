@@ -23,7 +23,16 @@ import { DotField } from "@/components/DotField";
 import { MaskIcon } from "@/components/UiIcon";
 import { easingGradient } from "@/lib/easing-gradient";
 
-const SIDEBAR_BG = easingGradient("180deg", "#141619", "rgba(13,15,18,0.5)");
+// Subtle near-monochrome gradient — a longer easing chain keeps the
+// per-stop delta below the 8-bit rounding threshold to soften banding.
+// (Final defence against bands is the frost-dither noise overlay.)
+const SIDEBAR_BG = easingGradient(
+  "180deg",
+  "#141619",
+  "rgba(13,15,18,0.5)",
+  "easeInOut",
+  24,
+);
 
 // Brand/Solid toggle shell — matches the icon detail page version.
 const TOGGLE_SHELL_BG = easingGradient(
