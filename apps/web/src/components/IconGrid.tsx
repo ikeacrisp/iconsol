@@ -177,6 +177,7 @@ function SuggestLogo() {
   const playSlide = useSound(SUGGEST_SLIDE);
   const playPageExit = useSound(SUGGEST_PAGE_EXIT);
   const playSync = useSound(sync);
+  const playHover = useSound(hover);
 
   useLayoutEffect(() => {
     if (!contentRef.current) return;
@@ -325,6 +326,7 @@ function SuggestLogo() {
               }}
               onClick={() => playSync()}
               onMouseEnter={(event) => {
+                playHover();
                 event.currentTarget.style.background = "rgba(255,255,255,0.05)";
                 event.currentTarget.style.color = "#ffffff";
               }}
@@ -1367,6 +1369,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                         }}
                         onClick={() => playSync()}
                         onMouseEnter={(event) => {
+                          playHover();
                           event.currentTarget.style.background =
                             "rgba(255,255,255,0.05)";
                           event.currentTarget.style.color = "#ffffff";
@@ -1378,6 +1381,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                             "rgba(255,255,255,0.4)";
                         }}
                         onFocus={(event) => {
+                          playHover();
                           event.currentTarget.style.background =
                             "rgba(255,255,255,0.05)";
                           event.currentTarget.style.color = "#ffffff";
