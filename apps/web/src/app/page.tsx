@@ -10,13 +10,8 @@ import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { MaskIcon } from "@/components/UiIcon";
-import { ICON_COUNT } from "@/lib/icon-count";
 import { LOGO_ORDER } from "@/lib/logo-assets";
-import {
-  easingGradient,
-  easingGradientMulti,
-  easingGradientStopsMulti,
-} from "@/lib/easing-gradient";
+import { HomeSearchBar } from "@/components/HomeSearchBar";
 
 /**
  * Pick a random logo id, but exclude the last `RECENT_LIMIT` picks so the
@@ -71,18 +66,6 @@ function pickSurpriseLogoId(): string {
   return picked;
 }
 
-const SEARCH_INPUT_BG = easingGradient(
-  "180deg",
-  "rgba(255,255,255,0)",
-  "rgba(255,255,255,0.01)",
-);
-
-const HERO_CARD_BG = easingGradientMulti("180deg", [
-  { color: "rgba(255,255,255,0.03)", pos: 0 },
-  { color: "rgba(255,255,255,0.006)", pos: 28 },
-  { color: "rgba(255,255,255,0.022)", pos: 100 },
-]);
-
 const IconGlobe = dynamic(
   () => import("@/components/IconGlobe").then((module) => module.IconGlobe),
   { ssr: false }
@@ -92,81 +75,6 @@ const DESKTOP_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0
 
 const MOBILE_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(-0.0000023961 -51.624 29.004 -0.000015086 201 874)'><stop stop-color='rgba(123,100,254,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(0.0000023961 43.7 -32.137 0.000019746 201 0.0000067347)'><stop stop-color='rgba(255,255,255,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), linear-gradient(90deg, rgb(13, 15, 18) 0%, rgb(13, 15, 18) 100%)`;
 
-// Eased mask + glow stops via easingGradient* helpers (cubic-bezier
-// interpolation between authored keyframes — same approach as
-// postcss-easing-gradients).
-const SEARCH_GLOW_MASK = easingGradientMulti("180deg", [
-  { color: "rgba(0,0,0,0)", pos: 0 },
-  { color: "rgba(0,0,0,0)", pos: 30 },
-  { color: "rgba(0,0,0,0.12)", pos: 44 },
-  { color: "rgba(0,0,0,0.52)", pos: 58 },
-  { color: "rgba(0,0,0,1)", pos: 100 },
-]);
-const SEARCH_GLOW_LEFT_STOPS = easingGradientStopsMulti([
-  { color: "rgba(134,98,255,0.62)", pos: 0 },
-  { color: "rgba(126,93,255,0.42)", pos: 24 },
-  { color: "rgba(113,84,238,0.24)", pos: 44 },
-  { color: "rgba(93,69,196,0.1)", pos: 58 },
-  { color: "rgba(18,20,26,0)", pos: 68 },
-]);
-const SEARCH_GLOW_RIGHT_STOPS = easingGradientStopsMulti([
-  { color: "rgba(91,227,255,0.62)", pos: 0 },
-  { color: "rgba(78,212,250,0.42)", pos: 24 },
-  { color: "rgba(63,175,224,0.24)", pos: 44 },
-  { color: "rgba(44,128,170,0.1)", pos: 58 },
-  { color: "rgba(18,20,26,0)", pos: 68 },
-]);
-const SEARCH_GLOW_BACKGROUND = `radial-gradient(84% 160% at 25% 100%, ${SEARCH_GLOW_LEFT_STOPS}), radial-gradient(84% 160% at 75% 100%, ${SEARCH_GLOW_RIGHT_STOPS})`;
-const HOME_SEARCH_PLACEHOLDER = `Search over ${ICON_COUNT} logos...`;
-
-function SearchGlowLayer({ rounded = 24 }: { rounded?: number }) {
-  return (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      style={{ borderRadius: rounded, zIndex: 0 }}
-    >
-      <div
-        className="animate-search-glow-loop"
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: -7,
-          height: "96%",
-          width: "200%",
-          display: "flex",
-          maskImage: SEARCH_GLOW_MASK,
-          WebkitMaskImage: SEARCH_GLOW_MASK,
-        }}
-      >
-        <div
-          style={{
-            width: "50%",
-            height: "100%",
-            background: SEARCH_GLOW_BACKGROUND,
-          }}
-        />
-        <div
-          style={{
-            width: "50%",
-            height: "100%",
-            background: SEARCH_GLOW_BACKGROUND,
-          }}
-        />
-      </div>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          borderRadius: rounded,
-          background: HERO_CARD_BG,
-          opacity: 0.88,
-        }}
-      />
-    </div>
-  );
-}
 
 function CopyInstallButton({
   width,
@@ -243,108 +151,6 @@ function CopyInstallButton({
     </button>
   );
 }
-
-function HomeSearchBar({
-  value,
-  onChange,
-  onSubmit,
-  inputRef,
-  showShortcut,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: () => void;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  showShortcut: boolean;
-}) {
-  return (
-    <div
-      className="relative flex w-full cursor-text items-center justify-between overflow-hidden backdrop-blur-[40px] frost-dither"
-      style={{
-        height: 36,
-        background: SEARCH_INPUT_BG,
-        boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.10)",
-        borderRadius: 24,
-        padding: showShortcut ? "0 12px 0 12px" : "0 12px",
-        backdropFilter: "blur(40px)",
-        WebkitBackdropFilter: "blur(40px)",
-        isolation: "isolate",
-      }}
-      onClick={() => inputRef.current?.focus()}
-    >
-      <SearchGlowLayer rounded={24} />
-      <div
-        className="flex items-center"
-        style={{
-          gap: 12,
-          flex: 1,
-          minWidth: 0,
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        <span
-          className="flex items-center justify-center"
-          style={{ width: 20, height: 20, flexShrink: 0, opacity: 0.4 }}
-        >
-          <MaskIcon src="/ui/search.svg" size={16} color="#ffffff" opacity={1} />
-        </span>
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder={HOME_SEARCH_PLACEHOLDER}
-          className="flex-1 bg-transparent border-none outline-none"
-          style={{
-            color: value ? "#ffffff" : "rgba(255,255,255,0.4)",
-            fontSize: 14,
-            lineHeight: "normal",
-            caretColor: "rgba(255,255,255,0.6)",
-            minWidth: 0,
-          }}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") onSubmit();
-          }}
-        />
-      </div>
-      {showShortcut ? (
-        <button
-          type="button"
-          aria-label="Focus search"
-          onClick={(event) => {
-            event.stopPropagation();
-            inputRef.current?.focus();
-          }}
-          className="pressable pressable-soft flex items-center justify-center"
-          style={{
-            width: "fit-content",
-            height: "fit-content",
-            padding: 0,
-            borderRadius: 8,
-            background: "transparent",
-            backdropFilter: "none",
-            WebkitBackdropFilter: "none",
-            flexShrink: 0,
-            opacity: 0.4,
-            position: "relative",
-            zIndex: 2,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/ui/command-k.svg"
-            alt=""
-            width={16}
-            height={8.61}
-            style={{ display: "block", width: 16, height: 8.61, opacity: 0.4 }}
-          />
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
 
 export default function Home() {
   const router = useRouter();

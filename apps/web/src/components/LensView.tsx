@@ -7,28 +7,29 @@ import {
   useRef,
   useState,
 } from "react";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useMotionValueEvent,
+} from "motion/react";
 import { useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import type { Icon } from "@/lib/icon-data";
 import { SolidLogo } from "@/components/BrandLogo";
-import { MaskIcon } from "@/components/UiIcon";
-import { hover, slideDown, sync } from "@/lib/audio/core";
+import { HomeSearchBar } from "@/components/HomeSearchBar";
+import { hover, sync } from "@/lib/audio/core";
 
 // -------------------------------------------------------------------
-// Lens model
+// Lens model — magnifying glass over an infinite hex grid.
 //
-// The "focused" icon is always drawn at viewport centre. The user pans
-// an *infinite* hex grid under the lens with the cursor or arrow keys;
-// only cells within MAX_RING of the lens centre are rendered, and they
-// scale + dim with their ring distance to suggest a magnifying lens.
-//
-// Infinity is achieved by wrapping the (q, r) axial coordinate space
-// around a small period and mapping each grid cell to an icon index
-// deterministically. Within the visible disk (radius MAX_RING) the
-// wrap period is large enough that no icon repeats, but if the user
-// pans far enough the same icons reappear — this is what makes the
-// grid feel endless.
+// • The focused icon is ALWAYS painted at viewport centre.
+// • The grid is panned by drag (pointer down + drag), not cursor hover.
+// • A circular CSS mask clips the grid so only the lens FOV is visible.
+// • Focus snaps to the cell nearest viewport centre on drag release.
+// • Each axial coord (q, r) maps deterministically to an icon index via
+//   a small-prime + wrap mapping, so the grid feels infinite while
+//   never showing duplicates within a single visible disk.
 // -------------------------------------------------------------------
 
 const HEX_RADIUS = 56;
@@ -36,37 +37,31 @@ const SPACING_X = Math.sqrt(3) * HEX_RADIUS;
 const SPACING_Y = 1.5 * HEX_RADIUS;
 const ICON_SIZE = 64;
 const MAX_RING = 4;
+const FOCUS_SCALE = 1.6;
+const FOV_RADIUS_PX = 320; // visible lens radius
 
-// Wrap period in each axial direction. With WRAP = 9 and MAX_RING = 4,
-// the visible disk never contains two cells whose axial coordinates
-// are 9 apart, so no icon repeats within a single lens view.
+// Wrap window — large enough that visible disk (radius 4) never wraps.
 const WRAP_Q = 9;
 const WRAP_R = 9;
 
 const RING_DECAY: Array<{ scale: number; opacity: number }> = [
-  { scale: 1.0, opacity: 1.0 },
-  { scale: 0.85, opacity: 0.78 },
-  { scale: 0.7, opacity: 0.55 },
-  { scale: 0.55, opacity: 0.32 },
-  { scale: 0.4, opacity: 0.18 },
+  { scale: FOCUS_SCALE, opacity: 1.0 },
+  { scale: 0.78, opacity: 0.7 },
+  { scale: 0.6, opacity: 0.42 },
+  { scale: 0.45, opacity: 0.22 },
+  { scale: 0.32, opacity: 0.1 },
 ];
 
 function ringIndex(q: number, r: number): number {
   return (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
 }
 
-// Stable mapping from a global axial coord to an icon index in
-// [0, total). Uses small primes on the wrapped coords so neighbouring
-// cells get different icons but the mapping repeats every WRAP_Q × WRAP_R
-// — that periodicity is invisible inside the lens because no two
-// visible cells are 9 axial units apart.
 function iconIndexAt(q: number, r: number, total: number): number {
   const qw = ((q % WRAP_Q) + WRAP_Q) % WRAP_Q;
   const rw = ((r % WRAP_R) + WRAP_R) % WRAP_R;
   return (qw * 7 + rw * 13) % total;
 }
 
-// Pixel → axial (pointy-top hex) with cube rounding for stability.
 function pixelToAxial(px: number, py: number): { q: number; r: number } {
   const q = (Math.sqrt(3) / 3) * (px / HEX_RADIUS) - (1 / 3) * (py / HEX_RADIUS);
   const r = (2 / 3) * (py / HEX_RADIUS);
@@ -119,31 +114,55 @@ export function LensView({ icons }: { icons: Icon[] }) {
   const router = useRouter();
   const playHover = useSound(hover);
   const playSync = useSound(sync);
-  const playSlideDown = useSound(slideDown);
 
-  // Focus is the (q, r) coordinate of the cell currently magnified at
-  // viewport centre. Both arrow keys and cursor proximity drive it.
   const [focus, setFocus] = useState({ q: 0, r: 0 });
   const [searchQuery, setSearchQuery] = useState("");
-  const [isPointerActive, setIsPointerActive] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Layout offset = -focused-cell pixel position so the focused cell
-  // always renders at viewport centre. Spring-driven for smooth pan.
+  // Layout offset = -focus.pixelPos. While dragging, additional drag
+  // delta is applied raw (no spring) so it tracks the pointer 1:1.
+  // On release, focus snaps to the cell at the new viewport centre and
+  // the spring eases the layout into place.
   const offsetX = useMotionValue(0);
   const offsetY = useMotionValue(0);
   const springX = useSpring(offsetX, { stiffness: 220, damping: 26 });
   const springY = useSpring(offsetY, { stiffness: 220, damping: 26 });
 
+  // While dragging we bypass the spring and write directly to springX/Y
+  // for instant, snappy follow. We restore spring on release.
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef<{
+    pointerX: number;
+    pointerY: number;
+    baseX: number;
+    baseY: number;
+  } | null>(null);
+
+  // Sync layout target when focus settles (and user is not dragging).
   useEffect(() => {
+    if (isDraggingRef.current) return;
     offsetX.set(-SPACING_X * (focus.q + focus.r / 2));
     offsetY.set(-SPACING_Y * focus.r);
   }, [focus, offsetX, offsetY]);
+
+  // Track current visual offset (for click discrimination + focused cell
+  // calculation during drag).
+  const currentOffsetX = useRef(0);
+  const currentOffsetY = useRef(0);
+  useMotionValueEvent(springX, "change", (v) => {
+    currentOffsetX.current = v;
+  });
+  useMotionValueEvent(springY, "change", (v) => {
+    currentOffsetY.current = v;
+  });
 
   const focusedIcon = useMemo(
     () => icons[iconIndexAt(focus.q, focus.r, icons.length)],
     [icons, focus],
   );
 
+  // Visible cells expand around the live focus AND a buffer ring during
+  // drag so cells flowing in from off-screen are already mounted.
   const visible = useMemo(
     () => visibleCellsAt(focus.q, focus.r),
     [focus],
@@ -182,52 +201,73 @@ export function LensView({ icons }: { icons: Icon[] }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [playHover]);
 
-  // ----- Cursor-driven focus -----
-  // Cursor position in viewport → cursor position in "world" (the
-  // infinite hex grid) by adding the current focus offset. The nearest
-  // hex (via cube rounding) becomes the new focus. Re-rendering shifts
-  // the layout via the spring so the new focus settles at centre.
+  // ----- Drag-to-pan -----
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const pendingPointer = useRef<{ x: number; y: number } | null>(null);
+
+  const handlePointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      // Only drag with primary mouse button or touch
+      if (event.button !== 0 && event.pointerType === "mouse") return;
+      // Don't start drag if user clicked on a logo button
+      const targetEl = event.target as HTMLElement;
+      if (targetEl.closest('button[data-lens-icon="true"]')) return;
+
+      isDraggingRef.current = true;
+      dragStartRef.current = {
+        pointerX: event.clientX,
+        pointerY: event.clientY,
+        baseX: offsetX.get(),
+        baseY: offsetY.get(),
+      };
+      // Detach spring while dragging — write raw values for 1:1 follow.
+      offsetX.jump(offsetX.get());
+      offsetY.jump(offsetY.get());
+      // Capture so we get pointermove / pointerup even off-element
+      (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    },
+    [offsetX, offsetY],
+  );
 
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.pointerType !== "mouse") return;
-      pendingPointer.current = { x: event.clientX, y: event.clientY };
-      if (rafRef.current !== null) return;
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
-        const ptr = pendingPointer.current;
-        const el = containerRef.current;
-        if (!ptr || !el) return;
-        const rect = el.getBoundingClientRect();
-        const cx = ptr.x - rect.left - rect.width / 2;
-        const cy = ptr.y - rect.top - rect.height / 2;
-        // Map cursor (viewport-centred) to world coords by un-applying
-        // the focus offset that the layout currently has.
-        const worldX = cx + SPACING_X * (focus.q + focus.r / 2);
-        const worldY = cy + SPACING_Y * focus.r;
-        const next = pixelToAxial(worldX, worldY);
-        if (next.q !== focus.q || next.r !== focus.r) {
-          playHover();
-          setFocus(next);
-        }
-      });
+      const start = dragStartRef.current;
+      if (!isDraggingRef.current || !start) return;
+      const dx = event.clientX - start.pointerX;
+      const dy = event.clientY - start.pointerY;
+      // Direct write — no spring during drag.
+      offsetX.jump(start.baseX + dx);
+      offsetY.jump(start.baseY + dy);
     },
-    [focus, playHover],
+    [offsetX, offsetY],
   );
 
-  useEffect(() => {
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
+  const handlePointerUp = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDraggingRef.current) return;
+      isDraggingRef.current = false;
+      dragStartRef.current = null;
+      try {
+        (event.currentTarget as HTMLElement).releasePointerCapture(
+          event.pointerId,
+        );
+      } catch {
+        // ignore
+      }
+      // Snap focus to the cell whose world position is now closest to
+      // viewport centre. Since the layout is offset by (offsetX, offsetY),
+      // the world coord at viewport centre is (-offsetX, -offsetY).
+      const worldX = -offsetX.get();
+      const worldY = -offsetY.get();
+      const next = pixelToAxial(worldX, worldY);
+      if (next.q !== focus.q || next.r !== focus.r) {
+        playHover();
+      }
+      setFocus(next);
+    },
+    [offsetX, offsetY, focus, playHover],
+  );
 
   // ----- Search -----
-  // Match against name / id / ticker / aliases. Typing live-shifts focus
-  // to the best match's cell (in the same wrapped-tile coordinate the
-  // grid uses, so the lens lands on the icon). Enter opens it.
   const matchByQuery = useCallback(
     (q: string): { icon: Icon; q: number; r: number } | null => {
       if (!q) return null;
@@ -254,10 +294,6 @@ export function LensView({ icons }: { icons: Icon[] }) {
         }
       }
       if (!best) return null;
-      // Find the (q, r) inside the canonical wrap window whose
-      // iconIndexAt matches this icon's index. Since iconIndexAt is a
-      // 1-to-1 mapping over (qw, rw) ∈ [0..WRAP_Q-1] × [0..WRAP_R-1]
-      // for the first WRAP_Q*WRAP_R indices, we can search there.
       for (let qw = 0; qw < WRAP_Q; qw++) {
         for (let rw = 0; rw < WRAP_R; rw++) {
           if (iconIndexAt(qw, rw, icons.length) === best.idx) {
@@ -276,28 +312,23 @@ export function LensView({ icons }: { icons: Icon[] }) {
     if (m) setFocus({ q: m.q, r: m.r });
   }, [searchQuery, matchByQuery]);
 
-  const handleSearchKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (event.key === "Enter") {
-      const m = matchByQuery(searchQuery.trim());
-      const target = m?.icon ?? focusedIcon;
-      if (target) {
-        playSync();
-        router.push(`/icon/${target.id}`);
-      }
+  const handleSearchSubmit = useCallback(() => {
+    const m = matchByQuery(searchQuery.trim());
+    const target = m?.icon ?? focusedIcon;
+    if (target) {
+      playSync();
+      router.push(`/icon/${target.id}`);
     }
+  }, [matchByQuery, searchQuery, focusedIcon, playSync, router]);
+
+  const handleCellClick = (icon: Icon) => {
+    playSync();
+    router.push(`/icon/${icon.id}`);
   };
 
-  const handleCellClick = (icon: Icon, isFocus: boolean) => {
-    playSync();
-    if (isFocus) {
-      router.push(`/icon/${icon.id}`);
-    } else {
-      // Quick re-focus, then nav so the user sees the lens land on it.
-      router.push(`/icon/${icon.id}`);
-    }
-  };
+  // Circular FOV mask — soft falloff at the edge, fully visible to ~80%
+  // of the radius and faded out by the edge.
+  const fovMask = `radial-gradient(circle ${FOV_RADIUS_PX}px at 50% 50%, black 0%, black 70%, transparent 100%)`;
 
   return (
     <div
@@ -307,196 +338,128 @@ export function LensView({ icons }: { icons: Icon[] }) {
         width: "100%",
         height: "100%",
         overflow: "hidden",
-        cursor: "crosshair",
+        cursor: isDraggingRef.current ? "grabbing" : "grab",
+        userSelect: "none",
       }}
+      onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
-      onPointerEnter={() => setIsPointerActive(true)}
-      onPointerLeave={() => setIsPointerActive(false)}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
-      {/* World layer: panned by spring so the focused cell is at centre. */}
-      <motion.div
+      {/* Masked world layer — only icons inside the circular FOV are visible */}
+      <div
+        aria-hidden={false}
         style={{
           position: "absolute",
-          left: "50%",
-          top: "50%",
-          x: springX,
-          y: springY,
-          width: 0,
-          height: 0,
+          inset: 0,
+          maskImage: fovMask,
+          WebkitMaskImage: fovMask,
+          pointerEvents: "none",
         }}
       >
-        {visible.map((cell) => {
-          const idx = iconIndexAt(cell.q, cell.r, icons.length);
-          const icon = icons[idx];
-          if (!icon) return null;
-          const decay = RING_DECAY[Math.min(cell.ring, MAX_RING)];
-          const isFocus = cell.dq === 0 && cell.dr === 0;
-          const px = SPACING_X * (cell.q + cell.r / 2);
-          const py = SPACING_Y * cell.r;
-          return (
-            <motion.button
-              key={`${cell.q},${cell.r}`}
-              type="button"
-              onClick={() => handleCellClick(icon, isFocus)}
-              aria-label={`Open ${icon.name}`}
-              className="absolute flex items-center justify-center"
-              initial={{ opacity: 0, scale: 0.3 }}
-              animate={{
-                opacity: isFocus ? 1 : decay.opacity,
-                scale: isFocus ? 1.05 : decay.scale,
-              }}
-              exit={{ opacity: 0, scale: 0.3 }}
-              transition={{ type: "spring", stiffness: 220, damping: 22 }}
-              style={{
-                left: px - ICON_SIZE / 2,
-                top: py - ICON_SIZE / 2,
-                width: ICON_SIZE,
-                height: ICON_SIZE,
-                background: "transparent",
-                border: "none",
-                padding: 0,
-                cursor: "pointer",
-                transformOrigin: "center",
-              }}
-            >
-              <SolidLogo id={icon.id} size={ICON_SIZE} />
-            </motion.button>
-          );
-        })}
-      </motion.div>
+        <motion.div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "50%",
+            x: springX,
+            y: springY,
+            width: 0,
+            height: 0,
+            pointerEvents: "auto",
+          }}
+        >
+          {visible.map((cell) => {
+            const idx = iconIndexAt(cell.q, cell.r, icons.length);
+            const icon = icons[idx];
+            if (!icon) return null;
+            const decay = RING_DECAY[Math.min(cell.ring, MAX_RING)];
+            const isFocus = cell.dq === 0 && cell.dr === 0;
+            const px = SPACING_X * (cell.q + cell.r / 2);
+            const py = SPACING_Y * cell.r;
+            return (
+              <motion.button
+                key={`${cell.q},${cell.r}`}
+                type="button"
+                data-lens-icon="true"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCellClick(icon);
+                }}
+                aria-label={`Open ${icon.name}`}
+                className="absolute flex items-center justify-center"
+                initial={{ opacity: 0, scale: 0.3 }}
+                animate={{
+                  opacity: decay.opacity,
+                  scale: decay.scale,
+                }}
+                transition={{ type: "spring", stiffness: 220, damping: 22 }}
+                style={{
+                  left: px - ICON_SIZE / 2,
+                  top: py - ICON_SIZE / 2,
+                  width: ICON_SIZE,
+                  height: ICON_SIZE,
+                  background: "transparent",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  transformOrigin: "center",
+                  zIndex: isFocus ? 5 : 1,
+                }}
+              >
+                <SolidLogo id={icon.id} size={ICON_SIZE} />
+              </motion.button>
+            );
+          })}
+        </motion.div>
+      </div>
 
-      {/* Lens marker at viewport centre — visual affordance only. */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: ICON_SIZE + 20,
-          height: ICON_SIZE + 20,
-          transform: "translate(-50%, -50%)",
-          borderRadius: 999,
-          border: "1px solid rgba(255,255,255,0.06)",
-          pointerEvents: "none",
-          opacity: isPointerActive ? 0.9 : 0.5,
-          transition: "opacity 220ms cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      />
-
-      {/* Focused icon name label */}
+      {/* Focused icon name pill — sits above the search bar with blur. */}
       {focusedIcon ? (
         <div
           aria-hidden="true"
           style={{
             position: "absolute",
             left: "50%",
-            top: "calc(50% + 64px)",
+            bottom: 144,
             transform: "translateX(-50%)",
+            padding: "8px 8px",
+            borderRadius: 12,
+            background: "rgba(13,15,18,0.5)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            border: "1px solid #16181B",
+            backgroundClip: "padding-box",
             fontSize: 13,
-            color: "rgba(255,255,255,0.6)",
+            color: "#ffffff",
             whiteSpace: "nowrap",
             pointerEvents: "none",
             letterSpacing: "0.01em",
+            zIndex: 4,
           }}
         >
           {focusedIcon.name}
         </div>
       ) : null}
 
-      {/* Bottom-centre search bar */}
+      {/* Bottom-centre: landing-page search bar */}
       <div
         style={{
           position: "absolute",
           left: "50%",
           bottom: 64,
           transform: "translateX(-50%)",
-          width: "min(480px, calc(100% - 48px))",
+          width: "min(520px, calc(100% - 48px))",
           zIndex: 5,
         }}
       >
-        <div
-          className="relative flex w-full items-center"
-          style={{
-            height: 40,
-            borderRadius: 24,
-            background: "rgba(13,15,18,0.5)",
-            backgroundClip: "padding-box",
-            border: "1px solid #16181B",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            padding: "0 14px",
-            gap: 12,
-          }}
-        >
-          <MaskIcon
-            src="/sidebar-bg/search.svg"
-            size={16}
-            color="#ffffff"
-            opacity={0.4}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            placeholder={`Search over ${icons.length} logos...`}
-            className="sidebar-search-input flex-1 bg-transparent border-none outline-none"
-            style={{
-              color: searchQuery ? "#ffffff" : "rgba(255,255,255,0.4)",
-              fontSize: 14,
-              lineHeight: "normal",
-              fontWeight: 400,
-              minWidth: 0,
-              caretColor: "rgba(255,255,255,0.6)",
-            }}
-          />
-          {searchQuery ? (
-            <button
-              type="button"
-              aria-label="Clear search"
-              onClick={() => {
-                playSlideDown();
-                setSearchQuery("");
-              }}
-              className="pressable pressable-soft flex items-center justify-center"
-              style={{
-                width: 16,
-                height: 16,
-                flexShrink: 0,
-                background: "transparent",
-                padding: 0,
-                opacity: 0.4,
-                transition:
-                  "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-              onMouseEnter={(event) => {
-                event.currentTarget.style.opacity = "1";
-              }}
-              onMouseLeave={(event) => {
-                event.currentTarget.style.opacity = "0.4";
-              }}
-            >
-              <MaskIcon
-                src="/ui/cancel.svg"
-                size={16}
-                color="#ffffff"
-                opacity={1}
-              />
-            </button>
-          ) : null}
-        </div>
-
-        <p
-          style={{
-            marginTop: 12,
-            textAlign: "center",
-            fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
-            whiteSpace: "nowrap",
-          }}
-        >
-          Use ← ↑ → ↓ or your cursor to scan, click or Enter to open.
-        </p>
+        <HomeSearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onSubmit={handleSearchSubmit}
+          inputRef={searchInputRef}
+          showShortcut={false}
+        />
       </div>
     </div>
   );
