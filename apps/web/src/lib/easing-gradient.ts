@@ -132,6 +132,23 @@ export function easingGradientMulti(
   easing: Easing = "easeInOut",
   stepsPerSegment = 6,
 ): string {
+  return `linear-gradient(${direction}, ${easingGradientStopsMulti(stops, easing, stepsPerSegment)})`;
+}
+
+/**
+ * Same multi-stop interpolation as easingGradientMulti, but returns just the
+ * comma-separated stop list (no `linear-gradient(...)` wrapper). Use when
+ * the gradient type is radial / conic, or when stops feed a CSS variable.
+ *
+ * `unit` lets you keep deg-based positions for conic gradients
+ * (defaults to `%` for linear/radial).
+ */
+export function easingGradientStopsMulti(
+  stops: Array<{ color: string; pos: number }>,
+  easing: Easing = "easeInOut",
+  stepsPerSegment = 6,
+  unit: "%" | "deg" = "%",
+): string {
   const ease = EASINGS[easing];
   const out: string[] = [];
   for (let s = 0; s < stops.length - 1; s++) {
@@ -145,8 +162,8 @@ export function easingGradientMulti(
       const t = ease(x);
       const c = lerpColor(ca, cb, t);
       const pos = a.pos + (b.pos - a.pos) * x;
-      out.push(`${formatRGBA(c)} ${pos.toFixed(2)}%`);
+      out.push(`${formatRGBA(c)} ${pos.toFixed(2)}${unit}`);
     }
   }
-  return `linear-gradient(${direction}, ${out.join(", ")})`;
+  return out.join(", ");
 }

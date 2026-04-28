@@ -212,13 +212,36 @@ input[type="text"]:focus-visible {
   border-radius: inherit;
   padding: 2px;
   opacity: 0;
+  /* Eased conic stops generated via easingGradientStopsMulti() with
+     easeInOut + 6 steps per segment (matches the postcss-easing-gradients
+     approach). Authored keyframes are 0/180/360deg full → 88/268deg @0.28. */
   background: conic-gradient(
     from var(--icon-border-angle),
-    #7478ff 0deg,
+    rgba(116, 120, 255, 1) 0deg,
+    rgba(116, 120, 255, 0.96) 14.67deg,
+    rgba(116, 120, 255, 0.833) 29.33deg,
+    rgba(116, 120, 255, 0.64) 44deg,
+    rgba(116, 120, 255, 0.447) 58.67deg,
+    rgba(116, 120, 255, 0.32) 73.33deg,
     rgba(116, 120, 255, 0.28) 88deg,
-    #7478ff 180deg,
+    rgba(116, 120, 255, 0.32) 103.33deg,
+    rgba(116, 120, 255, 0.447) 118.67deg,
+    rgba(116, 120, 255, 0.64) 134deg,
+    rgba(116, 120, 255, 0.833) 149.33deg,
+    rgba(116, 120, 255, 0.96) 164.67deg,
+    rgba(116, 120, 255, 1) 180deg,
+    rgba(116, 120, 255, 0.96) 194.67deg,
+    rgba(116, 120, 255, 0.833) 209.33deg,
+    rgba(116, 120, 255, 0.64) 224deg,
+    rgba(116, 120, 255, 0.447) 238.67deg,
+    rgba(116, 120, 255, 0.32) 253.33deg,
     rgba(116, 120, 255, 0.28) 268deg,
-    #7478ff 360deg
+    rgba(116, 120, 255, 0.32) 283.33deg,
+    rgba(116, 120, 255, 0.447) 298.67deg,
+    rgba(116, 120, 255, 0.64) 314deg,
+    rgba(116, 120, 255, 0.833) 329.33deg,
+    rgba(116, 120, 255, 0.96) 344.67deg,
+    rgba(116, 120, 255, 1) 360deg
   );
   transition:
     opacity 0.22s var(--ease-ui),

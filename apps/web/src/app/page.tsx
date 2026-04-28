@@ -12,7 +12,11 @@ import { Header } from "@/components/Header";
 import { MaskIcon } from "@/components/UiIcon";
 import { ICON_COUNT } from "@/lib/icon-count";
 import { LOGO_ORDER } from "@/lib/logo-assets";
-import { easingGradient, easingGradientMulti } from "@/lib/easing-gradient";
+import {
+  easingGradient,
+  easingGradientMulti,
+  easingGradientStopsMulti,
+} from "@/lib/easing-gradient";
 
 /**
  * Pick a random logo id, but exclude the last `RECENT_LIMIT` picks so the
@@ -88,10 +92,31 @@ const DESKTOP_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0
 
 const MOBILE_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(-0.0000023961 -51.624 29.004 -0.000015086 201 874)'><stop stop-color='rgba(123,100,254,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(0.0000023961 43.7 -32.137 0.000019746 201 0.0000067347)'><stop stop-color='rgba(255,255,255,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), linear-gradient(90deg, rgb(13, 15, 18) 0%, rgb(13, 15, 18) 100%)`;
 
-const SEARCH_GLOW_MASK =
-  "linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.12) 44%, rgba(0,0,0,0.52) 58%, rgba(0,0,0,1) 100%)";
-const SEARCH_GLOW_BACKGROUND =
-  "radial-gradient(84% 160% at 25% 100%, rgba(134,98,255,0.62) 0%, rgba(126,93,255,0.42) 24%, rgba(113,84,238,0.24) 44%, rgba(93,69,196,0.1) 58%, rgba(18,20,26,0) 68%), radial-gradient(84% 160% at 75% 100%, rgba(91,227,255,0.62) 0%, rgba(78,212,250,0.42) 24%, rgba(63,175,224,0.24) 44%, rgba(44,128,170,0.1) 58%, rgba(18,20,26,0) 68%)";
+// Eased mask + glow stops via easingGradient* helpers (cubic-bezier
+// interpolation between authored keyframes — same approach as
+// postcss-easing-gradients).
+const SEARCH_GLOW_MASK = easingGradientMulti("180deg", [
+  { color: "rgba(0,0,0,0)", pos: 0 },
+  { color: "rgba(0,0,0,0)", pos: 30 },
+  { color: "rgba(0,0,0,0.12)", pos: 44 },
+  { color: "rgba(0,0,0,0.52)", pos: 58 },
+  { color: "rgba(0,0,0,1)", pos: 100 },
+]);
+const SEARCH_GLOW_LEFT_STOPS = easingGradientStopsMulti([
+  { color: "rgba(134,98,255,0.62)", pos: 0 },
+  { color: "rgba(126,93,255,0.42)", pos: 24 },
+  { color: "rgba(113,84,238,0.24)", pos: 44 },
+  { color: "rgba(93,69,196,0.1)", pos: 58 },
+  { color: "rgba(18,20,26,0)", pos: 68 },
+]);
+const SEARCH_GLOW_RIGHT_STOPS = easingGradientStopsMulti([
+  { color: "rgba(91,227,255,0.62)", pos: 0 },
+  { color: "rgba(78,212,250,0.42)", pos: 24 },
+  { color: "rgba(63,175,224,0.24)", pos: 44 },
+  { color: "rgba(44,128,170,0.1)", pos: 58 },
+  { color: "rgba(18,20,26,0)", pos: 68 },
+]);
+const SEARCH_GLOW_BACKGROUND = `radial-gradient(84% 160% at 25% 100%, ${SEARCH_GLOW_LEFT_STOPS}), radial-gradient(84% 160% at 75% 100%, ${SEARCH_GLOW_RIGHT_STOPS})`;
 const HOME_SEARCH_PLACEHOLDER = `Search over ${ICON_COUNT} logos...`;
 
 function SearchGlowLayer({ rounded = 24 }: { rounded?: number }) {
