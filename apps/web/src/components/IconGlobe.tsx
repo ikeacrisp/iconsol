@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { SolidLogo } from "@/components/BrandLogo";
 
-const ICONS = [
+// Fallback icon set used when no `icons` prop is supplied (e.g. mobile mini
+// globe). Doubles as the preload list for those URLs.
+const DEFAULT_IDLE_SRCS = [
   "/solid/solana-white.svg",
   "/solid/jupiter-white.svg",
   "/solid/phantom-white.svg",
@@ -32,16 +35,11 @@ const ICONS = [
   "/solid/moonshot.svg",
 ];
 
-// Unique icon set — used both by the globe nodes and the preloader below.
-// Rendering <link rel="preload" as="image"> for each URL is hoisted into
-// <head> by React 19 so the browser starts fetching the SVGs immediately
-// during initial HTML parsing, well before the globe mounts.
-const UNIQUE_ICONS = Array.from(new Set(ICONS));
-
-const NODE_COUNT = 80;
-const ICON_SIZE = 24;
-const THETA = 0.18;
+const FALLBACK_NODE_COUNT = 80;
+const DEFAULT_ICON_SIZE = 24;
+const FOCUS_SCALE_BOOST = 1.7;
 const SPIN_SPEED = 0.002;
+const TILT = 0.18;
 const HOVER_RADIUS = 28;
 const HOVER_OPACITY_BOOST = 0.18;
 const HOVER_SCALE_BOOST = 0.08;
@@ -49,84 +47,220 @@ const HOVER_SCALE_BOOST = 0.08;
 interface Node {
   lat: number;
   lon: number;
-  icon: string;
+  /** Icon id when rendering live solid logos (search/idle with full set). */
+  id?: string;
+  /** SVG src when rendering plain background-image dots (fallback). */
+  src?: string;
 }
 
-function generateNodes(): Node[] {
-  const nodes: Node[] = [];
+function fibonacciNodes(count: number): { lat: number; lon: number }[] {
+  const out: { lat: number; lon: number }[] = [];
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < NODE_COUNT; i++) {
-    const y = 1 - (i / (NODE_COUNT - 1)) * 2;
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / Math.max(1, count - 1)) * 2;
     const angle = goldenAngle * i;
     const lat = Math.asin(y) * (180 / Math.PI);
     const lon = ((angle * 180) / Math.PI) % 360 - 180;
-    nodes.push({ lat, lon, icon: ICONS[i % ICONS.length] });
+    out.push({ lat, lon });
   }
-  return nodes;
+  return out;
 }
 
-export function IconGlobe({ iconSize = ICON_SIZE }: { iconSize?: number } = {}) {
+interface IconGlobeProps {
+  icons?: Array<{ id: string }>;
+  mode?: "idle" | "search";
+  focusedId?: string | null;
+  onIconClick?: (id: string) => void;
+  iconSize?: number;
+  interactive?: boolean;
+}
+
+export function IconGlobe({
+  icons,
+  mode = "idle",
+  focusedId = null,
+  onIconClick,
+  iconSize = DEFAULT_ICON_SIZE,
+  interactive = false,
+}: IconGlobeProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const phiRef = useRef(0);
+  const thetaRef = useRef(0);
+  const velPhiRef = useRef(0);
+  const velThetaRef = useRef(0);
   const rafRef = useRef(0);
   const pointerRef = useRef<{ x: number; y: number } | null>(null);
+  const dragRef = useRef<{
+    startX: number;
+    startY: number;
+    basePhi: number;
+    baseTheta: number;
+    lastX: number;
+    lastY: number;
+    moved: boolean;
+    pointerId: number;
+  } | null>(null);
+  // React-driven cursor state (drives `cursor: grab/grabbing`).
+  const [grabbing, setGrabbing] = useState(false);
 
-  const nodes = useMemo(() => generateNodes(), []);
+  // Single, stable node set — same nodes are used for idle and search modes
+  // so the visual is one continuous globe; only the visual treatment changes
+  // when the user enters search mode.
+  const nodes = useMemo<Node[]>(() => {
+    if (icons && icons.length > 0) {
+      const positions = fibonacciNodes(icons.length);
+      return positions.map((p, i) => ({ ...p, id: icons[i].id }));
+    }
+    const positions = fibonacciNodes(FALLBACK_NODE_COUNT);
+    return positions.map((p, i) => ({
+      ...p,
+      src: DEFAULT_IDLE_SRCS[i % DEFAULT_IDLE_SRCS.length],
+    }));
+  }, [icons]);
 
+  const focusedIdx = useMemo(() => {
+    if (mode !== "search" || !focusedId) return -1;
+    return nodes.findIndex((n) => n.id === focusedId);
+  }, [mode, focusedId, nodes]);
+
+  // Tracks whether the user has manually dragged after the most recent change
+  // to focusedId. While true, we suspend the auto-focus easing so manual
+  // exploration isn't fought by the spring snapping back. Reset whenever
+  // focusedId itself changes.
+  const userPannedRef = useRef(false);
+  useEffect(() => {
+    userPannedRef.current = false;
+  }, [focusedId]);
+
+  // Animation loop — direct DOM mutation for performance with many nodes.
   useEffect(() => {
     const container = containerRef.current;
     const overlay = overlayRef.current;
     if (!container || !overlay) return;
+    if (nodes.length === 0) return;
 
+    const usingSearch = mode === "search";
     const children = overlay.children as HTMLCollectionOf<HTMLElement>;
 
     const animate = () => {
-      phiRef.current += SPIN_SPEED;
+      const drag = dragRef.current;
+      const isDragging = drag !== null;
+
+      // Target rotation — in search mode, focusedIdx (if any) drives phi/theta
+      // toward bringing that node to the front. In idle, target phi just
+      // increments and target theta returns to the base tilt.
+      if (!isDragging) {
+        if (usingSearch) {
+          if (focusedIdx >= 0 && !userPannedRef.current) {
+            const target = nodes[focusedIdx];
+            const targetLatR = (target.lat * Math.PI) / 180;
+            const targetLonR = (target.lon * Math.PI) / 180;
+
+            // closest-path easing on phi (wrap to nearest equivalent angle)
+            let dPhi = -targetLonR - phiRef.current;
+            while (dPhi > Math.PI) dPhi -= 2 * Math.PI;
+            while (dPhi < -Math.PI) dPhi += 2 * Math.PI;
+            phiRef.current += dPhi * 0.08;
+
+            const dTheta = targetLatR - thetaRef.current;
+            thetaRef.current += dTheta * 0.08;
+
+            velPhiRef.current = 0;
+            velThetaRef.current = 0;
+          } else if (focusedIdx >= 0 && userPannedRef.current) {
+            // User has explored away from the focused match — apply inertia
+            // decay only, leaving manual position alone.
+            phiRef.current += velPhiRef.current;
+            thetaRef.current += velThetaRef.current;
+            velPhiRef.current *= 0.94;
+            velThetaRef.current *= 0.94;
+          } else {
+            // No focus: gentle spin + inertia decay + ease theta to base tilt.
+            phiRef.current += velPhiRef.current + SPIN_SPEED * 0.5;
+            thetaRef.current += velThetaRef.current;
+            velPhiRef.current *= 0.94;
+            velThetaRef.current *= 0.94;
+            const dTheta = TILT - thetaRef.current;
+            thetaRef.current += dTheta * 0.04;
+          }
+        } else {
+          // Idle mode — continuous spin + base tilt.
+          phiRef.current += SPIN_SPEED;
+          const dTheta = TILT - thetaRef.current;
+          thetaRef.current += dTheta * 0.04;
+        }
+      }
 
       const size = container.offsetWidth;
       const r = size * 0.45;
       const cx = size / 2;
       const cy = size / 2;
       const phi = phiRef.current;
+      const theta = thetaRef.current;
+      const cosT = Math.cos(theta);
+      const sinT = Math.sin(theta);
       const pointer = pointerRef.current;
 
       for (let i = 0; i < children.length; i++) {
         const node = nodes[i];
+        if (!node) continue;
         const latR = (node.lat * Math.PI) / 180;
         const lonR = (node.lon * Math.PI) / 180;
+        const cosLat = Math.cos(latR);
+        const sinLat = Math.sin(latR);
 
-        const x = Math.cos(latR) * Math.sin(lonR + phi);
-        const y =
-          Math.sin(latR) * Math.cos(THETA) -
-          Math.cos(latR) * Math.cos(lonR + phi) * Math.sin(THETA);
-        const z =
-          Math.sin(latR) * Math.sin(THETA) +
-          Math.cos(latR) * Math.cos(lonR + phi) * Math.cos(THETA);
+        // y-axis rotation by phi
+        const x1 = cosLat * Math.sin(lonR + phi);
+        const y1 = sinLat;
+        const z1 = cosLat * Math.cos(lonR + phi);
+        // x-axis rotation by theta
+        const x = x1;
+        const y = y1 * cosT - z1 * sinT;
+        const z = y1 * sinT + z1 * cosT;
 
         const sx = cx + x * r;
         const sy = cy - y * r;
 
+        const child = children[i];
         if (z > 0) {
           const depth = z;
-          let opacity = depth * 0.25;
-          let scale = 0.6 + depth * 0.5;
+          let opacity: number;
+          let scale: number;
 
-          if (pointer) {
-            const dx = pointer.x - sx;
-            const dy = pointer.y - sy;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            if (distance < HOVER_RADIUS) {
-              const hoverStrength = 1 - distance / HOVER_RADIUS;
-              opacity += hoverStrength * HOVER_OPACITY_BOOST;
-              scale += hoverStrength * HOVER_SCALE_BOOST;
+          if (usingSearch) {
+            // brighter base + de-emphasis for non-focused
+            opacity = 0.32 + depth * 0.32;
+            scale = 0.65 + depth * 0.45;
+
+            if (focusedIdx === i) {
+              opacity = 1;
+              scale = (0.85 + depth * 0.45) * FOCUS_SCALE_BOOST;
+            } else if (focusedIdx >= 0) {
+              opacity *= 0.55;
+            }
+          } else {
+            opacity = depth * 0.25;
+            scale = 0.6 + depth * 0.5;
+            if (pointer) {
+              const dx = pointer.x - sx;
+              const dy = pointer.y - sy;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              if (distance < HOVER_RADIUS) {
+                const hoverStrength = 1 - distance / HOVER_RADIUS;
+                opacity += hoverStrength * HOVER_OPACITY_BOOST;
+                scale += hoverStrength * HOVER_SCALE_BOOST;
+              }
             }
           }
 
-          children[i].style.transform = `translate(${sx - ICON_SIZE / 2}px, ${sy - ICON_SIZE / 2}px) scale(${scale})`;
-          children[i].style.opacity = `${opacity}`;
+          child.style.transform = `translate(${sx - iconSize / 2}px, ${sy - iconSize / 2}px) scale(${scale})`;
+          child.style.opacity = `${opacity}`;
+          child.style.zIndex = focusedIdx === i ? "5" : "1";
+          child.style.pointerEvents = interactive ? "auto" : "none";
         } else {
-          children[i].style.opacity = "0";
+          child.style.opacity = "0";
+          child.style.pointerEvents = "none";
         }
       }
 
@@ -135,79 +269,195 @@ export function IconGlobe({ iconSize = ICON_SIZE }: { iconSize?: number } = {}) 
 
     animate();
     return () => cancelAnimationFrame(rafRef.current);
-  }, [nodes]);
+  }, [mode, nodes, focusedIdx, iconSize, interactive]);
+
+  // ------- Pointer interaction (drag-to-rotate, only when interactive) -------
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!interactive) return;
+    if (event.button !== 0 && event.pointerType === "mouse") return;
+    dragRef.current = {
+      startX: event.clientX,
+      startY: event.clientY,
+      basePhi: phiRef.current,
+      baseTheta: thetaRef.current,
+      lastX: event.clientX,
+      lastY: event.clientY,
+      moved: false,
+      pointerId: event.pointerId,
+    };
+    velPhiRef.current = 0;
+    velThetaRef.current = 0;
+    setGrabbing(true);
+    try {
+      (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (interactive) {
+      const drag = dragRef.current;
+      if (drag && event.pointerId === drag.pointerId) {
+        const dx = event.clientX - drag.startX;
+        const dy = event.clientY - drag.startY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+          drag.moved = true;
+          userPannedRef.current = true;
+        }
+        const size = containerRef.current?.offsetWidth ?? 800;
+        const sensitivity = (Math.PI * 1.4) / size;
+        phiRef.current = drag.basePhi - dx * sensitivity;
+        thetaRef.current = clamp(
+          drag.baseTheta + dy * sensitivity,
+          -Math.PI / 2 + 0.05,
+          Math.PI / 2 - 0.05,
+        );
+        velPhiRef.current = (drag.lastX - event.clientX) * sensitivity * 0.6;
+        velThetaRef.current = (event.clientY - drag.lastY) * sensitivity * 0.6;
+        drag.lastX = event.clientX;
+        drag.lastY = event.clientY;
+      }
+    }
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    pointerRef.current = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!interactive) return;
+    const drag = dragRef.current;
+    if (drag && event.pointerId === drag.pointerId) {
+      try {
+        (event.currentTarget as HTMLElement).releasePointerCapture(
+          event.pointerId,
+        );
+      } catch {
+        // ignore
+      }
+      dragRef.current = null;
+      setGrabbing(false);
+    }
+  };
+
+  // Search-mode zoom on the container — applied via CSS transform with
+  // smooth easing so the existing globe (same nodes) appears to "lean in".
+  const containerScale = mode === "search" ? 1.32 : 1.14;
+
+  const preloadSrcs = useMemo(() => Array.from(new Set(DEFAULT_IDLE_SRCS)), []);
 
   return (
     <>
-      {UNIQUE_ICONS.map((src) => (
+      {preloadSrcs.map((src) => (
         <link key={src} rel="preload" as="image" href={src} />
       ))}
-    <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        overflow: "visible",
-        pointerEvents: "auto",
-        zIndex: 0,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-      onMouseMove={(event) => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return;
-        pointerRef.current = {
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top,
-        };
-      }}
-      onMouseLeave={() => {
-        pointerRef.current = null;
-      }}
-    >
       <div
-        ref={containerRef}
         style={{
-          position: "relative",
-          width: "min(118vh, 1080px)",
-          height: "min(118vh, 1080px)",
-          flexShrink: 0,
-          transform: "scale(1.14)",
-          transformOrigin: "center",
+          position: "absolute",
+          inset: 0,
+          overflow: "visible",
+          pointerEvents: interactive ? "auto" : "none",
+          zIndex: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: interactive ? (grabbing ? "grabbing" : "grab") : "default",
+          touchAction: interactive ? "none" : "auto",
+          userSelect: "none",
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onMouseLeave={() => {
+          pointerRef.current = null;
         }}
       >
         <div
-          ref={overlayRef}
-          style={{ position: "absolute", inset: 0 }}
+          ref={containerRef}
+          style={{
+            position: "relative",
+            width: "min(118vh, 1080px)",
+            height: "min(118vh, 1080px)",
+            flexShrink: 0,
+            transform: `scale(${containerScale})`,
+            transformOrigin: "center",
+            transition: "transform 620ms cubic-bezier(0.65, 0, 0.35, 1)",
+            willChange: "transform",
+          }}
         >
-          {nodes.map((node, i) => (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                width: iconSize,
-                height: iconSize,
-                opacity: 0,
-                willChange: "transform, opacity",
-              }}
-            >
-              <div
-                style={{
-                  width: iconSize,
-                  height: iconSize,
-                  backgroundImage: `url(${node.icon})`,
-                  backgroundSize: "contain",
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: "center",
-                }}
-              />
-            </div>
-          ))}
+          <div
+            ref={overlayRef}
+            style={{ position: "absolute", inset: 0 }}
+          >
+            {nodes.map((node, i) =>
+              node.id ? (
+                <button
+                  key={node.id}
+                  type="button"
+                  data-globe-icon="true"
+                  aria-label={`Open ${node.id}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    const drag = dragRef.current;
+                    if (drag?.moved) return;
+                    onIconClick?.(node.id!);
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: iconSize,
+                    height: iconSize,
+                    opacity: 0,
+                    padding: 0,
+                    background: "transparent",
+                    border: "none",
+                    cursor: interactive ? "pointer" : "default",
+                    willChange: "transform, opacity",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <SolidLogo id={node.id} size={iconSize} />
+                </button>
+              ) : (
+                <div
+                  key={i}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: iconSize,
+                    height: iconSize,
+                    opacity: 0,
+                    willChange: "transform, opacity",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: iconSize,
+                      height: iconSize,
+                      backgroundImage: `url(${node.src})`,
+                      backgroundSize: "contain",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "center",
+                    }}
+                  />
+                </div>
+              ),
+            )}
+          </div>
         </div>
       </div>
-    </div>
     </>
   );
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
 }
