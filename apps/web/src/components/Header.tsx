@@ -71,6 +71,10 @@ function GridIcon() {
   return <MaskIcon src="/ui/grid-dashboard.svg" size={16} color="#ffffff" opacity={1} />;
 }
 
+function RadialViewIcon() {
+  return <MaskIcon src="/ui/radial-view.svg" size={16} color="#ffffff" opacity={1} />;
+}
+
 function GithubIcon() {
   return <MaskIcon src="/ui/github.svg" size={16} color="#ffffff" opacity={1} />;
 }
@@ -670,6 +674,37 @@ export function Header({
                   }}
                 >
                   <GridIcon />
+                </Link>
+
+                <Link
+                  href="/lens"
+                  aria-label="Open radial view"
+                  className="desktop-only pressable pressable-soft flex items-center justify-center"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: pathname === "/lens"
+                      ? "rgba(255,255,255,0.02)"
+                      : "transparent",
+                    opacity: 0.4,
+                    transition:
+                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                  onClick={() => playSync()}
+                  onMouseEnter={(event) => {
+                    playHover();
+                    event.currentTarget.style.opacity = "1";
+                    event.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.opacity = "0.4";
+                    event.currentTarget.style.background = pathname === "/lens"
+                      ? "rgba(255,255,255,0.02)"
+                      : "transparent";
+                  }}
+                >
+                  <RadialViewIcon />
                 </Link>
 
                 <GithubLink />
