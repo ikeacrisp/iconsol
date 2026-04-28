@@ -1667,7 +1667,9 @@ export function IconDetail({
                             top: 2,
                             bottom: 2,
                             borderRadius: 8,
-                            background: "rgba(255,255,255,0.05)",
+                            // Opaque so the parent gradient doesn't bleed
+                            // through and make the pill look gradient itself.
+                            background: "#1F2124",
                             x: springToggleActiveX,
                             width: springToggleActiveWidth,
                           }}

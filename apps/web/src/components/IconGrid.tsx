@@ -13,7 +13,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
-import { hover, sync } from "@/lib/audio/core";
+import { hover, slideDown, sync } from "@/lib/audio/core";
 import { swoosh } from "@/lib/audio/crisp";
 import { toggleOff, toggleOn } from "@/lib/audio/minimal";
 import { pageExit, slide } from "@/lib/audio/playful";
@@ -389,6 +389,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const playToggleOff = useSound(toggleOff);
   const playHover = useSound(hover);
   const playSync = useSound(sync);
+  const playSlideDown = useSound(slideDown);
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") ?? "");
   const [isScrolling, setIsScrolling] = useState(false);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
@@ -852,6 +853,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                     type="button"
                     aria-label="Clear search"
                     onClick={() => {
+                      playSlideDown();
                       setSearchQuery("");
                       searchInputRef.current?.focus();
                     }}
@@ -1120,7 +1122,9 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                     x: springToggleActiveX,
                     width: springToggleActiveWidth,
                     borderRadius: 8,
-                    background: "rgba(255,255,255,0.05)",
+                    // Opaque so the parent gradient doesn't bleed through
+                    // and make the pill look gradient itself.
+                    background: "#1F2124",
                   }}
                 />
                 <BrandToggle
