@@ -78,7 +78,9 @@ const PREVIEW_STACK_GAP = 64;
 const PREVIEW_GRID_TOP_IN_STACK = 45 + PREVIEW_STACK_GAP;
 const GRID_STROKE_COLOR = "rgba(31,33,36,0.72)";
 const PREVIEW_ART_WIDTH = 136.513;
-const TOGGLE_INNER_WIDTH = 176;
+// 2 buttons (86 each) + 2px padding on each side + 1px border on each
+// side (box-sizing: border-box subtracts the border from the content).
+const TOGGLE_INNER_WIDTH = 86 * 2 + 4 + 2;
 const LEFT_PREVIEW_MIN_HEIGHT = LEFT_PREVIEW_SECTION_TOP + LEFT_STACK_HEIGHT + 24;
 const FRAMEWORK_TAB_SPECS = [
   { id: "react", width: 80 },

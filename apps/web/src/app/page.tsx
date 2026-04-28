@@ -270,7 +270,7 @@ function HomeSearchBar({
           placeholder={HOME_SEARCH_PLACEHOLDER}
           className="flex-1 bg-transparent border-none outline-none"
           style={{
-            color: "rgba(255,255,255,0.4)",
+            color: value ? "#ffffff" : "rgba(255,255,255,0.4)",
             fontSize: 14,
             lineHeight: "normal",
             caretColor: "rgba(255,255,255,0.6)",

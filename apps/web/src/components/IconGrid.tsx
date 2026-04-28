@@ -55,7 +55,9 @@ const CARD_SIZE = 160;
 const FOOTER_FADE_ZONE = 73;
 const HOVER_LOCK_GRACE_MS = 450;
 const TOGGLE_BUTTON_WIDTH = 86;
-const TOGGLE_INNER_WIDTH = TOGGLE_BUTTON_WIDTH * 2 + 4;
+// 2 buttons + 2px padding on each side + 1px border on each side
+// (box-sizing: border-box subtracts the border from the content area).
+const TOGGLE_INNER_WIDTH = TOGGLE_BUTTON_WIDTH * 2 + 4 + 2;
 const UI_ICON_OPACITY = 0.4;
 
 function CategoryIcon({
@@ -842,7 +844,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                   placeholder={`Search over ${Math.floor(icons.length / 5) * 5} logos...`}
                   className="sidebar-search-input flex-1 bg-transparent border-none outline-none"
                   style={{
-                    color: "rgba(255,255,255,0.25)",
+                    color: searchQuery ? "#ffffff" : "rgba(255,255,255,0.25)",
                     fontSize: 14,
                     lineHeight: "normal",
                     fontWeight: 400,
