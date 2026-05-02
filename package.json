@@ -17,9 +17,9 @@
     "@svgr/plugin-prettier": "^8.1.0",
     "@svgr/plugin-svgo": "^8.1.0",
     "agentation": "^3.0.2",
-    "svgo": "^4.0.0",
+    "svgo": "^4.0.1",
     "tsx": "^4.19.2",
-    "turbo": "^2.3.3",
+    "turbo": "^2.9.7",
     "typescript": "^5.7.3"
   },
   "packageManager": "pnpm@9.15.4",
