@@ -106,6 +106,7 @@ export function HomeSearchBar({
   onChange,
   onSubmit,
   onClear,
+  onActivate,
   inputRef,
   showShortcut,
   forceClearAffordance = false,
@@ -115,6 +116,11 @@ export function HomeSearchBar({
   onChange: (value: string) => void;
   onSubmit: () => void;
   onClear?: () => void;
+  /**
+   * Fires when the user focuses or clicks the search bar — used by the
+   * home page to flip into search mode without requiring keystrokes.
+   */
+  onActivate?: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   showShortcut: boolean;
   /**
@@ -153,7 +159,10 @@ export function HomeSearchBar({
         WebkitBackdropFilter: "blur(40px)",
         isolation: "isolate",
       }}
-      onClick={() => inputRef.current?.focus({ preventScroll: true })}
+      onClick={() => {
+        inputRef.current?.focus({ preventScroll: true });
+        onActivate?.();
+      }}
     >
       <SearchGlowLayer rounded={24} />
       <div
@@ -186,6 +195,7 @@ export function HomeSearchBar({
           }}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onFocus={() => onActivate?.()}
           onKeyDown={(event) => {
             if (event.key === "Enter") onSubmit();
           }}

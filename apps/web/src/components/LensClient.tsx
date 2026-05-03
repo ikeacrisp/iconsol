@@ -194,8 +194,8 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         focusedId={focusedId}
         onIconClick={handleGlobeIconClick}
         interactive
-        idleScale={1.22}
-        searchScale={1.22}
+        idleScale={1.4}
+        searchScale={1.4}
         jitterAmplitude={1.5}
         onDragHighlight={handleDragHighlight}
         onDragRelease={handleDragRelease}
@@ -287,7 +287,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
                   className="surprise-letter"
                   style={{ animationDelay: `${index * 0.04}s` }}
                 >
-                  {char === " " ? " " : char}
+                  {char === " " ? " " : char}
                 </span>
               ))}
             </span>

@@ -305,11 +305,11 @@ export function IconGlobe({
           let scale: number;
 
           if (usingSearch) {
-            // Same depth-based fade as idle so background icons fade in/out
-            // gracefully as they rotate around — only the focused match is
-            // pinned at full opacity.
-            opacity = depth * 0.25;
-            scale = 0.6 + depth * 0.5;
+            // Non-focused icons sit at a moderate visibility (floor 0.2,
+            // max ~0.5) — present enough to read as "commonly used with"
+            // logos, dim enough that the focused match clearly leads.
+            opacity = 0.2 + depth * 0.3;
+            scale = 0.65 + depth * 0.45;
 
             if (focusedIdx === i) {
               opacity = 1;
