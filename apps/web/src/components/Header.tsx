@@ -705,7 +705,7 @@ export function Header({
                   </button>
                 ) : (
                   <Link
-                    href={pathname === "/lens" ? "/" : "/lens"}
+                    href={pathname === "/lens" ? "/" : "/?lens=1"}
                     aria-label={pathname === "/lens" ? "Exit radial view" : "Open radial view"}
                     className="desktop-only pressable pressable-soft flex items-center justify-center"
                     style={{

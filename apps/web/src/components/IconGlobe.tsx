@@ -394,13 +394,17 @@ export function IconGlobe({
         }
         const size = containerRef.current?.offsetWidth ?? 800;
         const sensitivity = (Math.PI * 1.4) / size;
-        phiRef.current = drag.basePhi - dx * sensitivity;
+        // Drag direction follows the cursor — drag right rotates the
+        // globe surface to the right (the icon under the cursor moves
+        // with the cursor). Vertical convention was already cursor-
+        // following so it stays as-is.
+        phiRef.current = drag.basePhi + dx * sensitivity;
         thetaRef.current = clamp(
           drag.baseTheta + dy * sensitivity,
           -Math.PI / 2 + 0.05,
           Math.PI / 2 - 0.05,
         );
-        velPhiRef.current = (drag.lastX - event.clientX) * sensitivity * 0.6;
+        velPhiRef.current = (event.clientX - drag.lastX) * sensitivity * 0.6;
         velThetaRef.current = (event.clientY - drag.lastY) * sensitivity * 0.6;
         drag.lastX = event.clientX;
         drag.lastY = event.clientY;
