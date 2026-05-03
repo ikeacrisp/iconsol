@@ -229,15 +229,15 @@ export function IconGlobe({
           let scale: number;
 
           if (usingSearch) {
-            // brighter base + de-emphasis for non-focused
-            opacity = 0.32 + depth * 0.32;
-            scale = 0.65 + depth * 0.45;
+            // Same depth-based fade as idle so background icons fade in/out
+            // gracefully as they rotate around — only the focused match is
+            // pinned at full opacity.
+            opacity = depth * 0.25;
+            scale = 0.6 + depth * 0.5;
 
             if (focusedIdx === i) {
               opacity = 1;
               scale = (0.85 + depth * 0.45) * FOCUS_SCALE_BOOST;
-            } else if (focusedIdx >= 0) {
-              opacity *= 0.55;
             }
           } else {
             opacity = depth * 0.25;
