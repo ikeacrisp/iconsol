@@ -56,8 +56,14 @@ interface Node {
 function fibonacciNodes(count: number): { lat: number; lon: number }[] {
   const out: { lat: number; lon: number }[] = [];
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+  // Keep icons off the exact poles — they'd stack on top of each other and
+  // leave a visible singularity. 0.88 lets some icons sit close to the
+  // poles (~±62° lat) so the top/bottom doesn't look empty, while still
+  // staying visible after horizontal-only focus rotation.
+  const Y_RANGE = 0.88;
   for (let i = 0; i < count; i++) {
-    const y = 1 - (i / Math.max(1, count - 1)) * 2;
+    const t = count <= 1 ? 0.5 : i / (count - 1);
+    const y = (1 - t * 2) * Y_RANGE;
     const angle = goldenAngle * i;
     const lat = Math.asin(y) * (180 / Math.PI);
     const lon = ((angle * 180) / Math.PI) % 360 - 180;
@@ -73,6 +79,27 @@ interface IconGlobeProps {
   onIconClick?: (id: string) => void;
   iconSize?: number;
   interactive?: boolean;
+  /** CSS scale applied while in idle mode. Default 1.14. */
+  idleScale?: number;
+  /** CSS scale applied while in search mode. Default 1.32. */
+  searchScale?: number;
+  /**
+   * Multiplier applied to the spherical radius. Use values < 1 to shrink
+   * the globe (e.g. when a search filter narrows the icon set). Defaults
+   * to 1, which keeps the radius proportional to the container.
+   */
+  radiusScale?: number;
+  /**
+   * Per-icon idle jitter amplitude in pixels. Each icon gets an
+   * independent low-frequency sine wave on x and y, giving the
+   * impression that each logo is gently "hovering" in place. Set to 0
+   * to disable.
+   */
+  jitterAmplitude?: number;
+  /** Called during a drag with the id of the icon nearest screen centre. */
+  onDragHighlight?: (id: string | null) => void;
+  /** Called on drag-end with the id of the icon nearest screen centre. */
+  onDragRelease?: (id: string | null) => void;
 }
 
 export function IconGlobe({
@@ -82,6 +109,12 @@ export function IconGlobe({
   onIconClick,
   iconSize = DEFAULT_ICON_SIZE,
   interactive = false,
+  idleScale = 1.14,
+  searchScale = 1.32,
+  radiusScale = 1,
+  jitterAmplitude = 0,
+  onDragHighlight,
+  onDragRelease,
 }: IconGlobeProps = {}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -127,11 +160,25 @@ export function IconGlobe({
   // Tracks whether the user has manually dragged after the most recent change
   // to focusedId. While true, we suspend the auto-focus easing so manual
   // exploration isn't fought by the spring snapping back. Reset whenever
-  // focusedId itself changes.
+  // focusedId itself changes — but never during an active drag (the drag
+  // updates focusedId via onDragHighlight, and we don't want that to
+  // engage easing mid-drag).
   const userPannedRef = useRef(false);
   useEffect(() => {
+    if (dragRef.current !== null) return;
     userPannedRef.current = false;
   }, [focusedId]);
+
+  // Tracks the icon nearest screen centre during the current drag, so
+  // pointer-up can report it via onDragRelease without re-scanning.
+  const dragNearestIdxRef = useRef(-1);
+  const lastReportedHighlightRef = useRef<string | null>(null);
+  const onDragHighlightRef = useRef(onDragHighlight);
+  const onDragReleaseRef = useRef(onDragRelease);
+  useEffect(() => {
+    onDragHighlightRef.current = onDragHighlight;
+    onDragReleaseRef.current = onDragRelease;
+  }, [onDragHighlight, onDragRelease]);
 
   // Animation loop — direct DOM mutation for performance with many nodes.
   useEffect(() => {
@@ -154,8 +201,8 @@ export function IconGlobe({
         if (usingSearch) {
           if (focusedIdx >= 0 && !userPannedRef.current) {
             const target = nodes[focusedIdx];
-            const targetLatR = (target.lat * Math.PI) / 180;
             const targetLonR = (target.lon * Math.PI) / 180;
+            const targetLatR = (target.lat * Math.PI) / 180;
 
             // closest-path easing on phi (wrap to nearest equivalent angle)
             let dPhi = -targetLonR - phiRef.current;
@@ -163,6 +210,8 @@ export function IconGlobe({
             while (dPhi < -Math.PI) dPhi += 2 * Math.PI;
             phiRef.current += dPhi * 0.08;
 
+            // Ease theta toward the target latitude so the focused icon
+            // lands at the dead centre of the screen — both axes animate.
             const dTheta = targetLatR - thetaRef.current;
             thetaRef.current += dTheta * 0.08;
 
@@ -193,7 +242,7 @@ export function IconGlobe({
       }
 
       const size = container.offsetWidth;
-      const r = size * 0.45;
+      const r = size * 0.45 * radiusScale;
       const cx = size / 2;
       const cy = size / 2;
       const phi = phiRef.current;
@@ -201,6 +250,16 @@ export function IconGlobe({
       const cosT = Math.cos(theta);
       const sinT = Math.sin(theta);
       const pointer = pointerRef.current;
+      // Subtle hover wobble — each icon gets an independent low-frequency
+      // sine on both axes so the globe feels "alive" rather than rigidly
+      // rotating. Amplitude controlled by jitterAmplitude prop.
+      const tNow = jitterAmplitude > 0 ? performance.now() * 0.001 : 0;
+
+      // While dragging, track the front-facing icon nearest the screen
+      // centre. Reported via onDragHighlight as it changes, and snapshotted
+      // for onDragRelease.
+      let nearestI = -1;
+      let nearestD2 = Infinity;
 
       for (let i = 0; i < children.length; i++) {
         const node = nodes[i];
@@ -219,11 +278,28 @@ export function IconGlobe({
         const y = y1 * cosT - z1 * sinT;
         const z = y1 * sinT + z1 * cosT;
 
-        const sx = cx + x * r;
-        const sy = cy - y * r;
+        let sx = cx + x * r;
+        let sy = cy - y * r;
+        if (jitterAmplitude > 0) {
+          // Per-icon seeds derived from index so the wobble pattern is
+          // varied across the globe (no obvious lockstep).
+          const seedX = i * 0.137;
+          const seedY = i * 0.253;
+          sx += Math.sin(tNow * 0.7 + seedX) * jitterAmplitude;
+          sy += Math.cos(tNow * 0.9 + seedY) * jitterAmplitude;
+        }
 
         const child = children[i];
         if (z > 0) {
+          if (isDragging && node.id) {
+            const ddx = sx - cx;
+            const ddy = sy - cy;
+            const d2 = ddx * ddx + ddy * ddy;
+            if (d2 < nearestD2) {
+              nearestD2 = d2;
+              nearestI = i;
+            }
+          }
           const depth = z;
           let opacity: number;
           let scale: number;
@@ -264,12 +340,21 @@ export function IconGlobe({
         }
       }
 
+      if (isDragging) {
+        dragNearestIdxRef.current = nearestI;
+        const nearestId = nearestI >= 0 ? nodes[nearestI].id ?? null : null;
+        if (nearestId !== lastReportedHighlightRef.current) {
+          lastReportedHighlightRef.current = nearestId;
+          onDragHighlightRef.current?.(nearestId);
+        }
+      }
+
       rafRef.current = requestAnimationFrame(animate);
     };
 
     animate();
     return () => cancelAnimationFrame(rafRef.current);
-  }, [mode, nodes, focusedIdx, iconSize, interactive]);
+  }, [mode, nodes, focusedIdx, iconSize, interactive, radiusScale, jitterAmplitude]);
 
   // ------- Pointer interaction (drag-to-rotate, only when interactive) -------
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -287,6 +372,8 @@ export function IconGlobe({
     };
     velPhiRef.current = 0;
     velThetaRef.current = 0;
+    dragNearestIdxRef.current = -1;
+    lastReportedHighlightRef.current = null;
     setGrabbing(true);
     try {
       (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
@@ -338,14 +425,26 @@ export function IconGlobe({
       } catch {
         // ignore
       }
+      const moved = drag.moved;
+      const nearestIdx = dragNearestIdxRef.current;
       dragRef.current = null;
       setGrabbing(false);
+      // Reset userPanned so the snap easing engages on the next frame.
+      userPannedRef.current = false;
+      velPhiRef.current = 0;
+      velThetaRef.current = 0;
+      if (moved) {
+        const id = nearestIdx >= 0 ? nodes[nearestIdx]?.id ?? null : null;
+        onDragReleaseRef.current?.(id);
+      }
+      lastReportedHighlightRef.current = null;
+      dragNearestIdxRef.current = -1;
     }
   };
 
   // Search-mode zoom on the container — applied via CSS transform with
   // smooth easing so the existing globe (same nodes) appears to "lean in".
-  const containerScale = mode === "search" ? 1.32 : 1.14;
+  const containerScale = mode === "search" ? searchScale : idleScale;
 
   const preloadSrcs = useMemo(() => Array.from(new Set(DEFAULT_IDLE_SRCS)), []);
 

@@ -103,13 +103,33 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   });
 
   const matchedId = useMemo(() => bestMatchId(icons, query), [icons, query]);
-  const isSearching = query.trim().length > 0;
-  const focusedId = isSearching ? matchedId : null;
+  // Focus is driven by three sources, in order of precedence:
+  //   1. Drag-highlight (live during a drag — the icon nearest screen centre)
+  //   2. Drag-released id (after pointer-up, snap-to-centre target)
+  //   3. The best query match (typed search)
+  // The committed source resets to (3) whenever the query changes.
+  const [dragHighlightId, setDragHighlightId] = useState<string | null>(null);
+  const [committedFocusId, setCommittedFocusId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCommittedFocusId(matchedId);
+  }, [matchedId]);
+
+  const focusedId = dragHighlightId ?? committedFocusId;
 
   const focusedIcon = useMemo(
     () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
     [focusedId, icons],
   );
+
+  const handleDragHighlight = useCallback((id: string | null) => {
+    setDragHighlightId(id);
+  }, []);
+
+  const handleDragRelease = useCallback((id: string | null) => {
+    setDragHighlightId(null);
+    if (id) setCommittedFocusId(id);
+  }, []);
 
   // Lock viewport scroll while the lens page is mounted — the experience
   // is designed to fit the viewport.
@@ -170,10 +190,15 @@ export function LensClient({ icons }: { icons: Icon[] }) {
     >
       <IconGlobe
         icons={icons}
-        mode={isSearching ? "search" : "idle"}
+        mode={focusedId ? "search" : "idle"}
         focusedId={focusedId}
         onIconClick={handleGlobeIconClick}
         interactive
+        idleScale={1.22}
+        searchScale={1.22}
+        jitterAmplitude={1.5}
+        onDragHighlight={handleDragHighlight}
+        onDragRelease={handleDragRelease}
       />
 
       {/* Search column — pinned 64px above the footer (footer height 73px). */}
