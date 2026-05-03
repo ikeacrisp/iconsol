@@ -668,35 +668,6 @@ export function Header({
 
             <div className="flex items-center" style={{ gap: 12, flexShrink: 0 }}>
               <div className="flex items-center" style={{ gap: 6 }}>
-                <Link
-                  href="/dashboard"
-                  aria-label="Open dashboard"
-                  className="desktop-only pressable pressable-soft flex items-center justify-center"
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    background: highlightGrid ? "rgba(255,255,255,0.02)" : "transparent",
-                    opacity: 0.4,
-                    transition:
-                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                  onClick={() => playSync()}
-                  onMouseEnter={(event) => {
-                    playHover();
-                    event.currentTarget.style.opacity = "1";
-                    event.currentTarget.style.background = "rgba(255,255,255,0.03)";
-                  }}
-                  onMouseLeave={(event) => {
-                    event.currentTarget.style.opacity = "0.4";
-                    event.currentTarget.style.background = highlightGrid
-                      ? "rgba(255,255,255,0.02)"
-                      : "transparent";
-                  }}
-                >
-                  <GridIcon />
-                </Link>
-
                 {onLensClick ? (
                   <button
                     type="button"
@@ -734,17 +705,17 @@ export function Header({
                   </button>
                 ) : (
                   <Link
-                    href="/lens"
-                    aria-label="Open radial view"
+                    href={pathname === "/lens" ? "/" : "/lens"}
+                    aria-label={pathname === "/lens" ? "Exit radial view" : "Open radial view"}
                     className="desktop-only pressable pressable-soft flex items-center justify-center"
                     style={{
                       width: 32,
                       height: 32,
                       borderRadius: 8,
                       background: pathname === "/lens"
-                        ? "rgba(255,255,255,0.02)"
+                        ? "rgba(255,255,255,0.05)"
                         : "transparent",
-                      opacity: 0.4,
+                      opacity: pathname === "/lens" ? 1 : 0.4,
                       transition:
                         "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
@@ -755,15 +726,44 @@ export function Header({
                       event.currentTarget.style.background = "rgba(255,255,255,0.03)";
                     }}
                     onMouseLeave={(event) => {
-                      event.currentTarget.style.opacity = "0.4";
+                      event.currentTarget.style.opacity = pathname === "/lens" ? "1" : "0.4";
                       event.currentTarget.style.background = pathname === "/lens"
-                        ? "rgba(255,255,255,0.02)"
+                        ? "rgba(255,255,255,0.05)"
                         : "transparent";
                     }}
                   >
                     <RadialViewIcon />
                   </Link>
                 )}
+
+                <Link
+                  href="/dashboard"
+                  aria-label="Open dashboard"
+                  className="desktop-only pressable pressable-soft flex items-center justify-center"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    background: highlightGrid ? "rgba(255,255,255,0.02)" : "transparent",
+                    opacity: 0.4,
+                    transition:
+                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                  onClick={() => playSync()}
+                  onMouseEnter={(event) => {
+                    playHover();
+                    event.currentTarget.style.opacity = "1";
+                    event.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.opacity = "0.4";
+                    event.currentTarget.style.background = highlightGrid
+                      ? "rgba(255,255,255,0.02)"
+                      : "transparent";
+                  }}
+                >
+                  <GridIcon />
+                </Link>
 
                 <GithubLink />
               </div>
