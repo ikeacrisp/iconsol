@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import { confetti } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
@@ -190,6 +190,7 @@ function relevantIconsForAnchor(icons: Icon[], anchor: Icon | null): Icon[] {
 
 export function HomeClient({ icons }: { icons: Icon[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
   const [desktopQuery, setDesktopQuery] = useState("");
@@ -198,7 +199,11 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   // Search mode is the single source of truth — sticky once activated by the
   // user typing into the search bar OR clicking the lens header button.
   // Cleared only by clicking the iconsol logo (per product spec).
-  const [searchMode, setSearchMode] = useState(false);
+  // Initialised to true when arriving with ?lens=1 (e.g. from the dashboard
+  // header's lens icon) so the lens behaviour is consistent across pages.
+  const [searchMode, setSearchMode] = useState(
+    () => searchParams?.get("lens") === "1",
+  );
   const playConfetti = useSound(confetti);
   // Stretched ~1.5x with playbackRate 0.65 so the chord rings out a bit
   // longer to match the hover wave, and dropped to volume 0.22 so it
@@ -300,6 +305,15 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
+
+  // When ?lens=1 hands us into search mode (e.g. dashboard's lens icon),
+  // focus the input and strip the param from the URL so it doesn't
+  // re-trigger on history navigation.
+  useEffect(() => {
+    if (searchParams?.get("lens") !== "1") return;
+    desktopInputRef.current?.focus({ preventScroll: true });
+    router.replace("/", { scroll: false });
+  }, [router, searchParams]);
 
   const handleCopy = useCallback(async () => {
     playConfetti();
@@ -406,6 +420,13 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             inset: 0,
             pointerEvents: searchMode ? "auto" : "none",
             zIndex: 0,
+            // Lift the globe so the focused logo lands higher in the
+            // viewport — keeps the focused-logo + pill + bar + surprise
+            // stack visually around the page centre instead of bunched
+            // toward the footer.
+            transform: searchMode ? "translateY(-60px)" : "translateY(0)",
+            transition: "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
+            willChange: "transform",
           }}
         >
           <IconGlobe
@@ -450,15 +471,16 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
           {/*
            * Search bar is the positional anchor — `top` represents the
            * search bar's centre. Pill and Surprise me are absolutely
-           * positioned relative to it so they don't push the bar off the
-           * 64px-above-footer mark. In search mode, top = footer_top - 64
-           * - bar_height/2 = 100dvh - 73 - 64 - 18 = 100dvh - 155.
+           * positioned relative to it so the focused-logo + pill + bar +
+           * surprise stack reads as a single grouping. In search mode the
+           * stack lifts toward the page centre (≈55% down) instead of
+           * sitting flush against the footer.
            */}
           <div
             style={{
               position: "absolute",
               left: "50%",
-              top: searchMode ? "calc(100dvh - 155px)" : "50%",
+              top: searchMode ? "calc(100dvh - 220px)" : "50%",
               transform: "translate(-50%, -50%)",
               transition: "top 520ms cubic-bezier(0.65, 0, 0.35, 1)",
               willChange: "top",
