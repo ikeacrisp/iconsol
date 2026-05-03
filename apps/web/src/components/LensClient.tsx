@@ -11,7 +11,6 @@ import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import type { Icon } from "@/lib/icon-data";
 
-const SOLANA_FOCUS_ID = "sol";
 const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
 const SURPRISE_RECENT_LIMIT = 5;
 
@@ -104,10 +103,11 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   });
 
   const matchedId = useMemo(() => bestMatchId(icons, query), [icons, query]);
-  const focusedId = matchedId ?? SOLANA_FOCUS_ID;
+  const isSearching = query.trim().length > 0;
+  const focusedId = isSearching ? matchedId : null;
 
   const focusedIcon = useMemo(
-    () => icons.find((i) => i.id === focusedId) ?? null,
+    () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
     [focusedId, icons],
   );
 
@@ -170,7 +170,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
     >
       <IconGlobe
         icons={icons}
-        mode="search"
+        mode={isSearching ? "search" : "idle"}
         focusedId={focusedId}
         onIconClick={handleGlobeIconClick}
         interactive
