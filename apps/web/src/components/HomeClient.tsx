@@ -16,7 +16,6 @@ import type { Icon } from "@/lib/icon-data";
 
 const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
 const SURPRISE_RECENT_LIMIT = 5;
-const SOLANA_FOCUS_ID = "sol";
 
 function pickSurpriseLogoId(): string {
   let recent: string[] = [];
@@ -175,6 +174,23 @@ function bestMatchId(icons: Icon[], rawQuery: string): string | null {
   return best ? icons[best.idx].id : null;
 }
 
+// Filter the icon set to entries that match the query in any of the
+// searchable fields (name, id, ticker, category, aliases, tags). Used to
+// shrink the globe to only relevant logos when the user types.
+function filterIconsByQuery(icons: Icon[], rawQuery: string): Icon[] {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return icons;
+  return icons.filter((icon) => {
+    if (icon.id.toLowerCase().includes(q)) return true;
+    if (icon.name.toLowerCase().includes(q)) return true;
+    if (icon.ticker?.toLowerCase().includes(q)) return true;
+    if (icon.category?.toLowerCase().includes(q)) return true;
+    if (icon.aliases.some((a) => a.toLowerCase().includes(q))) return true;
+    if (icon.tags.some((t) => t.toLowerCase().includes(q))) return true;
+    return false;
+  });
+}
+
 export function HomeClient({ icons }: { icons: Icon[] }) {
   const router = useRouter();
   const desktopInputRef = useRef<HTMLInputElement>(null);
@@ -200,10 +216,31 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     () => bestMatchId(icons, desktopQuery),
     [icons, desktopQuery],
   );
-  // While in search mode: prefer the typed match, fall back to Solana so the
-  // globe always has a logo to lean toward — matches the spec's
-  // "Solana is the default focused logo" behavior.
-  const focusedId = searchMode ? matchedId ?? SOLANA_FOCUS_ID : null;
+  // Focus only when the user has actually typed a query that resolves to a
+  // match. Empty input — including after clicking the × or erasing — leaves
+  // focusedId null so the globe drops back to its idle auto-spinning state.
+  const focusedId = matchedId;
+
+  // Subset of icons populating the globe: when there's a query, restrict
+  // to relevant matches so the globe shrinks to only what the user
+  // searched for. Falls back to the full set when the query doesn't
+  // narrow anything (empty query or no matches).
+  const visibleIcons = useMemo(() => {
+    const filtered = filterIconsByQuery(icons, desktopQuery);
+    return filtered.length > 0 ? filtered : icons;
+  }, [icons, desktopQuery]);
+
+  // Globe radius shrinks with fewer visible icons so a single-result
+  // search collapses to a small cluster instead of a huge mostly-empty
+  // sphere. Square root keeps the shrink gentle — 1 icon ≈ 0.18, full
+  // set = 1.0.
+  const radiusScale = useMemo(() => {
+    const n = visibleIcons.length;
+    const total = icons.length;
+    if (n === 0 || n >= total) return 1;
+    const t = n / total;
+    return Math.max(0.18, Math.sqrt(t));
+  }, [visibleIcons.length, icons.length]);
 
   const handleQueryChange = useCallback((next: string) => {
     setDesktopQuery(next);
@@ -344,11 +381,13 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
           }}
         >
           <IconGlobe
-            icons={icons}
-            mode={searchMode ? "search" : "idle"}
+            icons={visibleIcons}
+            mode={focusedId ? "search" : "idle"}
             focusedId={focusedId}
             onIconClick={handleGlobeIconClick}
             interactive={searchMode}
+            radiusScale={radiusScale}
+            jitterAmplitude={1.5}
           />
         </div>
 
@@ -374,22 +413,20 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             zIndex: 2,
           }}
         >
+          {/*
+           * Search bar is the positional anchor — `top` represents the
+           * search bar's centre. Pill and Surprise me are absolutely
+           * positioned relative to it so they don't push the bar off the
+           * 64px-above-footer mark. In search mode, top = footer_top - 64
+           * - bar_height/2 = 100dvh - 73 - 64 - 18 = 100dvh - 155.
+           */}
           <div
-            className="flex flex-col items-center"
             style={{
               position: "absolute",
               left: "50%",
-              // Smooth slide — `top` interpolates between viewport center
-              // and (footer top - 64 - search-bar height/2). transform's
-              // own translateY also interpolates from -50% (centered) to
-              // approximately -100% (bottom-anchored on the search bar).
-              // Combined, the search bar lands exactly 64px above the footer.
               top: searchMode ? "calc(100dvh - 155px)" : "50%",
-              transform: searchMode
-                ? "translate(-50%, -50%)"
-                : "translate(-50%, -50%)",
-              transition:
-                "top 520ms cubic-bezier(0.65, 0, 0.35, 1)",
+              transform: "translate(-50%, -50%)",
+              transition: "top 520ms cubic-bezier(0.65, 0, 0.35, 1)",
               willChange: "top",
               width: 520,
               maxWidth: "calc(100% - 48px)",
@@ -397,20 +434,19 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               zIndex: 3,
             }}
           >
-            {/* Focused icon name pill — appears in search mode above the bar */}
+            {/* Focused icon name pill — 128px above the search bar */}
             <div
               style={{
+                position: "absolute",
+                left: "50%",
+                bottom: "calc(100% + 128px)",
+                transform: "translateX(-50%)",
                 height: 28,
-                marginBottom: 12,
                 display: "flex",
                 alignItems: "center",
                 opacity: searchMode && focusedIcon ? 1 : 0,
-                transform:
-                  searchMode && focusedIcon
-                    ? "translateY(0)"
-                    : "translateY(6px)",
                 transition:
-                  "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1), transform 320ms cubic-bezier(0.65, 0, 0.35, 1)",
+                  "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1)",
                 pointerEvents: "none",
               }}
             >
@@ -444,42 +480,51 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               forceClearAffordance={searchMode}
             />
 
-            <BlurFade delay={0.2} duration={0.5} yOffset={8}>
-              <button
-                type="button"
-                onClick={handleSurprise}
-                onMouseEnter={() => playSurpriseHover()}
-                className="surprise-button pressable flex items-center"
-                style={{
-                  gap: 6,
-                  marginTop: 24,
-                  transition:
-                    "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-              >
-                <span className="surprise-dice" aria-hidden="true">
-                  <MaskIcon src="/ui/dice.svg" size={16} color="#ffffff" opacity={0.4} />
-                </span>
-                <span
+            {/* Surprise me — 24px below the search bar */}
+            <div
+              style={{
+                position: "absolute",
+                left: "50%",
+                top: "calc(100% + 24px)",
+                transform: "translateX(-50%)",
+              }}
+            >
+              <BlurFade delay={0.2} duration={0.5} yOffset={8}>
+                <button
+                  type="button"
+                  onClick={handleSurprise}
+                  onMouseEnter={() => playSurpriseHover()}
+                  className="surprise-button pressable flex items-center"
                   style={{
-                    fontSize: 14,
-                    lineHeight: "normal",
-                    color: "rgba(255,255,255,0.6)",
-                    display: "inline-flex",
+                    gap: 6,
+                    transition:
+                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                   }}
                 >
-                  {Array.from("Surprise me").map((char, index) => (
-                    <span
-                      key={index}
-                      className="surprise-letter"
-                      style={{ animationDelay: `${index * 0.04}s` }}
-                    >
-                      {char === " " ? " " : char}
-                    </span>
-                  ))}
-                </span>
-              </button>
-            </BlurFade>
+                  <span className="surprise-dice" aria-hidden="true">
+                    <MaskIcon src="/ui/dice.svg" size={16} color="#ffffff" opacity={0.4} />
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 14,
+                      lineHeight: "normal",
+                      color: "rgba(255,255,255,0.6)",
+                      display: "inline-flex",
+                    }}
+                  >
+                    {Array.from("Surprise me").map((char, index) => (
+                      <span
+                        key={index}
+                        className="surprise-letter"
+                        style={{ animationDelay: `${index * 0.04}s` }}
+                      >
+                        {char === " " ? " " : char}
+                      </span>
+                    ))}
+                  </span>
+                </button>
+              </BlurFade>
+            </div>
           </div>
         </main>
 

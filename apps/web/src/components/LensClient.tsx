@@ -110,11 +110,9 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   // The committed source resets to (3) whenever the query changes.
   const [dragHighlightId, setDragHighlightId] = useState<string | null>(null);
   const [committedFocusId, setCommittedFocusId] = useState<string | null>(null);
-  const [centerOnFocus, setCenterOnFocus] = useState(false);
 
   useEffect(() => {
     setCommittedFocusId(matchedId);
-    setCenterOnFocus(false);
   }, [matchedId]);
 
   const focusedId = dragHighlightId ?? committedFocusId;
@@ -130,10 +128,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
 
   const handleDragRelease = useCallback((id: string | null) => {
     setDragHighlightId(null);
-    if (id) {
-      setCommittedFocusId(id);
-      setCenterOnFocus(true);
-    }
+    if (id) setCommittedFocusId(id);
   }, []);
 
   // Lock viewport scroll while the lens page is mounted — the experience
@@ -199,9 +194,9 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         focusedId={focusedId}
         onIconClick={handleGlobeIconClick}
         interactive
-        idleScale={1.14}
-        searchScale={1.14}
-        centerOnFocus={centerOnFocus}
+        idleScale={1.22}
+        searchScale={1.22}
+        jitterAmplitude={1.5}
         onDragHighlight={handleDragHighlight}
         onDragRelease={handleDragRelease}
       />

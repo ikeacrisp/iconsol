@@ -84,12 +84,18 @@ interface IconGlobeProps {
   /** CSS scale applied while in search mode. Default 1.32. */
   searchScale?: number;
   /**
-   * When true, the focus easing brings the matched icon to the dead centre
-   * of the screen (eases both phi and theta). When false (default), only
-   * phi animates — theta returns to the idle base tilt — so the globe only
-   * rotates horizontally toward the focus.
+   * Multiplier applied to the spherical radius. Use values < 1 to shrink
+   * the globe (e.g. when a search filter narrows the icon set). Defaults
+   * to 1, which keeps the radius proportional to the container.
    */
-  centerOnFocus?: boolean;
+  radiusScale?: number;
+  /**
+   * Per-icon idle jitter amplitude in pixels. Each icon gets an
+   * independent low-frequency sine wave on x and y, giving the
+   * impression that each logo is gently "hovering" in place. Set to 0
+   * to disable.
+   */
+  jitterAmplitude?: number;
   /** Called during a drag with the id of the icon nearest screen centre. */
   onDragHighlight?: (id: string | null) => void;
   /** Called on drag-end with the id of the icon nearest screen centre. */
@@ -105,7 +111,8 @@ export function IconGlobe({
   interactive = false,
   idleScale = 1.14,
   searchScale = 1.32,
-  centerOnFocus = false,
+  radiusScale = 1,
+  jitterAmplitude = 0,
   onDragHighlight,
   onDragRelease,
 }: IconGlobeProps = {}) {
@@ -203,11 +210,9 @@ export function IconGlobe({
             while (dPhi < -Math.PI) dPhi += 2 * Math.PI;
             phiRef.current += dPhi * 0.08;
 
-            // centerOnFocus → snap to the dead centre by also easing theta
-            // to the icon's latitude (used after a drag-release).
-            // Otherwise → horizontal-only focus, theta returns to base tilt.
-            const targetTheta = centerOnFocus ? targetLatR : TILT;
-            const dTheta = targetTheta - thetaRef.current;
+            // Ease theta toward the target latitude so the focused icon
+            // lands at the dead centre of the screen — both axes animate.
+            const dTheta = targetLatR - thetaRef.current;
             thetaRef.current += dTheta * 0.08;
 
             velPhiRef.current = 0;
@@ -237,7 +242,7 @@ export function IconGlobe({
       }
 
       const size = container.offsetWidth;
-      const r = size * 0.45;
+      const r = size * 0.45 * radiusScale;
       const cx = size / 2;
       const cy = size / 2;
       const phi = phiRef.current;
@@ -245,6 +250,10 @@ export function IconGlobe({
       const cosT = Math.cos(theta);
       const sinT = Math.sin(theta);
       const pointer = pointerRef.current;
+      // Subtle hover wobble — each icon gets an independent low-frequency
+      // sine on both axes so the globe feels "alive" rather than rigidly
+      // rotating. Amplitude controlled by jitterAmplitude prop.
+      const tNow = jitterAmplitude > 0 ? performance.now() * 0.001 : 0;
 
       // While dragging, track the front-facing icon nearest the screen
       // centre. Reported via onDragHighlight as it changes, and snapshotted
@@ -269,8 +278,16 @@ export function IconGlobe({
         const y = y1 * cosT - z1 * sinT;
         const z = y1 * sinT + z1 * cosT;
 
-        const sx = cx + x * r;
-        const sy = cy - y * r;
+        let sx = cx + x * r;
+        let sy = cy - y * r;
+        if (jitterAmplitude > 0) {
+          // Per-icon seeds derived from index so the wobble pattern is
+          // varied across the globe (no obvious lockstep).
+          const seedX = i * 0.137;
+          const seedY = i * 0.253;
+          sx += Math.sin(tNow * 0.7 + seedX) * jitterAmplitude;
+          sy += Math.cos(tNow * 0.9 + seedY) * jitterAmplitude;
+        }
 
         const child = children[i];
         if (z > 0) {
@@ -337,7 +354,7 @@ export function IconGlobe({
 
     animate();
     return () => cancelAnimationFrame(rafRef.current);
-  }, [mode, nodes, focusedIdx, iconSize, interactive, centerOnFocus]);
+  }, [mode, nodes, focusedIdx, iconSize, interactive, radiusScale, jitterAmplitude]);
 
   // ------- Pointer interaction (drag-to-rotate, only when interactive) -------
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
