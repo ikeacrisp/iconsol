@@ -174,21 +174,18 @@ function bestMatchId(icons: Icon[], rawQuery: string): string | null {
   return best ? icons[best.idx].id : null;
 }
 
-// Filter the icon set to entries that match the query in any of the
-// searchable fields (name, id, ticker, category, aliases, tags). Used to
-// shrink the globe to only relevant logos when the user types.
-function filterIconsByQuery(icons: Icon[], rawQuery: string): Icon[] {
-  const q = rawQuery.trim().toLowerCase();
-  if (!q) return icons;
-  return icons.filter((icon) => {
-    if (icon.id.toLowerCase().includes(q)) return true;
-    if (icon.name.toLowerCase().includes(q)) return true;
-    if (icon.ticker?.toLowerCase().includes(q)) return true;
-    if (icon.category?.toLowerCase().includes(q)) return true;
-    if (icon.aliases.some((a) => a.toLowerCase().includes(q))) return true;
-    if (icon.tags.some((t) => t.toLowerCase().includes(q))) return true;
-    return false;
-  });
+// Build the relevant subset for the globe centred on a specific icon —
+// the anchor itself, its curated `relatedIds` ("commonly used with"),
+// and same-category siblings. Used both for typed searches (anchor =
+// best query match) and for click-to-refocus (anchor = clicked icon).
+function relevantIconsForAnchor(icons: Icon[], anchor: Icon | null): Icon[] {
+  if (!anchor) return icons;
+  const include = new Set<string>([anchor.id]);
+  for (const id of anchor.relatedIds ?? []) include.add(id);
+  for (const icon of icons) {
+    if (icon.category === anchor.category) include.add(icon.id);
+  }
+  return icons.filter((icon) => include.has(icon.id));
 }
 
 export function HomeClient({ icons }: { icons: Icon[] }) {
@@ -216,30 +213,43 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     () => bestMatchId(icons, desktopQuery),
     [icons, desktopQuery],
   );
-  // Focus only when the user has actually typed a query that resolves to a
-  // match. Empty input — including after clicking the × or erasing — leaves
-  // focusedId null so the globe drops back to its idle auto-spinning state.
-  const focusedId = matchedId;
 
-  // Subset of icons populating the globe: when there's a query, restrict
-  // to relevant matches so the globe shrinks to only what the user
-  // searched for. Falls back to the full set when the query doesn't
-  // narrow anything (empty query or no matches).
-  const visibleIcons = useMemo(() => {
-    const filtered = filterIconsByQuery(icons, desktopQuery);
-    return filtered.length > 0 ? filtered : icons;
-  }, [icons, desktopQuery]);
+  // Click-to-refocus: when the user clicks any logo on the globe we
+  // pin focus to that id. Cleared whenever the typed query changes
+  // so typing supersedes a previous click.
+  const [manualFocusId, setManualFocusId] = useState<string | null>(null);
+  useEffect(() => {
+    setManualFocusId(null);
+  }, [desktopQuery]);
 
-  // Globe radius shrinks with fewer visible icons so a single-result
-  // search collapses to a small cluster instead of a huge mostly-empty
-  // sphere. Square root keeps the shrink gentle — 1 icon ≈ 0.18, full
-  // set = 1.0.
+  // Manual click takes precedence over the typed match. Empty input
+  // and no manual click leaves focusedId null so the globe drops back
+  // to its idle auto-spinning state.
+  const focusedId = manualFocusId ?? matchedId;
+
+  const focusedIcon = useMemo(
+    () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
+    [focusedId, icons],
+  );
+
+  // The globe clusters around the current focus: focused icon + its
+  // curated relatedIds + same-category siblings. So clicking a logo
+  // both refocuses and re-clusters the surrounding icons to be
+  // relevant to the newly clicked logo.
+  const visibleIcons = useMemo(
+    () => relevantIconsForAnchor(icons, focusedIcon),
+    [icons, focusedIcon],
+  );
+
+  // Globe radius shrinks aggressively with fewer visible icons so the
+  // relevant cluster sits tight around the focused logo instead of
+  // sprawling across a half-empty sphere.
   const radiusScale = useMemo(() => {
     const n = visibleIcons.length;
     const total = icons.length;
     if (n === 0 || n >= total) return 1;
     const t = n / total;
-    return Math.max(0.18, Math.sqrt(t));
+    return Math.max(0.18, Math.sqrt(t) * 0.65);
   }, [visibleIcons.length, icons.length]);
 
   const handleQueryChange = useCallback((next: string) => {
@@ -282,6 +292,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
+        setSearchMode(true);
         desktopInputRef.current?.focus({ preventScroll: true });
       }
     };
@@ -320,9 +331,22 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     setDesktopQuery("");
   }, []);
 
+  // Lens header button is a toggle — clicking it while already in search
+  // mode returns the page to its idle landing-page state (clears the query
+  // and slides the search bar back to centre).
   const handleLensClick = useCallback(() => {
+    setSearchMode((prev) => {
+      if (prev) {
+        setDesktopQuery("");
+        return false;
+      }
+      desktopInputRef.current?.focus({ preventScroll: true });
+      return true;
+    });
+  }, []);
+
+  const handleSearchActivate = useCallback(() => {
     setSearchMode(true);
-    desktopInputRef.current?.focus({ preventScroll: true });
   }, []);
 
   // Iconsol logo click — only meaningful when we're in search mode on the
@@ -334,16 +358,20 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     }
   }, [searchMode]);
 
+  // Click on the globe: clicking a non-focused logo refocuses the
+  // globe around that logo (re-clusters its relevant + commonly-used
+  // neighbours). Clicking the already-focused logo navigates to its
+  // detail page — second click commits.
   const handleGlobeIconClick = useCallback(
     (id: string) => {
-      router.push(`/icon/${id}`);
+      if (id === focusedId) {
+        router.push(`/icon/${id}`);
+      } else {
+        setManualFocusId(id);
+        setSearchMode(true);
+      }
     },
-    [router],
-  );
-
-  const focusedIcon = useMemo(
-    () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
-    [focusedId, icons],
+    [router, focusedId],
   );
 
   return (
@@ -386,6 +414,12 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             focusedId={focusedId}
             onIconClick={handleGlobeIconClick}
             interactive={searchMode}
+            // idleScale is bumped while the user is in search mode (lens
+            // clicked / bar focused), so the globe zooms in even before
+            // they type — but the idle opacity formula still applies so
+            // icons stay faint until a query produces a focused match.
+            idleScale={searchMode ? 1.32 : 1.14}
+            searchScale={1.32}
             radiusScale={radiusScale}
             jitterAmplitude={1.5}
           />
@@ -475,6 +509,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               onChange={handleQueryChange}
               onSubmit={submitDesktop}
               onClear={handleClear}
+              onActivate={handleSearchActivate}
               inputRef={desktopInputRef}
               showShortcut
               forceClearAffordance={searchMode}
@@ -518,7 +553,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                         className="surprise-letter"
                         style={{ animationDelay: `${index * 0.04}s` }}
                       >
-                        {char === " " ? " " : char}
+                        {char === " " ? " " : char}
                       </span>
                     ))}
                   </span>
