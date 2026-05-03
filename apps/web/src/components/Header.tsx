@@ -575,12 +575,27 @@ interface HeaderProps {
   variant?: "home" | "dashboard";
   highlightGrid?: boolean;
   showInlineSearch?: boolean;
+  /**
+   * If provided, the lens button suppresses navigation to /lens and calls this
+   * instead. Used by the home page to activate in-place search mode.
+   */
+  onLensClick?: () => void;
+  /** When true, paints the lens button as the active route. */
+  highlightLens?: boolean;
+  /**
+   * If provided, intercepts the iconsol logo click. Used by the home page
+   * to reset search mode without re-navigating.
+   */
+  onLogoClick?: () => void;
 }
 
 export function Header({
   variant = "home",
   highlightGrid = false,
   showInlineSearch = variant === "dashboard",
+  onLensClick,
+  highlightLens = false,
+  onLogoClick,
 }: HeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -633,6 +648,12 @@ export function Header({
             <Link
               href="/"
               aria-label="Go to iconsol home"
+              onClick={(event) => {
+                if (onLogoClick) {
+                  event.preventDefault();
+                  onLogoClick();
+                }
+              }}
               style={{ display: "inline-flex", alignItems: "center", flexShrink: 0 }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -676,36 +697,73 @@ export function Header({
                   <GridIcon />
                 </Link>
 
-                <Link
-                  href="/lens"
-                  aria-label="Open radial view"
-                  className="desktop-only pressable pressable-soft flex items-center justify-center"
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 8,
-                    background: pathname === "/lens"
-                      ? "rgba(255,255,255,0.02)"
-                      : "transparent",
-                    opacity: 0.4,
-                    transition:
-                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                  onClick={() => playSync()}
-                  onMouseEnter={(event) => {
-                    playHover();
-                    event.currentTarget.style.opacity = "1";
-                    event.currentTarget.style.background = "rgba(255,255,255,0.03)";
-                  }}
-                  onMouseLeave={(event) => {
-                    event.currentTarget.style.opacity = "0.4";
-                    event.currentTarget.style.background = pathname === "/lens"
-                      ? "rgba(255,255,255,0.02)"
-                      : "transparent";
-                  }}
-                >
-                  <RadialViewIcon />
-                </Link>
+                {onLensClick ? (
+                  <button
+                    type="button"
+                    aria-label="Activate search mode"
+                    aria-pressed={highlightLens}
+                    onClick={() => {
+                      playSync();
+                      onLensClick();
+                    }}
+                    className="desktop-only pressable pressable-soft flex items-center justify-center"
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      background: highlightLens
+                        ? "rgba(255,255,255,0.05)"
+                        : "transparent",
+                      opacity: highlightLens ? 1 : 0.4,
+                      transition:
+                        "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                    onMouseEnter={(event) => {
+                      playHover();
+                      event.currentTarget.style.opacity = "1";
+                      event.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.opacity = highlightLens ? "1" : "0.4";
+                      event.currentTarget.style.background = highlightLens
+                        ? "rgba(255,255,255,0.05)"
+                        : "transparent";
+                    }}
+                  >
+                    <RadialViewIcon />
+                  </button>
+                ) : (
+                  <Link
+                    href="/lens"
+                    aria-label="Open radial view"
+                    className="desktop-only pressable pressable-soft flex items-center justify-center"
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 8,
+                      background: pathname === "/lens"
+                        ? "rgba(255,255,255,0.02)"
+                        : "transparent",
+                      opacity: 0.4,
+                      transition:
+                        "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                    onClick={() => playSync()}
+                    onMouseEnter={(event) => {
+                      playHover();
+                      event.currentTarget.style.opacity = "1";
+                      event.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.opacity = "0.4";
+                      event.currentTarget.style.background = pathname === "/lens"
+                        ? "rgba(255,255,255,0.02)"
+                        : "transparent";
+                    }}
+                  >
+                    <RadialViewIcon />
+                  </Link>
+                )}
 
                 <GithubLink />
               </div>

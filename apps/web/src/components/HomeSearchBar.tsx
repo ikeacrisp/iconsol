@@ -1,5 +1,7 @@
 "use client";
 
+import { AnimatePresence, motion } from "motion/react";
+import { useSound } from "@web-kits/audio/react";
 import {
   easingGradient,
   easingGradientMulti,
@@ -7,6 +9,7 @@ import {
 } from "@/lib/easing-gradient";
 import { ICON_COUNT } from "@/lib/icon-count";
 import { MaskIcon } from "@/components/UiIcon";
+import { slideDown } from "@/lib/audio/core";
 
 // Visual chrome shared with the home page. Extracted so the lens page
 // can reuse the same search input without duplicating the gradients
@@ -102,17 +105,41 @@ export function HomeSearchBar({
   value,
   onChange,
   onSubmit,
+  onClear,
   inputRef,
   showShortcut,
+  forceClearAffordance = false,
   placeholder = DEFAULT_PLACEHOLDER,
 }: {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  onClear?: () => void;
   inputRef: React.RefObject<HTMLInputElement | null>;
   showShortcut: boolean;
+  /**
+   * When true, shows the × (clear) icon even with an empty value — used by
+   * the home page so the user can exit lens-activated search mode.
+   */
+  forceClearAffordance?: boolean;
   placeholder?: string;
 }) {
+  const hasValue = value.length > 0;
+  // ⌘K → × swap is gated by `hasValue` (per spec) but can be forced by the
+  // parent to expose an "exit search mode" affordance. The swap itself uses
+  // opacity + scale + blur over 180ms (≤200ms per spec).
+  const showClear = hasValue || forceClearAffordance;
+  const playSlideDown = useSound(slideDown);
+
+  const handleClear = () => {
+    playSlideDown();
+    onChange("");
+    onClear?.();
+    // preventScroll so the surrounding overflow:hidden wrapper doesn't get
+    // shoved by the browser's "scroll input into view" focus behavior.
+    inputRef.current?.focus({ preventScroll: true });
+  };
+
   return (
     <div
       className="relative flex w-full cursor-text items-center justify-between overflow-hidden backdrop-blur-[40px] frost-dither"
@@ -126,7 +153,7 @@ export function HomeSearchBar({
         WebkitBackdropFilter: "blur(40px)",
         isolation: "isolate",
       }}
-      onClick={() => inputRef.current?.focus()}
+      onClick={() => inputRef.current?.focus({ preventScroll: true })}
     >
       <SearchGlowLayer rounded={24} />
       <div
@@ -165,37 +192,82 @@ export function HomeSearchBar({
         />
       </div>
       {showShortcut ? (
-        <button
-          type="button"
-          aria-label="Focus search"
-          onClick={(event) => {
-            event.stopPropagation();
-            inputRef.current?.focus();
-          }}
-          className="pressable pressable-soft flex items-center justify-center"
+        <div
           style={{
-            width: "fit-content",
-            height: "fit-content",
-            padding: 0,
-            borderRadius: 8,
-            background: "transparent",
-            backdropFilter: "none",
-            WebkitBackdropFilter: "none",
-            flexShrink: 0,
-            opacity: 0.4,
             position: "relative",
+            width: 20,
+            height: 20,
+            flexShrink: 0,
             zIndex: 2,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/ui/command-k.svg"
-            alt=""
-            width={16}
-            height={8.61}
-            style={{ display: "block", width: 16, height: 8.61, opacity: 0.4 }}
-          />
-        </button>
+          <AnimatePresence initial={false} mode="popLayout">
+            {showClear ? (
+              <motion.button
+                key="clear"
+                type="button"
+                aria-label="Clear search"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleClear();
+                }}
+                initial={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
+                transition={{
+                  duration: 0.18,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="pressable pressable-soft flex items-center justify-center"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  padding: 0,
+                  borderRadius: 8,
+                  background: "transparent",
+                  willChange: "transform, opacity, filter",
+                }}
+              >
+                <MaskIcon src="/ui/cancel.svg" size={16} color="#ffffff" opacity={1} />
+              </motion.button>
+            ) : (
+              <motion.button
+                key="shortcut"
+                type="button"
+                aria-label="Focus search"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  inputRef.current?.focus();
+                }}
+                initial={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
+                animate={{ opacity: 0.4, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
+                transition={{
+                  duration: 0.18,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="pressable pressable-soft flex items-center justify-center"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  padding: 0,
+                  borderRadius: 8,
+                  background: "transparent",
+                  willChange: "transform, opacity, filter",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/ui/command-k.svg"
+                  alt=""
+                  width={16}
+                  height={8.61}
+                  style={{ display: "block", width: 16, height: 8.61, opacity: 0.4 }}
+                />
+              </motion.button>
+            )}
+          </AnimatePresence>
+        </div>
       ) : null}
     </div>
   );
