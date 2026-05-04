@@ -95,6 +95,14 @@ interface IconGlobeProps {
    */
   nodePositions?: Map<string, { lat: number; lon: number }> | null;
   /**
+   * Viewport-pixel keep-out boundaries for cluster physics — icons in
+   * the floating cluster bounce back into the safe area when they hit
+   * any of these. Used to keep logos from drifting behind the header,
+   * the search bar, or below the search bar's footer area.
+   */
+  keepOutTopVy?: number;
+  keepOutBottomVy?: number;
+  /**
    * Multiplier applied to the spherical radius. Use values < 1 to shrink
    * the globe (e.g. when a search filter narrows the icon set). Defaults
    * to 1, which keeps the radius proportional to the container.
@@ -125,6 +133,8 @@ export function IconGlobe({
   radiusScale = 1,
   jitterAmplitude = 0,
   nodePositions = null,
+  keepOutTopVy = 80,
+  keepOutBottomVy = 525,
   onDragHighlight,
   onDragRelease,
 }: IconGlobeProps = {}) {
@@ -191,6 +201,16 @@ export function IconGlobe({
     if (dragRef.current !== null) return;
     userPannedRef.current = false;
   }, [focusedId]);
+
+  // Per-icon physics offset from its home (lat/lon) projection. Used in
+  // cluster mode so icons gently float, bump into each other and settle
+  // back rather than locking onto fixed lat/lon points. The collision
+  // radius is larger than the visual radius — the user wanted invisible
+  // bounding boxes interacting, not the visible logos themselves.
+  const physicsRef = useRef<
+    Map<string, { ox: number; oy: number; vx: number; vy: number }>
+  >(new Map());
+  const lastPhysicsTickRef = useRef<number | null>(null);
 
   // Tracks the icon nearest screen centre during the current drag, so
   // pointer-up can report it via onDragRelease without re-scanning.
@@ -284,6 +304,29 @@ export function IconGlobe({
       let nearestI = -1;
       let nearestD2 = Infinity;
 
+      // Cluster physics — only active when nodePositions is provided.
+      // Each visible icon gets a 2D screen-space offset from its home
+      // (lat/lon) projection. Icons spring back to home and repel each
+      // other when their invisible bounds overlap, producing a soft
+      // "floating in space" feel.
+      const usingPhysics = !!nodePositions;
+      const physics = physicsRef.current;
+      const physTickT = performance.now();
+      const physDt = lastPhysicsTickRef.current
+        ? Math.min(0.05, (physTickT - lastPhysicsTickRef.current) / 1000)
+        : 0.016;
+      lastPhysicsTickRef.current = physTickT;
+      // Indexed by node array index — gathered in pass 1, applied in
+      // pass 2 after collision resolution.
+      const homePos: Array<{
+        sx: number;
+        sy: number;
+        z: number;
+        scale: number;
+        opacity: number;
+        depth: number;
+      } | null> = [];
+
       for (let i = 0; i < children.length; i++) {
         const node = nodes[i];
         if (!node) continue;
@@ -312,7 +355,6 @@ export function IconGlobe({
           sy += Math.cos(tNow * 0.9 + seedY) * jitterAmplitude;
         }
 
-        const child = children[i];
         if (z > 0) {
           if (isDragging && node.id) {
             const ddx = sx - cx;
@@ -328,18 +370,12 @@ export function IconGlobe({
           let scale: number;
 
           if (usingSearch) {
-            // Non-focused icons sit at a moderate visibility (floor 0.2,
-            // max ~0.5) — present enough to read as "commonly used with"
-            // logos, dim enough that the focused match clearly leads.
-            // Scales are halved compared to before because iconSize doubled
-            // (48 vs 24) — keeps the on-screen visual size the same while
-            // SVGs scale DOWN from their 48px raster instead of UP.
             opacity = 0.2 + depth * 0.3;
             scale = 0.325 + depth * 0.225;
 
             if (focusedIdx === i) {
               opacity = 1;
-              scale = (0.425 + depth * 0.225) * FOCUS_SCALE_BOOST;
+              scale = (1.0 + depth * 0.45) * FOCUS_SCALE_BOOST;
             }
           } else {
             opacity = depth * 0.25;
@@ -356,14 +392,169 @@ export function IconGlobe({
             }
           }
 
-          child.style.transform = `translate(${sx - iconSize / 2}px, ${sy - iconSize / 2}px) scale(${scale})`;
-          child.style.opacity = `${opacity}`;
-          child.style.zIndex = focusedIdx === i ? "5" : "1";
-          child.style.pointerEvents = interactive ? "auto" : "none";
+          homePos.push({ sx, sy, z, scale, opacity, depth });
         } else {
+          homePos.push(null);
+        }
+      }
+
+      // Physics pass — only when in cluster mode (nodePositions set).
+      if (usingPhysics) {
+        const SPRING = 7;
+        const DAMPING = 5.5;
+        const REPEL = 380;
+        const focusedCollideR = iconSize * 0.95;
+        const tierCollideR = iconSize * 0.55;
+
+        // Spring + damping toward home (offset → 0).
+        for (let i = 0; i < homePos.length; i++) {
+          const home = homePos[i];
+          const node = nodes[i];
+          if (!home || !node?.id) continue;
+          let p = physics.get(node.id);
+          if (!p) {
+            p = { ox: 0, oy: 0, vx: 0, vy: 0 };
+            physics.set(node.id, p);
+          }
+          if (focusedIdx === i) {
+            p.ox = 0;
+            p.oy = 0;
+            p.vx = 0;
+            p.vy = 0;
+            continue;
+          }
+          p.vx += -SPRING * p.ox * physDt - DAMPING * p.vx * physDt;
+          p.vy += -SPRING * p.oy * physDt - DAMPING * p.vy * physDt;
+        }
+
+        // Pairwise repulsion when invisible collision bounds overlap.
+        for (let i = 0; i < homePos.length; i++) {
+          const ha = homePos[i];
+          const na = nodes[i];
+          if (!ha || !na?.id) continue;
+          const pa = physics.get(na.id);
+          if (!pa) continue;
+          const ra = focusedIdx === i ? focusedCollideR : tierCollideR;
+          for (let j = i + 1; j < homePos.length; j++) {
+            const hb = homePos[j];
+            const nb = nodes[j];
+            if (!hb || !nb?.id) continue;
+            const pb = physics.get(nb.id);
+            if (!pb) continue;
+            const rb = focusedIdx === j ? focusedCollideR : tierCollideR;
+            const ax = ha.sx + pa.ox;
+            const ay = ha.sy + pa.oy;
+            const bx = hb.sx + pb.ox;
+            const by = hb.sy + pb.oy;
+            const ddx = ax - bx;
+            const ddy = ay - by;
+            const d2 = ddx * ddx + ddy * ddy;
+            const minD = ra + rb;
+            if (d2 < minD * minD && d2 > 0.01) {
+              const dist = Math.sqrt(d2);
+              const overlap = minD - dist;
+              const nx = ddx / dist;
+              const ny = ddy / dist;
+              const force = overlap * REPEL;
+              if (focusedIdx !== i) {
+                pa.vx += nx * force * physDt;
+                pa.vy += ny * force * physDt;
+              }
+              if (focusedIdx !== j) {
+                pb.vx -= nx * force * physDt;
+                pb.vy -= ny * force * physDt;
+              }
+            }
+          }
+        }
+
+        // Integrate offsets.
+        for (let i = 0; i < homePos.length; i++) {
+          const node = nodes[i];
+          if (!node?.id) continue;
+          const p = physics.get(node.id);
+          if (!p) continue;
+          if (focusedIdx === i) continue;
+          p.ox += p.vx * physDt;
+          p.oy += p.vy * physDt;
+        }
+
+        // Bounce icons off the keep-out zones (header above, search bar
+        // and footer below). Boundaries are given in viewport pixels;
+        // convert into the local container coordinate by accounting for
+        // the live CSS transform: scale.
+        const containerRect = container.getBoundingClientRect();
+        const visScale =
+          containerRect.width / Math.max(1, container.offsetWidth);
+        const containerTopVy = containerRect.top;
+        // local_y where viewport_y = vy: vy = containerTopVy + sy *
+        // visScale → sy = (vy - containerTopVy) / visScale.
+        const topBoundLocal = (keepOutTopVy - containerTopVy) / visScale;
+        const bottomBoundLocal =
+          (keepOutBottomVy - containerTopVy) / visScale;
+        const containerLeftVx = containerRect.left;
+        const leftBoundLocal = (12 - containerLeftVx) / visScale;
+        const rightBoundLocal =
+          (window.innerWidth - 12 - containerLeftVx) / visScale;
+        const halfIcon = iconSize * 0.4;
+        const BOUNCE_DAMP = -0.4;
+        for (let i = 0; i < homePos.length; i++) {
+          const home = homePos[i];
+          const node = nodes[i];
+          if (!home || !node?.id) continue;
+          if (focusedIdx === i) continue;
+          const p = physics.get(node.id);
+          if (!p) continue;
+          const px = home.sx + p.ox;
+          const py = home.sy + p.oy;
+          if (py - halfIcon < topBoundLocal) {
+            p.oy = topBoundLocal + halfIcon - home.sy;
+            if (p.vy < 0) p.vy *= BOUNCE_DAMP;
+          }
+          if (py + halfIcon > bottomBoundLocal) {
+            p.oy = bottomBoundLocal - halfIcon - home.sy;
+            if (p.vy > 0) p.vy *= BOUNCE_DAMP;
+          }
+          if (px - halfIcon < leftBoundLocal) {
+            p.ox = leftBoundLocal + halfIcon - home.sx;
+            if (p.vx < 0) p.vx *= BOUNCE_DAMP;
+          }
+          if (px + halfIcon > rightBoundLocal) {
+            p.ox = rightBoundLocal - halfIcon - home.sx;
+            if (p.vx > 0) p.vx *= BOUNCE_DAMP;
+          }
+        }
+      }
+
+      // Render pass.
+      for (let i = 0; i < children.length; i++) {
+        const child = children[i];
+        const home = homePos[i];
+        if (!home) {
           child.style.opacity = "0";
           child.style.pointerEvents = "none";
+          continue;
         }
+        const node = nodes[i];
+        let ox = 0;
+        let oy = 0;
+        if (usingPhysics && node?.id) {
+          const p = physics.get(node.id);
+          if (p) {
+            ox = p.ox;
+            oy = p.oy;
+          }
+        }
+        const finalSx = home.sx + ox;
+        const finalSy = home.sy + oy;
+        // Translate on the button (preserves the full iconSize click hit
+        // area), scale on the inner wrapper.
+        child.style.transform = `translate(${finalSx - iconSize / 2}px, ${finalSy - iconSize / 2}px)`;
+        child.style.opacity = `${home.opacity}`;
+        child.style.zIndex = focusedIdx === i ? "5" : "1";
+        child.style.pointerEvents = interactive ? "auto" : "none";
+        const scaleWrap = child.firstElementChild as HTMLElement | null;
+        if (scaleWrap) scaleWrap.style.transform = `scale(${home.scale})`;
       }
 
       if (isDragging) {
@@ -380,12 +571,27 @@ export function IconGlobe({
 
     animate();
     return () => cancelAnimationFrame(rafRef.current);
-  }, [mode, nodes, focusedIdx, iconSize, interactive, radiusScale, jitterAmplitude]);
+  }, [
+    mode,
+    nodes,
+    focusedIdx,
+    iconSize,
+    interactive,
+    radiusScale,
+    jitterAmplitude,
+    nodePositions,
+  ]);
 
   // ------- Pointer interaction (drag-to-rotate, only when interactive) -------
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!interactive) return;
     if (event.button !== 0 && event.pointerType === "mouse") return;
+    // Don't initiate a drag from a pointerdown that landed directly on
+    // an icon button — let the button handle the click without the
+    // outer drag tracker stealing focus or interfering. Drag only
+    // engages when the user grabs the empty globe area.
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("button[data-globe-icon]")) return;
     dragRef.current = {
       startX: event.clientX,
       startY: event.clientY,
@@ -401,11 +607,6 @@ export function IconGlobe({
     dragNearestIdxRef.current = -1;
     lastReportedHighlightRef.current = null;
     setGrabbing(true);
-    try {
-      (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-    } catch {
-      // ignore
-    }
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -448,13 +649,6 @@ export function IconGlobe({
     if (!interactive) return;
     const drag = dragRef.current;
     if (drag && event.pointerId === drag.pointerId) {
-      try {
-        (event.currentTarget as HTMLElement).releasePointerCapture(
-          event.pointerId,
-        );
-      } catch {
-        // ignore
-      }
       const moved = drag.moved;
       const nearestIdx = dragNearestIdxRef.current;
       dragRef.current = null;
@@ -552,7 +746,22 @@ export function IconGlobe({
                     justifyContent: "center",
                   }}
                 >
-                  <SolidLogo id={node.id} size={iconSize} />
+                  <div
+                    style={{
+                      width: iconSize,
+                      height: iconSize,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transformOrigin: "center",
+                      willChange: "transform",
+                      transition:
+                        "transform 380ms cubic-bezier(0.16, 1, 0.3, 1)",
+                      pointerEvents: "none",
+                    }}
+                  >
+                    <SolidLogo id={node.id} size={iconSize} />
+                  </div>
                 </button>
               ) : (
                 <div
@@ -575,6 +784,8 @@ export function IconGlobe({
                       backgroundSize: "contain",
                       backgroundRepeat: "no-repeat",
                       backgroundPosition: "center",
+                      transformOrigin: "center",
+                      willChange: "transform",
                     }}
                   />
                 </div>

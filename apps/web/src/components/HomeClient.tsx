@@ -216,8 +216,8 @@ function makeRng(seed: number) {
 // focused logo, α is the azimuth around it. Converting back to globe
 // (x,y,z) where +z is "front": x = sin θ cos α, y = sin θ sin α,
 // z = cos θ. Then lat = asin y, lon = atan2(x, z).
-const TIER_1_THETA = 0.55; // ~32° from the focused logo
-const TIER_2_THETA = 1.0; // ~57° — still on the visible front face
+const TIER_1_THETA = 0.22; // ~13° from the focused logo (tight)
+const TIER_2_THETA = 0.42; // ~24° — still on the front face, much closer
 function clusterPositions(
   visibleIcons: Icon[],
   focused: Icon,
@@ -326,11 +326,11 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     [visibleIcons, focusedIcon],
   );
 
-  // Globe radius — when focused, we keep it generous so the cluster on
-  // the front face has visible breathing room and depth reads clearly
-  // (no mosh pit around the focused logo). Idle keeps the full radius
-  // so the unfocused fibonacci spread fills the sphere.
-  const radiusScale = focusedId ? 0.78 : 1;
+  // Globe radius — when focused, we keep it tight so the cluster sits
+  // close around the focused logo and stays clear of the header / search
+  // bar keep-out zones. Idle keeps the full radius so the unfocused
+  // fibonacci spread fills the sphere.
+  const radiusScale = focusedId ? 0.6 : 1;
 
   const handleQueryChange = useCallback((next: string) => {
     setDesktopQuery(next);
@@ -495,13 +495,6 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             inset: 0,
             pointerEvents: searchMode ? "auto" : "none",
             zIndex: 0,
-            // Lift the globe so the focused logo lands higher in the
-            // viewport — keeps the focused-logo + pill + bar + surprise
-            // stack visually around the page centre instead of bunched
-            // toward the footer.
-            transform: searchMode ? "translateY(-60px)" : "translateY(0)",
-            transition: "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
-            willChange: "transform",
           }}
         >
           <IconGlobe
