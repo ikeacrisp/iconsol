@@ -36,13 +36,17 @@ const DEFAULT_IDLE_SRCS = [
 ];
 
 const FALLBACK_NODE_COUNT = 80;
-const DEFAULT_ICON_SIZE = 24;
-const FOCUS_SCALE_BOOST = 1.7;
+// Icons render natively at 48px (the SVG <img> rasterises at the layout
+// width). Visual sizes are reached by CSS transform scale, so the SVGs
+// only ever scale DOWN — keeping the focused logo crisp instead of
+// pixelating from a 24px raster scaled up to ~53px.
+const DEFAULT_ICON_SIZE = 48;
+const FOCUS_SCALE_BOOST = 0.85;
 const SPIN_SPEED = 0.002;
 const TILT = 0.18;
 const HOVER_RADIUS = 28;
 const HOVER_OPACITY_BOOST = 0.18;
-const HOVER_SCALE_BOOST = 0.08;
+const HOVER_SCALE_BOOST = 0.04;
 
 interface Node {
   lat: number;
@@ -84,6 +88,13 @@ interface IconGlobeProps {
   /** CSS scale applied while in search mode. Default 1.32. */
   searchScale?: number;
   /**
+   * Per-icon (lat, lon) overrides keyed by icon id. When provided, the
+   * default fibonacci layout is bypassed — used to gather a relevant
+   * cluster on the front face around the focused logo. Icons without
+   * an entry are skipped. Lat/lon are in degrees.
+   */
+  nodePositions?: Map<string, { lat: number; lon: number }> | null;
+  /**
    * Multiplier applied to the spherical radius. Use values < 1 to shrink
    * the globe (e.g. when a search filter narrows the icon set). Defaults
    * to 1, which keeps the radius proportional to the container.
@@ -113,6 +124,7 @@ export function IconGlobe({
   searchScale = 1.32,
   radiusScale = 1,
   jitterAmplitude = 0,
+  nodePositions = null,
   onDragHighlight,
   onDragRelease,
 }: IconGlobeProps = {}) {
@@ -142,6 +154,17 @@ export function IconGlobe({
   // when the user enters search mode.
   const nodes = useMemo<Node[]>(() => {
     if (icons && icons.length > 0) {
+      // If the parent provided explicit positions (e.g. clustering
+      // around the focused logo on the front face), use those. Icons
+      // without a position entry are dropped.
+      if (nodePositions) {
+        const out: Node[] = [];
+        for (const icon of icons) {
+          const pos = nodePositions.get(icon.id);
+          if (pos) out.push({ lat: pos.lat, lon: pos.lon, id: icon.id });
+        }
+        if (out.length > 0) return out;
+      }
       const positions = fibonacciNodes(icons.length);
       return positions.map((p, i) => ({ ...p, id: icons[i].id }));
     }
@@ -150,7 +173,7 @@ export function IconGlobe({
       ...p,
       src: DEFAULT_IDLE_SRCS[i % DEFAULT_IDLE_SRCS.length],
     }));
-  }, [icons]);
+  }, [icons, nodePositions]);
 
   const focusedIdx = useMemo(() => {
     if (mode !== "search" || !focusedId) return -1;
@@ -308,16 +331,19 @@ export function IconGlobe({
             // Non-focused icons sit at a moderate visibility (floor 0.2,
             // max ~0.5) — present enough to read as "commonly used with"
             // logos, dim enough that the focused match clearly leads.
+            // Scales are halved compared to before because iconSize doubled
+            // (48 vs 24) — keeps the on-screen visual size the same while
+            // SVGs scale DOWN from their 48px raster instead of UP.
             opacity = 0.2 + depth * 0.3;
-            scale = 0.65 + depth * 0.45;
+            scale = 0.325 + depth * 0.225;
 
             if (focusedIdx === i) {
               opacity = 1;
-              scale = (0.85 + depth * 0.45) * FOCUS_SCALE_BOOST;
+              scale = (0.425 + depth * 0.225) * FOCUS_SCALE_BOOST;
             }
           } else {
             opacity = depth * 0.25;
-            scale = 0.6 + depth * 0.5;
+            scale = 0.3 + depth * 0.25;
             if (pointer) {
               const dx = pointer.x - sx;
               const dy = pointer.y - sy;

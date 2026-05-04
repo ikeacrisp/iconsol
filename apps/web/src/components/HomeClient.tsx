@@ -188,6 +188,77 @@ function relevantIconsForAnchor(icons: Icon[], anchor: Icon | null): Icon[] {
   return icons.filter((icon) => include.has(icon.id));
 }
 
+// Stable per-id pseudo-random for jitter — same id always gets the same
+// seed so the layout is deterministic across renders (until focus
+// changes).
+function seedFromId(id: string): number {
+  let h = 5381;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) + h + id.charCodeAt(i)) | 0;
+  return Math.abs(h) >>> 0;
+}
+
+function makeRng(seed: number) {
+  let s = seed >>> 0;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
+}
+
+// Place the focused logo at (lat=0, lon=0) — the front-centre of the
+// globe — with relatedIds in a tight inner ring and same-category
+// siblings in a slightly looser outer ring, all on the front-facing
+// hemisphere so nothing important hides behind. Returns lat/lon in
+// degrees (matching IconGlobe's convention) keyed by icon id.
+//
+// The polar parametrisation `(θ, α)` treats the focused logo as the
+// north pole of a local frame: θ is the angular distance from the
+// focused logo, α is the azimuth around it. Converting back to globe
+// (x,y,z) where +z is "front": x = sin θ cos α, y = sin θ sin α,
+// z = cos θ. Then lat = asin y, lon = atan2(x, z).
+const TIER_1_THETA = 0.55; // ~32° from the focused logo
+const TIER_2_THETA = 1.0; // ~57° — still on the visible front face
+function clusterPositions(
+  visibleIcons: Icon[],
+  focused: Icon,
+): Map<string, { lat: number; lon: number }> {
+  const map = new Map<string, { lat: number; lon: number }>();
+  map.set(focused.id, { lat: 0, lon: 0 });
+
+  const tier1Ids = new Set(focused.relatedIds ?? []);
+  const tier1: Icon[] = [];
+  const tier2: Icon[] = [];
+  for (const icon of visibleIcons) {
+    if (icon.id === focused.id) continue;
+    if (tier1Ids.has(icon.id)) tier1.push(icon);
+    else tier2.push(icon);
+  }
+
+  const placeRing = (group: Icon[], baseTheta: number) => {
+    const count = group.length;
+    if (count === 0) return;
+    group.forEach((icon, i) => {
+      const rng = makeRng(seedFromId(icon.id));
+      const baseAngle = (i / count) * Math.PI * 2;
+      // Per-icon angle/radius jitter for organic placement.
+      const angleJitter = (rng() - 0.5) * (Math.PI / count) * 0.8;
+      const radiusJitter = baseTheta * (1 + (rng() - 0.5) * 0.18);
+      const alpha = baseAngle + angleJitter;
+      const theta = radiusJitter;
+      const sx = Math.sin(theta) * Math.cos(alpha);
+      const sy = Math.sin(theta) * Math.sin(alpha);
+      const sz = Math.cos(theta);
+      const lat = (Math.asin(sy) * 180) / Math.PI;
+      const lon = (Math.atan2(sx, sz) * 180) / Math.PI;
+      map.set(icon.id, { lat, lon });
+    });
+  };
+
+  placeRing(tier1, TIER_1_THETA);
+  placeRing(tier2, TIER_2_THETA);
+  return map;
+}
+
 export function HomeClient({ icons }: { icons: Icon[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -246,16 +317,20 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     [icons, focusedIcon],
   );
 
-  // Globe radius shrinks aggressively with fewer visible icons so the
-  // relevant cluster sits tight around the focused logo instead of
-  // sprawling across a half-empty sphere.
-  const radiusScale = useMemo(() => {
-    const n = visibleIcons.length;
-    const total = icons.length;
-    if (n === 0 || n >= total) return 1;
-    const t = n / total;
-    return Math.max(0.18, Math.sqrt(t) * 0.65);
-  }, [visibleIcons.length, icons.length]);
+  // Lay all visible icons out on the front face of the globe — focused
+  // at dead centre, relatedIds in a tight ring around it, same-category
+  // siblings in a looser ring further out. Skipped while there's no
+  // focus so the idle globe still uses the default fibonacci spread.
+  const nodePositions = useMemo(
+    () => (focusedIcon ? clusterPositions(visibleIcons, focusedIcon) : null),
+    [visibleIcons, focusedIcon],
+  );
+
+  // Globe radius — when focused, we keep it generous so the cluster on
+  // the front face has visible breathing room and depth reads clearly
+  // (no mosh pit around the focused logo). Idle keeps the full radius
+  // so the unfocused fibonacci spread fills the sphere.
+  const radiusScale = focusedId ? 0.78 : 1;
 
   const handleQueryChange = useCallback((next: string) => {
     setDesktopQuery(next);
@@ -440,9 +515,12 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             // they type — but the idle opacity formula still applies so
             // icons stay faint until a query produces a focused match.
             idleScale={searchMode ? 1.32 : 1.14}
-            searchScale={1.32}
+            // While focused we render a slightly larger globe so the
+            // cluster on the front face has room to breathe.
+            searchScale={1.5}
             radiusScale={radiusScale}
             jitterAmplitude={1.5}
+            nodePositions={nodePositions}
           />
         </div>
 
