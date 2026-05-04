@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
 import { confetti } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
@@ -495,6 +496,14 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             inset: 0,
             pointerEvents: searchMode ? "auto" : "none",
             zIndex: 0,
+            // Lift the focused logo + cluster a touch above the
+            // viewport's vertical centre so the focused-logo / pill /
+            // search bar / surprise stack reads as centred (without
+            // the focused logo sitting dead centre).
+            transform: focusedId ? "translateY(-72px)" : "translateY(0)",
+            transition:
+              "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
+            willChange: "transform",
           }}
         >
           <IconGlobe
@@ -514,7 +523,64 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             radiusScale={radiusScale}
             jitterAmplitude={1.5}
             nodePositions={nodePositions}
+            // Bottom keep-out is the search bar's TOP minus a 24px
+            // breathing gap — physics bounces icons off this line so
+            // the cluster never touches the bar.
+            keepOutBottomVy={
+              typeof window !== "undefined"
+                ? window.innerHeight - 220 - 18 - 24
+                : 501
+            }
           />
+        </div>
+
+        {/* Focused name pill — anchored to the focused logo (24px below
+            its bottom edge), independent of the search bar. Animates
+            with opacity + scale + blur on every focus change. */}
+        <div
+          aria-hidden={!focusedIcon}
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            // Shift below focused-logo bottom (~44px half-size) + 24px
+            // gap, then apply the same cluster lift so the pill
+            // follows the focused logo.
+            transform: "translate(-50%, calc(-50% + 68px - 72px))",
+            zIndex: 4,
+            pointerEvents: "none",
+          }}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {focusedIcon ? (
+              <motion.span
+                key={focusedIcon.id}
+                initial={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
+                transition={{
+                  duration: 0.32,
+                  ease: [0.65, 0, 0.35, 1],
+                }}
+                style={{
+                  display: "inline-block",
+                  padding: "6px 10px",
+                  borderRadius: 12,
+                  background: "rgba(13,15,18,0.5)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  border: "1px solid #16181B",
+                  fontSize: 13,
+                  color: "#ffffff",
+                  whiteSpace: "nowrap",
+                  letterSpacing: "0.01em",
+                  willChange: "transform, opacity, filter",
+                }}
+              >
+                {focusedIcon.name}
+              </motion.span>
+            ) : null}
+          </AnimatePresence>
         </div>
 
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 3 }}>
@@ -561,42 +627,6 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               zIndex: 3,
             }}
           >
-            {/* Focused icon name pill — 128px above the search bar */}
-            <div
-              style={{
-                position: "absolute",
-                left: "50%",
-                bottom: "calc(100% + 128px)",
-                transform: "translateX(-50%)",
-                height: 28,
-                display: "flex",
-                alignItems: "center",
-                opacity: searchMode && focusedIcon ? 1 : 0,
-                transition:
-                  "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1)",
-                pointerEvents: "none",
-              }}
-            >
-              {focusedIcon ? (
-                <span
-                  style={{
-                    padding: "6px 10px",
-                    borderRadius: 12,
-                    background: "rgba(13,15,18,0.5)",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
-                    border: "1px solid #16181B",
-                    fontSize: 13,
-                    color: "#ffffff",
-                    whiteSpace: "nowrap",
-                    letterSpacing: "0.01em",
-                  }}
-                >
-                  {focusedIcon.name}
-                </span>
-              ) : null}
-            </div>
-
             <HomeSearchBar
               value={desktopQuery}
               onChange={handleQueryChange}

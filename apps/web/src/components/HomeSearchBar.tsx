@@ -222,7 +222,8 @@ export function HomeSearchBar({
                   handleClear();
                 }}
                 initial={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                animate={{ opacity: 0.4, scale: 1, filter: "blur(0px)" }}
+                whileHover={{ opacity: 1 }}
                 exit={{ opacity: 0, scale: 0.6, filter: "blur(4px)" }}
                 transition={{
                   duration: 0.18,
