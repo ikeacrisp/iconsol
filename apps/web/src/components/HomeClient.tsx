@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
-import { confetti } from "@/lib/audio/core";
+import { confetti, hover } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
@@ -14,6 +14,7 @@ import { MaskIcon } from "@/components/UiIcon";
 import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import type { Icon } from "@/lib/icon-data";
+import { setIconBackOrigin } from "@/lib/icon-view-transition";
 
 const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
 const SURPRISE_RECENT_LIMIT = 5;
@@ -265,6 +266,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const searchParams = useSearchParams();
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
+  // Tracks the live pill DOM element so the cluster overlay can read
+  // its bounding rect each frame and treat it as a static keep-out zone
+  // (logos in the cluster can't overlap or intersect it).
+  const pillRef = useRef<HTMLSpanElement>(null);
   const [desktopQuery, setDesktopQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
   const [copied, setCopied] = useState(false);
@@ -284,6 +289,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     volume: 0.22,
     playbackRate: 0.65,
   });
+  // Same hover sound used on the dashboard logo grid — fired whenever
+  // a focused logo lands on the cluster (typed search resolves, manual
+  // click, surprise-me) so every focus commit gets the same audio cue.
+  const playLogoHover = useSound(hover);
 
   // ---------------- Focus resolution ----------------
   const matchedId = useMemo(
@@ -308,6 +317,18 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
     [focusedId, icons],
   );
+
+  // Audio cue: every time the focused logo changes to a real id, play
+  // the dashboard hover tone. Covers typed-search match, click-to-
+  // refocus, and surprise-me — but not the initial mount or transitions
+  // back to "no focus".
+  const lastFocusedRef = useRef<string | null>(focusedId);
+  useEffect(() => {
+    if (focusedId && focusedId !== lastFocusedRef.current) {
+      playLogoHover();
+    }
+    lastFocusedRef.current = focusedId;
+  }, [focusedId, playLogoHover]);
 
   // The globe clusters around the current focus: focused icon + its
   // curated relatedIds + same-category siblings. So clicking a logo
@@ -341,11 +362,13 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const handleSurprise = useCallback(() => {
     const id = pickSurpriseLogoId();
     if (searchMode) {
-      // In search mode: focus the random logo on the globe by typing its id.
-      // Setting the query causes bestMatchId to resolve to it.
-      setDesktopQuery(id);
+      // In search mode: focus the random logo on the globe via manual
+      // focus rather than typing its id into the search bar — the user
+      // wants the bar to stay empty (or keep whatever they had typed).
+      setManualFocusId(id);
       return;
     }
+    setIconBackOrigin("/");
     router.push(`/icon/${id}`);
   }, [router, searchMode]);
 
@@ -402,6 +425,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   // to the dashboard route.
   const submitDesktop = useCallback(() => {
     if (focusedId) {
+      setIconBackOrigin("/");
       router.push(`/icon/${focusedId}`);
       return;
     }
@@ -455,6 +479,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const handleGlobeIconClick = useCallback(
     (id: string) => {
       if (id === focusedId) {
+        setIconBackOrigin("/");
         router.push(`/icon/${id}`);
       } else {
         setManualFocusId(id);
@@ -484,92 +509,161 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
         }}
       >
         {/*
-         * Single globe — same instance is visible in both idle and search
-         * modes. In idle it auto-rotates with the full logo set; in search
-         * mode the same nodes lean in (CSS scale) and the focused logo
-         * brightens + grows. Pointer events are enabled in search mode so
-         * the user can drag-to-rotate.
+         * Persistent idle globe — full set, autospinning. ALWAYS mounted
+         * across all three modes (idle, search, cluster) so its rotation
+         * never resets and the same instance is used throughout.
+         *
+         * Zoom transitions:
+         *   - idle:    idleScale 1.14 (normal)
+         *   - search:  idleScale 1.32 (zooms in when lens / search activates)
+         *   - cluster: idleScale 1.32 (same as search — committing a focus
+         *              must NOT re-zoom the background; only alpha + blur
+         *              change so the cluster reads as an overlay).
          */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            pointerEvents: searchMode ? "auto" : "none",
+            pointerEvents: searchMode && !focusedId ? "auto" : "none",
             zIndex: 0,
-            // Lift the focused logo + cluster a touch above the
-            // viewport's vertical centre so the focused-logo / pill /
-            // search bar / surprise stack reads as centred (without
-            // the focused logo sitting dead centre).
-            transform: focusedId ? "translateY(-72px)" : "translateY(0)",
+            opacity: focusedId ? 0.32 : 1,
+            filter: focusedId ? "blur(5px)" : "none",
+            WebkitFilter: focusedId ? "blur(5px)" : "none",
             transition:
-              "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
-            willChange: "transform",
+              "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1), filter 320ms cubic-bezier(0.65, 0, 0.35, 1)",
           }}
         >
           <IconGlobe
-            icons={visibleIcons}
-            mode={focusedId ? "search" : "idle"}
-            focusedId={focusedId}
+            icons={icons}
+            mode="idle"
             onIconClick={handleGlobeIconClick}
-            interactive={searchMode}
-            // idleScale is bumped while the user is in search mode (lens
-            // clicked / bar focused), so the globe zooms in even before
-            // they type — but the idle opacity formula still applies so
-            // icons stay faint until a query produces a focused match.
+            interactive={searchMode && !focusedId}
+            // Background globe is click-only — drag belongs to the
+            // cluster overlay so the user never rotates the BG layer.
+            draggable={false}
             idleScale={searchMode ? 1.32 : 1.14}
-            // While focused we render a slightly larger globe so the
-            // cluster on the front face has room to breathe.
-            searchScale={1.5}
-            radiusScale={radiusScale}
             jitterAmplitude={1.5}
-            nodePositions={nodePositions}
-            // Bottom keep-out is the search bar's TOP minus a 24px
-            // breathing gap — physics bounces icons off this line so
-            // the cluster never touches the bar.
-            keepOutBottomVy={
-              typeof window !== "undefined"
-                ? window.innerHeight - 220 - 18 - 24
-                : 501
-            }
           />
         </div>
 
-        {/* Focused name pill — anchored to the focused logo (24px below
-            its bottom edge), independent of the search bar. Animates
-            with opacity + scale + blur on every focus change. */}
+        {/*
+         * Cluster overlay — focused logo + relevant cluster on the front
+         * face. Mounted only while a focus is active. On exit (clearing
+         * the search) the entire cluster — focused + relevant — fades,
+         * shrinks, and blurs out together so the dismiss reads as a
+         * deliberate transition rather than an unmount.
+         */}
+        <AnimatePresence>
+          {focusedId ? (
+            <motion.div
+              key="cluster-overlay"
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(8px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.85, filter: "blur(12px)" }}
+              transition={{ duration: 0.36, ease: [0.65, 0, 0.35, 1] }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: searchMode ? "auto" : "none",
+                zIndex: 1,
+                // Lift the focused logo + cluster a touch above the
+                // viewport's vertical centre so the focused-logo / pill /
+                // search bar / surprise stack reads as centred (without
+                // the focused logo sitting dead centre).
+                y: -72,
+                transformOrigin: "center",
+                willChange: "transform, opacity, filter",
+              }}
+            >
+              <IconGlobe
+                icons={visibleIcons}
+                mode="search"
+                focusedId={focusedId}
+                onIconClick={handleGlobeIconClick}
+                interactive={searchMode}
+                // Drag the cluster, but stop 96px from every viewport
+                // edge so the focused logo (and its surrounding cluster)
+                // can't be flung off-screen.
+                draggable={searchMode}
+                dragMarginPx={96}
+                idleScale={1.32}
+                searchScale={1.5}
+                radiusScale={radiusScale}
+                jitterAmplitude={1.5}
+                nodePositions={nodePositions}
+                keepOutBottomVy={
+                  typeof window !== "undefined"
+                    ? window.innerHeight - 220 - 18 - 24
+                    : 501
+                }
+                // The focused-name pill is a static collision element for
+                // the cluster — logos can't overlap or intersect it, with
+                // a 4px barrier on every side.
+                keepOutRectRef={pillRef}
+                keepOutRectBufferPx={4}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        {/* Focused name pill — anchored to a 0-size point ~64px below
+            the focused logo (and shifted up by the cluster's translateY)
+            so each pill, regardless of text length, is independently
+            centred at the anchor. The outer div is just an anchor point
+            so popLayout can't shift the pill horizontally between focus
+            changes. The pill itself collides with cluster icons via
+            `keepOutRectRef` so logos can't overlap it. */}
         <div
           aria-hidden={!focusedIcon}
           style={{
             position: "absolute",
-            top: "50%",
+            top: "calc(50% + 68px - 72px)",
             left: "50%",
-            // Shift below focused-logo bottom (~44px half-size) + 24px
-            // gap, then apply the same cluster lift so the pill
-            // follows the focused logo.
-            transform: "translate(-50%, calc(-50% + 68px - 72px))",
+            width: 0,
+            height: 0,
             zIndex: 4,
             pointerEvents: "none",
           }}
         >
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             {focusedIcon ? (
               <motion.span
                 key={focusedIcon.id}
-                initial={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
+                ref={pillRef}
+                initial={{
+                  opacity: 0,
+                  scale: 0.85,
+                  filter: "blur(6px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  filter: "blur(0px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.85,
+                  filter: "blur(6px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
                 transition={{
                   duration: 0.32,
                   ease: [0.65, 0, 0.35, 1],
                 }}
                 style={{
-                  display: "inline-block",
-                  padding: "6px 10px",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  padding: "24px 10px 6px 10px",
                   borderRadius: 12,
                   background: "rgba(13,15,18,0.5)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
-                  border: "1px solid #16181B",
                   fontSize: 13,
                   color: "#ffffff",
                   whiteSpace: "nowrap",
