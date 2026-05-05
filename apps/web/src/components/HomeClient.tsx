@@ -484,83 +484,76 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
         }}
       >
         {/*
-         * Background full-set globe — same IconGlobe component as the
-         * cluster, but rendered with the full logo set in idle mode so
-         * the page still feels alive while the focused cluster sits in
-         * front. Mounted only when there's a focus/cluster.
-         */}
-        {focusedId ? (
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: "none",
-              zIndex: 0,
-              opacity: 0.32,
-              filter: "blur(10px)",
-              WebkitFilter: "blur(10px)",
-            }}
-          >
-            <IconGlobe
-              icons={icons}
-              mode="idle"
-              interactive={false}
-              idleScale={1.14}
-              jitterAmplitude={1.5}
-            />
-          </div>
-        ) : null}
-
-        {/*
-         * Cluster globe — focused logo + relevant cluster on the front
-         * face. Per-icon alpha + cursor attraction live inside IconGlobe.
-         * Pointer events are enabled in search mode so cluster icons
-         * remain clickable / draggable.
+         * Persistent idle globe — full set, autospinning. ALWAYS mounted
+         * with the same scale and rotation regardless of search/cluster
+         * state. Only opacity + blur change when a cluster is on screen,
+         * so the user never sees the globe re-zoom or jump rotation when
+         * a focus is committed.
          */}
         <div
           style={{
             position: "absolute",
             inset: 0,
-            pointerEvents: searchMode ? "auto" : "none",
-            zIndex: 1,
-            // Lift the focused logo + cluster a touch above the
-            // viewport's vertical centre so the focused-logo / pill /
-            // search bar / surprise stack reads as centred (without
-            // the focused logo sitting dead centre).
-            transform: focusedId ? "translateY(-72px)" : "translateY(0)",
+            pointerEvents: searchMode && !focusedId ? "auto" : "none",
+            zIndex: 0,
+            opacity: focusedId ? 0.32 : 1,
+            filter: focusedId ? "blur(5px)" : "none",
+            WebkitFilter: focusedId ? "blur(5px)" : "none",
             transition:
-              "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
-            willChange: "transform",
+              "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1), filter 320ms cubic-bezier(0.65, 0, 0.35, 1)",
           }}
         >
           <IconGlobe
-            icons={visibleIcons}
-            mode={focusedId ? "search" : "idle"}
-            focusedId={focusedId}
+            icons={icons}
+            mode="idle"
             onIconClick={handleGlobeIconClick}
-            interactive={searchMode}
-            // idleScale is bumped while the user is in search mode (lens
-            // clicked / bar focused), so the globe zooms in even before
-            // they type — but the idle opacity formula still applies so
-            // icons stay faint until a query produces a focused match.
-            idleScale={searchMode ? 1.32 : 1.14}
-            // While focused we render a slightly larger globe so the
-            // cluster on the front face has room to breathe.
-            searchScale={1.5}
-            radiusScale={radiusScale}
+            interactive={searchMode && !focusedId}
+            idleScale={1.14}
             jitterAmplitude={1.5}
-            nodePositions={nodePositions}
-            // Bottom keep-out is the search bar's TOP minus a 24px
-            // breathing gap — physics bounces icons off this line so
-            // the cluster never touches the bar.
-            keepOutBottomVy={
-              typeof window !== "undefined"
-                ? window.innerHeight - 220 - 18 - 24
-                : 501
-            }
           />
         </div>
+
+        {/*
+         * Cluster overlay — focused logo + relevant cluster on the front
+         * face. Mounted only while a focus is active. Has its own scale
+         * + rotation; the persistent idle globe behind it stays put.
+         */}
+        {focusedId ? (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: searchMode ? "auto" : "none",
+              zIndex: 1,
+              // Lift the focused logo + cluster a touch above the
+              // viewport's vertical centre so the focused-logo / pill /
+              // search bar / surprise stack reads as centred (without
+              // the focused logo sitting dead centre).
+              transform: "translateY(-72px)",
+              transition:
+                "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
+              willChange: "transform",
+            }}
+          >
+            <IconGlobe
+              icons={visibleIcons}
+              mode="search"
+              focusedId={focusedId}
+              onIconClick={handleGlobeIconClick}
+              interactive={searchMode}
+              idleScale={1.32}
+              searchScale={1.5}
+              radiusScale={radiusScale}
+              jitterAmplitude={1.5}
+              nodePositions={nodePositions}
+              keepOutBottomVy={
+                typeof window !== "undefined"
+                  ? window.innerHeight - 220 - 18 - 24
+                  : 501
+              }
+            />
+          </div>
+        ) : null}
 
         {/* Focused name pill — anchored to the focused logo (24px below
             its bottom edge), independent of the search bar. Animates
