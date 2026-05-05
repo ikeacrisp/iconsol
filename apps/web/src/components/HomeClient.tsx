@@ -485,10 +485,15 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
       >
         {/*
          * Persistent idle globe — full set, autospinning. ALWAYS mounted
-         * with the same scale and rotation regardless of search/cluster
-         * state. Only opacity + blur change when a cluster is on screen,
-         * so the user never sees the globe re-zoom or jump rotation when
-         * a focus is committed.
+         * across all three modes (idle, search, cluster) so its rotation
+         * never resets and the same instance is used throughout.
+         *
+         * Zoom transitions:
+         *   - idle:    idleScale 1.14 (normal)
+         *   - search:  idleScale 1.32 (zooms in when lens / search activates)
+         *   - cluster: idleScale 1.32 (same as search — committing a focus
+         *              must NOT re-zoom the background; only alpha + blur
+         *              change so the cluster reads as an overlay).
          */}
         <div
           style={{
@@ -508,7 +513,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             mode="idle"
             onIconClick={handleGlobeIconClick}
             interactive={searchMode && !focusedId}
-            idleScale={1.14}
+            idleScale={searchMode ? 1.32 : 1.14}
             jitterAmplitude={1.5}
           />
         </div>
