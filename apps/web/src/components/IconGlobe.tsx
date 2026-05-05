@@ -156,8 +156,28 @@ export function IconGlobe({
     moved: boolean;
     pointerId: number;
   } | null>(null);
-  // React-driven cursor state (drives `cursor: grab/grabbing`).
   const [grabbing, setGrabbing] = useState(false);
+
+  // Tracks whether the user has manually dragged after the most recent change
+  // to focusedId. While true, suspend the auto-focus easing so manual
+  // exploration isn't fought by the spring snapping back. Reset whenever
+  // focusedId itself changes — but never during an active drag.
+  const userPannedRef = useRef(false);
+  useEffect(() => {
+    if (dragRef.current !== null) return;
+    userPannedRef.current = false;
+  }, [focusedId]);
+
+  // Tracks the icon nearest screen centre during the current drag, so
+  // pointer-up can report it via onDragRelease without re-scanning.
+  const dragNearestIdxRef = useRef(-1);
+  const lastReportedHighlightRef = useRef<string | null>(null);
+  const onDragHighlightRef = useRef(onDragHighlight);
+  const onDragReleaseRef = useRef(onDragRelease);
+  useEffect(() => {
+    onDragHighlightRef.current = onDragHighlight;
+    onDragReleaseRef.current = onDragRelease;
+  }, [onDragHighlight, onDragRelease]);
 
   // Single, stable node set — same nodes are used for idle and search modes
   // so the visual is one continuous globe; only the visual treatment changes
@@ -190,18 +210,6 @@ export function IconGlobe({
     return nodes.findIndex((n) => n.id === focusedId);
   }, [mode, focusedId, nodes]);
 
-  // Tracks whether the user has manually dragged after the most recent change
-  // to focusedId. While true, we suspend the auto-focus easing so manual
-  // exploration isn't fought by the spring snapping back. Reset whenever
-  // focusedId itself changes — but never during an active drag (the drag
-  // updates focusedId via onDragHighlight, and we don't want that to
-  // engage easing mid-drag).
-  const userPannedRef = useRef(false);
-  useEffect(() => {
-    if (dragRef.current !== null) return;
-    userPannedRef.current = false;
-  }, [focusedId]);
-
   // Per-icon physics offset from its home (lat/lon) projection. Used in
   // cluster mode so icons gently float, bump into each other and settle
   // back rather than locking onto fixed lat/lon points. The collision
@@ -212,16 +220,78 @@ export function IconGlobe({
   >(new Map());
   const lastPhysicsTickRef = useRef<number | null>(null);
 
-  // Tracks the icon nearest screen centre during the current drag, so
-  // pointer-up can report it via onDragRelease without re-scanning.
-  const dragNearestIdxRef = useRef(-1);
-  const lastReportedHighlightRef = useRef<string | null>(null);
-  const onDragHighlightRef = useRef(onDragHighlight);
-  const onDragReleaseRef = useRef(onDragRelease);
+  // Smoothed cursor-attraction offset per cluster icon. Each frame the
+  // icon's offset eases toward a target derived from cursor proximity,
+  // producing a subtle "follow my cursor" tug on non-focused logos.
+  const attractRef = useRef<Map<string, { ax: number; ay: number }>>(
+    new Map(),
+  );
+
+  // Time-based alpha envelope around the pendulum animation. Fades in a
+  // few ms BEFORE the rotation starts, holds at peak through the rotation,
+  // and fades out a few ms after — so the alpha bump feels natural rather
+  // than snapping on/off with the rotation timing.
+  const wiggleEnvRef = useRef<{
+    id: string | null;
+    startedAt: number;
+    fadeInMs: number;
+    rotateMs: number;
+    fadeOutMs: number;
+  }>({ id: null, startedAt: 0, fadeInMs: 0, rotateMs: 0, fadeOutMs: 0 });
+
+  // "Pick me next" pendulum wiggle — every ~4s while a focused cluster is
+  // visible, pick a random non-focused cluster icon and trigger a brief
+  // pendulum rotation. The keyframe lives in globals.css; we retrigger it
+  // by clearing then setting `animation` after a forced reflow.
   useEffect(() => {
-    onDragHighlightRef.current = onDragHighlight;
-    onDragReleaseRef.current = onDragRelease;
-  }, [onDragHighlight, onDragRelease]);
+    if (mode !== "search") return;
+    if (focusedIdx < 0) return;
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const FADE_IN_MS = 120;
+    const PENDULUM_MS = 520;
+    const FADE_OUT_MS = 200;
+    let rotateTimer = 0;
+    const interval = window.setInterval(() => {
+      const candidates: number[] = [];
+      for (let i = 0; i < nodes.length; i++) {
+        if (i === focusedIdx) continue;
+        if (!nodes[i].id) continue;
+        candidates.push(i);
+      }
+      if (candidates.length === 0) return;
+      const pickIdx = candidates[Math.floor(Math.random() * candidates.length)];
+      const picked = nodes[pickIdx];
+      if (!picked.id) return;
+
+      // Start the alpha-envelope NOW; fade-in ramps the bump up before
+      // the rotation kicks in so it never snaps to peak alpha.
+      wiggleEnvRef.current = {
+        id: picked.id,
+        startedAt: performance.now(),
+        fadeInMs: FADE_IN_MS,
+        rotateMs: PENDULUM_MS,
+        fadeOutMs: FADE_OUT_MS,
+      };
+
+      // Schedule the rotation to start after fade-in.
+      window.clearTimeout(rotateTimer);
+      rotateTimer = window.setTimeout(() => {
+        const child = overlay.children[pickIdx] as HTMLElement | undefined;
+        const target = child?.querySelector(
+          "[data-wiggle-target]",
+        ) as HTMLElement | null;
+        if (!target) return;
+        target.style.animation = "none";
+        void target.offsetWidth;
+        target.style.animation = `globe-pendulum ${PENDULUM_MS}ms cubic-bezier(0.65, 0, 0.35, 1) 1`;
+      }, FADE_IN_MS);
+    }, 4000);
+    return () => {
+      window.clearInterval(interval);
+      window.clearTimeout(rotateTimer);
+    };
+  }, [mode, focusedIdx, nodes]);
 
   // Animation loop — direct DOM mutation for performance with many nodes.
   useEffect(() => {
@@ -237,9 +307,6 @@ export function IconGlobe({
       const drag = dragRef.current;
       const isDragging = drag !== null;
 
-      // Target rotation — in search mode, focusedIdx (if any) drives phi/theta
-      // toward bringing that node to the front. In idle, target phi just
-      // increments and target theta returns to the base tilt.
       if (!isDragging) {
         if (usingSearch) {
           if (focusedIdx >= 0 && !userPannedRef.current) {
@@ -253,16 +320,13 @@ export function IconGlobe({
             while (dPhi < -Math.PI) dPhi += 2 * Math.PI;
             phiRef.current += dPhi * 0.08;
 
-            // Ease theta toward the target latitude so the focused icon
-            // lands at the dead centre of the screen — both axes animate.
             const dTheta = targetLatR - thetaRef.current;
             thetaRef.current += dTheta * 0.08;
 
             velPhiRef.current = 0;
             velThetaRef.current = 0;
           } else if (focusedIdx >= 0 && userPannedRef.current) {
-            // User has explored away from the focused match — apply inertia
-            // decay only, leaving manual position alone.
+            // Inertia decay only — leave manual position alone.
             phiRef.current += velPhiRef.current;
             thetaRef.current += velThetaRef.current;
             velPhiRef.current *= 0.94;
@@ -277,7 +341,6 @@ export function IconGlobe({
             thetaRef.current += dTheta * 0.04;
           }
         } else {
-          // Idle mode — continuous spin + base tilt.
           phiRef.current += SPIN_SPEED;
           const dTheta = TILT - thetaRef.current;
           thetaRef.current += dTheta * 0.04;
@@ -298,9 +361,7 @@ export function IconGlobe({
       // rotating. Amplitude controlled by jitterAmplitude prop.
       const tNow = jitterAmplitude > 0 ? performance.now() * 0.001 : 0;
 
-      // While dragging, track the front-facing icon nearest the screen
-      // centre. Reported via onDragHighlight as it changes, and snapshotted
-      // for onDragRelease.
+      // While dragging, track the front-facing icon nearest screen centre.
       let nearestI = -1;
       let nearestD2 = Infinity;
 
@@ -346,7 +407,9 @@ export function IconGlobe({
 
         let sx = cx + x * r;
         let sy = cy - y * r;
-        if (jitterAmplitude > 0) {
+        // Focused logo stays static — no jitter/wobble — so it doesn't
+        // appear to float while the cluster around it floats.
+        if (jitterAmplitude > 0 && focusedIdx !== i) {
           // Per-icon seeds derived from index so the wobble pattern is
           // varied across the globe (no obvious lockstep).
           const seedX = i * 0.137;
@@ -370,12 +433,49 @@ export function IconGlobe({
           let scale: number;
 
           if (usingSearch) {
-            opacity = 0.2 + depth * 0.3;
+            // Non-focused cluster icons sit at ~25% alpha so the focused
+            // logo + pill read cleanly. Hover bumps to ~40%, and a
+            // mid-pendulum logo also lands at 40% to make the wiggle feel
+            // like an extra cue rather than just motion.
+            opacity = 0.05 + depth * 0.20;
             scale = 0.325 + depth * 0.225;
 
             if (focusedIdx === i) {
               opacity = 1;
               scale = (1.0 + depth * 0.45) * FOCUS_SCALE_BOOST;
+            } else {
+              if (pointer) {
+                // Hover-radius is in unscaled local coords; pointer is
+                // converted to the same space in handlePointerMove, so a
+                // direct distance check works across globe scales.
+                const dx = pointer.x - sx;
+                const dy = pointer.y - sy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const HOVER_R = iconSize * 0.7;
+                if (dist < HOVER_R) {
+                  const strength = 1 - dist / HOVER_R;
+                  // Ramp up to 0.4 at center.
+                  opacity = Math.max(opacity, 0.25 + strength * 0.15);
+                }
+              }
+              if (node.id && wiggleEnvRef.current.id === node.id) {
+                const env = wiggleEnvRef.current;
+                const elapsed = performance.now() - env.startedAt;
+                const inEnd = env.fadeInMs;
+                const holdEnd = env.fadeInMs + env.rotateMs;
+                const outEnd = holdEnd + env.fadeOutMs;
+                let envStrength = 0;
+                if (elapsed >= 0 && elapsed < inEnd) {
+                  envStrength = easeInOutCubic(elapsed / inEnd);
+                } else if (elapsed >= inEnd && elapsed < holdEnd) {
+                  envStrength = 1;
+                } else if (elapsed >= holdEnd && elapsed < outEnd) {
+                  envStrength = 1 - easeInOutCubic((elapsed - holdEnd) / env.fadeOutMs);
+                }
+                if (envStrength > 0) {
+                  opacity = Math.max(opacity, 0.25 + envStrength * 0.15);
+                }
+              }
             }
           } else {
             opacity = depth * 0.25;
@@ -526,6 +626,21 @@ export function IconGlobe({
         }
       }
 
+      // Cursor-attraction gate — only attract when the pointer is inside
+      // the cluster region (a disc around the focused logo). Outside that
+      // disc, attraction targets relax to 0 and icons spring back home.
+      let pointerInCluster = false;
+      if (usingSearch && focusedIdx >= 0 && pointer && !isDragging) {
+        const fp = homePos[focusedIdx];
+        if (fp) {
+          const ddx = pointer.x - fp.sx;
+          const ddy = pointer.y - fp.sy;
+          const CLUSTER_RADIUS = 220;
+          pointerInCluster =
+            ddx * ddx + ddy * ddy < CLUSTER_RADIUS * CLUSTER_RADIUS;
+        }
+      }
+
       // Render pass.
       for (let i = 0; i < children.length; i++) {
         const child = children[i];
@@ -545,8 +660,39 @@ export function IconGlobe({
             oy = p.oy;
           }
         }
-        const finalSx = home.sx + ox;
-        const finalSy = home.sy + oy;
+        // Cursor attraction — non-focused cluster icons drift subtly
+        // toward the cursor. Smoothed each frame for a soft, springy
+        // feel rather than a snap. Focused icon never moves.
+        let ax = 0;
+        let ay = 0;
+        if (usingSearch && node?.id) {
+          const isFocused = focusedIdx === i;
+          let entry = attractRef.current.get(node.id);
+          if (!entry) {
+            entry = { ax: 0, ay: 0 };
+            attractRef.current.set(node.id, entry);
+          }
+          let targetAx = 0;
+          let targetAy = 0;
+          if (!isFocused && pointerInCluster && pointer) {
+            const dx = pointer.x - (home.sx + ox);
+            const dy = pointer.y - (home.sy + oy);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const REACH = 220;
+            if (dist < REACH && dist > 0.01) {
+              const fall = 1 - dist / REACH;
+              const mag = Math.min(18, dist * 0.22) * fall;
+              targetAx = (dx / dist) * mag;
+              targetAy = (dy / dist) * mag;
+            }
+          }
+          entry.ax += (targetAx - entry.ax) * 0.14;
+          entry.ay += (targetAy - entry.ay) * 0.14;
+          ax = entry.ax;
+          ay = entry.ay;
+        }
+        const finalSx = home.sx + ox + ax;
+        const finalSy = home.sy + oy + ay;
         // Translate on the button (preserves the full iconSize click hit
         // area), scale on the inner wrapper.
         child.style.transform = `translate(${finalSx - iconSize / 2}px, ${finalSy - iconSize / 2}px)`;
@@ -586,10 +732,8 @@ export function IconGlobe({
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!interactive) return;
     if (event.button !== 0 && event.pointerType === "mouse") return;
-    // Don't initiate a drag from a pointerdown that landed directly on
-    // an icon button — let the button handle the click without the
-    // outer drag tracker stealing focus or interfering. Drag only
-    // engages when the user grabs the empty globe area.
+    // Don't initiate a drag from a pointerdown on an icon button — let the
+    // button handle the click. Drag only engages on the empty globe area.
     const target = event.target as HTMLElement | null;
     if (target?.closest("button[data-globe-icon]")) return;
     dragRef.current = {
@@ -621,10 +765,6 @@ export function IconGlobe({
         }
         const size = containerRef.current?.offsetWidth ?? 800;
         const sensitivity = (Math.PI * 1.4) / size;
-        // Drag direction follows the cursor — drag right rotates the
-        // globe surface to the right (the icon under the cursor moves
-        // with the cursor). Vertical convention was already cursor-
-        // following so it stays as-is.
         phiRef.current = drag.basePhi + dx * sensitivity;
         thetaRef.current = clamp(
           drag.baseTheta + dy * sensitivity,
@@ -637,11 +777,17 @@ export function IconGlobe({
         drag.lastY = event.clientY;
       }
     }
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
+    const container = containerRef.current;
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    // The container is CSS-scaled (idleScale / searchScale), so its bounding
+    // rect is in scaled viewport pixels. The animation loop works in
+    // unscaled local coords (cx = container.offsetWidth/2, etc.), so divide
+    // out the scale to keep pointer math precise.
+    const visScale = rect.width / Math.max(1, container.offsetWidth);
     pointerRef.current = {
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x: (event.clientX - rect.left) / visScale,
+      y: (event.clientY - rect.top) / visScale,
     };
   };
 
@@ -653,7 +799,6 @@ export function IconGlobe({
       const nearestIdx = dragNearestIdxRef.current;
       dragRef.current = null;
       setGrabbing(false);
-      // Reset userPanned so the snap easing engages on the next frame.
       userPannedRef.current = false;
       velPhiRef.current = 0;
       velThetaRef.current = 0;
@@ -760,7 +905,18 @@ export function IconGlobe({
                       pointerEvents: "none",
                     }}
                   >
-                    <SolidLogo id={node.id} size={iconSize} />
+                    <span
+                      data-wiggle-target="true"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transformOrigin: "center",
+                        willChange: "transform",
+                      }}
+                    >
+                      <SolidLogo id={node.id} size={iconSize} />
+                    </span>
                   </div>
                 </button>
               ) : (
@@ -801,3 +957,8 @@ export function IconGlobe({
 function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
+
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+

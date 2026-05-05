@@ -223,7 +223,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
             display: "flex",
             alignItems: "center",
             opacity: focusedIcon ? 1 : 0,
-            transition: "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1)",
+            transition: "opacity 180ms cubic-bezier(0.65, 0, 0.35, 1)",
             pointerEvents: "none",
           }}
         >

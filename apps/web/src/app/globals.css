@@ -630,3 +630,13 @@ input[type="text"]:focus-visible {
   }
 }
 
+/* Globe "pick me next" pendulum — short, decreasing-angle wiggle on
+   non-focused cluster icons. Fires under 300ms. */
+@keyframes globe-pendulum {
+  0%   { transform: rotate(0deg); }
+  22%  { transform: rotate(-12deg); }
+  48%  { transform: rotate(7deg); }
+  74%  { transform: rotate(-3deg); }
+  100% { transform: rotate(0deg); }
+}
+

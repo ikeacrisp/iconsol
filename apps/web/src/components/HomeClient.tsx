@@ -484,18 +484,46 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
         }}
       >
         {/*
-         * Single globe — same instance is visible in both idle and search
-         * modes. In idle it auto-rotates with the full logo set; in search
-         * mode the same nodes lean in (CSS scale) and the focused logo
-         * brightens + grows. Pointer events are enabled in search mode so
-         * the user can drag-to-rotate.
+         * Background full-set globe — same IconGlobe component as the
+         * cluster, but rendered with the full logo set in idle mode so
+         * the page still feels alive while the focused cluster sits in
+         * front. Mounted only when there's a focus/cluster.
+         */}
+        {focusedId ? (
+          <div
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              inset: 0,
+              pointerEvents: "none",
+              zIndex: 0,
+              opacity: 0.32,
+              filter: "blur(10px)",
+              WebkitFilter: "blur(10px)",
+            }}
+          >
+            <IconGlobe
+              icons={icons}
+              mode="idle"
+              interactive={false}
+              idleScale={1.14}
+              jitterAmplitude={1.5}
+            />
+          </div>
+        ) : null}
+
+        {/*
+         * Cluster globe — focused logo + relevant cluster on the front
+         * face. Per-icon alpha + cursor attraction live inside IconGlobe.
+         * Pointer events are enabled in search mode so cluster icons
+         * remain clickable / draggable.
          */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             pointerEvents: searchMode ? "auto" : "none",
-            zIndex: 0,
+            zIndex: 1,
             // Lift the focused logo + cluster a touch above the
             // viewport's vertical centre so the focused-logo / pill /
             // search bar / surprise stack reads as centred (without
@@ -559,7 +587,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
                 transition={{
-                  duration: 0.32,
+                  duration: 0.09,
                   ease: [0.65, 0, 0.35, 1],
                 }}
                 style={{
