@@ -4,12 +4,14 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
+import { hover } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { MaskIcon } from "@/components/UiIcon";
 import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import type { Icon } from "@/lib/icon-data";
+import { setIconBackOrigin } from "@/lib/icon-view-transition";
 
 const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
 const SURPRISE_RECENT_LIMIT = 5;
@@ -101,6 +103,9 @@ export function LensClient({ icons }: { icons: Icon[] }) {
     volume: 0.22,
     playbackRate: 0.65,
   });
+  // Same hover tone used on the dashboard grid — fired whenever the
+  // focused logo lands on a new cluster member.
+  const playLogoHover = useSound(hover);
 
   const matchedId = useMemo(() => bestMatchId(icons, query), [icons, query]);
   // Focus is driven by three sources, in order of precedence:
@@ -121,6 +126,15 @@ export function LensClient({ icons }: { icons: Icon[] }) {
     () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
     [focusedId, icons],
   );
+
+  // Audio cue on every committed focus change.
+  const lastFocusedRef = useRef<string | null>(focusedId);
+  useEffect(() => {
+    if (focusedId && focusedId !== lastFocusedRef.current) {
+      playLogoHover();
+    }
+    lastFocusedRef.current = focusedId;
+  }, [focusedId, playLogoHover]);
 
   const handleDragHighlight = useCallback((id: string | null) => {
     setDragHighlightId(id);
@@ -162,7 +176,10 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   }, []);
 
   const handleSubmit = useCallback(() => {
-    if (focusedId) router.push(`/icon/${focusedId}`);
+    if (focusedId) {
+      setIconBackOrigin("/lens");
+      router.push(`/icon/${focusedId}`);
+    }
   }, [router, focusedId]);
 
   const handleClear = useCallback(() => {
@@ -175,6 +192,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
 
   const handleGlobeIconClick = useCallback(
     (id: string) => {
+      setIconBackOrigin("/lens");
       router.push(`/icon/${id}`);
     },
     [router],

@@ -45,6 +45,7 @@ import {
   getDocumentViewTransition,
   ICON_ART_TRANSITION_NAME,
   ICON_FRAME_TRANSITION_NAME,
+  setIconBackOrigin,
   setPendingIconTransition,
   shouldUseIconViewTransition,
 } from "@/lib/icon-view-transition";
@@ -514,6 +515,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
       const withFiles = icons.filter((icon) => icon.hasLocalFile);
       const pool = withFiles.length > 0 ? withFiles : icons;
       const random = pool[Math.floor(Math.random() * pool.length)];
+      setIconBackOrigin("/dashboard");
       router.replace(`/icon/${random.id}`);
     }
   }, [icons, router, searchParams]);
@@ -1532,6 +1534,7 @@ function IconCard({
     }
 
     playSync();
+    setIconBackOrigin("/dashboard");
 
     if (!shouldUseIconViewTransition()) {
       return;

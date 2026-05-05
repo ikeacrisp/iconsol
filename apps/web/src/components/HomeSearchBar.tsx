@@ -135,7 +135,10 @@ export function HomeSearchBar({
   // parent to expose an "exit search mode" affordance. The swap itself uses
   // opacity + scale + blur over 180ms (≤200ms per spec).
   const showClear = hasValue || forceClearAffordance;
-  const playSlideDown = useSound(slideDown);
+  // Bumped above the base gain so the clear-cross feedback reads
+  // clearly over typing/hover sounds. Treated as a multiplier on the
+  // sound's own gain by the audio engine.
+  const playSlideDown = useSound(slideDown, { volume: 1.8 });
 
   const handleClear = () => {
     playSlideDown();

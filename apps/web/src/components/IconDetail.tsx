@@ -26,6 +26,7 @@ import {
 import {
   clearPendingIconTransition,
   getDocumentViewTransition,
+  getIconBackOrigin,
   getPendingIconTransition,
   ICON_ART_TRANSITION_NAME,
   ICON_FRAME_TRANSITION_NAME,
@@ -1222,6 +1223,17 @@ export function IconDetail({
   const handleBack = useCallback(() => {
     playProgressTick();
     const navigateBack = () => {
+      // Origin recorded by HomeClient/LensClient/IconGrid before they
+      // pushed /icon/[id]. Persists across related-logo navigation, so
+      // back always returns to where the detail flow began.
+      const origin = getIconBackOrigin();
+      if (origin) {
+        router.push(origin);
+        return;
+      }
+
+      // Fallback: if no recorded origin, prefer browser back when there
+      // is same-origin history; otherwise land on the dashboard.
       if (typeof window !== "undefined") {
         const hasSameOriginReferrer =
           document.referrer !== "" &&

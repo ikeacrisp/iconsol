@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
-import { confetti } from "@/lib/audio/core";
+import { confetti, hover } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
@@ -14,6 +14,7 @@ import { MaskIcon } from "@/components/UiIcon";
 import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
 import type { Icon } from "@/lib/icon-data";
+import { setIconBackOrigin } from "@/lib/icon-view-transition";
 
 const SURPRISE_RECENT_KEY = "iconsol:surprise-recent";
 const SURPRISE_RECENT_LIMIT = 5;
@@ -288,6 +289,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     volume: 0.22,
     playbackRate: 0.65,
   });
+  // Same hover sound used on the dashboard logo grid — fired whenever
+  // a focused logo lands on the cluster (typed search resolves, manual
+  // click, surprise-me) so every focus commit gets the same audio cue.
+  const playLogoHover = useSound(hover);
 
   // ---------------- Focus resolution ----------------
   const matchedId = useMemo(
@@ -312,6 +317,18 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     () => (focusedId ? icons.find((i) => i.id === focusedId) ?? null : null),
     [focusedId, icons],
   );
+
+  // Audio cue: every time the focused logo changes to a real id, play
+  // the dashboard hover tone. Covers typed-search match, click-to-
+  // refocus, and surprise-me — but not the initial mount or transitions
+  // back to "no focus".
+  const lastFocusedRef = useRef<string | null>(focusedId);
+  useEffect(() => {
+    if (focusedId && focusedId !== lastFocusedRef.current) {
+      playLogoHover();
+    }
+    lastFocusedRef.current = focusedId;
+  }, [focusedId, playLogoHover]);
 
   // The globe clusters around the current focus: focused icon + its
   // curated relatedIds + same-category siblings. So clicking a logo
@@ -351,6 +368,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
       setManualFocusId(id);
       return;
     }
+    setIconBackOrigin("/");
     router.push(`/icon/${id}`);
   }, [router, searchMode]);
 
@@ -407,6 +425,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   // to the dashboard route.
   const submitDesktop = useCallback(() => {
     if (focusedId) {
+      setIconBackOrigin("/");
       router.push(`/icon/${focusedId}`);
       return;
     }
@@ -460,6 +479,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const handleGlobeIconClick = useCallback(
     (id: string) => {
       if (id === focusedId) {
+        setIconBackOrigin("/");
         router.push(`/icon/${id}`);
       } else {
         setManualFocusId(id);
