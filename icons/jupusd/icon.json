@@ -1,0 +1,48 @@
+{
+  "id": "jupusd",
+  "name": "JupUSD",
+  "category": "tokens",
+  "aliases": [
+    "jupusd"
+  ],
+  "tags": [
+    "stablecoin",
+    "jupiter"
+  ],
+  "ticker": "JupUSD",
+  "website": "https://jup.ag",
+  "mintAddress": "JUPUSDC8NZHaUKKJUBeFMh2h3N2Y7ACCHpkKfpHjuAN",
+  "description": "JupUSD is Jupiter's US dollar stablecoin, integrated directly into Jupiter's routing and trading surfaces.",
+  "relatedIds": [
+    "jup",
+    "jupsol",
+    "usdc"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jupusd.svg",
+          "width": 27.996,
+          "height": 27.996,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jupusd.svg",
+          "width": 25.172,
+          "height": 25.173,
+          "x": 3.4,
+          "y": 3.41
+        }
+      ]
+    }
+  },
+  "displayOrder": 43
+}

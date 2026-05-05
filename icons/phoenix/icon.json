@@ -1,0 +1,15 @@
+{
+  "id": "phoenix",
+  "name": "Phoenix",
+  "category": "defi",
+  "aliases": [
+    "phoenix",
+    "phoenix protocol"
+  ],
+  "tags": [
+    "clob",
+    "orderbook",
+    "dex"
+  ],
+  "website": "https://phoenix.trade"
+}

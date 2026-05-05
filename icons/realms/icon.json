@@ -1,0 +1,14 @@
+{
+  "id": "realms",
+  "name": "Realms",
+  "category": "infrastructure",
+  "aliases": [
+    "realms",
+    "spl-governance"
+  ],
+  "tags": [
+    "dao",
+    "governance"
+  ],
+  "website": "https://realms.today"
+}

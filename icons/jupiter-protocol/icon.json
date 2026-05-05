@@ -1,0 +1,16 @@
+{
+  "id": "jupiter-protocol",
+  "name": "Jupiter",
+  "category": "defi",
+  "aliases": [
+    "jup",
+    "jup.ag",
+    "jupiter aggregator"
+  ],
+  "tags": [
+    "dex",
+    "aggregator",
+    "perps"
+  ],
+  "website": "https://jup.ag"
+}

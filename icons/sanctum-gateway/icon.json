@@ -1,0 +1,44 @@
+{
+  "id": "sanctum-gateway",
+  "name": "Sanctum Gateway",
+  "category": "defi",
+  "aliases": [
+    "sanctum-gateway"
+  ],
+  "tags": [
+    "liquid-staking",
+    "gateway"
+  ],
+  "website": "https://sanctum.so",
+  "description": "Sanctum Gateway is the routing layer that unifies liquidity and swaps across every Sanctum liquid staking token.",
+  "relatedIds": [
+    "sanctum",
+    "infsol",
+    "jitosol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "sanctum-gateway.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "sanctum-gateway.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 8
+}

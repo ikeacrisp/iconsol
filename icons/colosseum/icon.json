@@ -1,0 +1,45 @@
+{
+  "id": "colosseum",
+  "name": "Colosseum",
+  "category": "infrastructure",
+  "aliases": [
+    "colosseum"
+  ],
+  "tags": [
+    "hackathon",
+    "grants",
+    "ecosystem"
+  ],
+  "website": "https://colosseum.org",
+  "description": "Colosseum runs Solana's flagship hackathons and helps winning teams grow into funded startups.",
+  "relatedIds": [
+    "superteam",
+    "sol",
+    "sendai"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "colosseum.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "colosseum.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 21
+}

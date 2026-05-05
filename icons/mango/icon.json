@@ -1,0 +1,15 @@
+{
+  "id": "mango",
+  "name": "Mango Markets",
+  "category": "defi",
+  "aliases": [
+    "mango",
+    "mango markets"
+  ],
+  "tags": [
+    "margin",
+    "perps",
+    "trading"
+  ],
+  "website": "https://mango.markets"
+}

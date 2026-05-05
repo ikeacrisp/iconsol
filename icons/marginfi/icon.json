@@ -1,0 +1,46 @@
+{
+  "id": "marginfi",
+  "name": "MarginFi",
+  "category": "defi",
+  "aliases": [
+    "marginfi",
+    "margin.fi"
+  ],
+  "tags": [
+    "lending",
+    "margin",
+    "leverage"
+  ],
+  "website": "https://marginfi.com",
+  "description": "MarginFi is a Solana lending and borrowing protocol offering overcollateralized markets and leveraged strategies.",
+  "relatedIds": [
+    "kamino",
+    "jup",
+    "marinade"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "marginfi.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "marginfi.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 24
+}

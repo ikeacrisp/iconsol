@@ -1,0 +1,14 @@
+{
+  "id": "drift",
+  "name": "Drift Protocol",
+  "category": "defi",
+  "aliases": [
+    "drift"
+  ],
+  "tags": [
+    "perps",
+    "derivatives",
+    "margin"
+  ],
+  "website": "https://drift.trade"
+}

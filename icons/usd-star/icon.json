@@ -1,0 +1,46 @@
+{
+  "id": "usd-star",
+  "name": "USD STAR",
+  "category": "tokens",
+  "aliases": [
+    "usd-star",
+    "usdstar"
+  ],
+  "tags": [
+    "stablecoin"
+  ],
+  "ticker": "USD★",
+  "description": "USD★ is a yield-bearing stablecoin on Solana designed to pass native onchain returns directly to holders.",
+  "relatedIds": [
+    "perena",
+    "usdc",
+    "usdt"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "usd-star.svg",
+          "width": 27.987,
+          "height": 28.021,
+          "x": 2.01,
+          "y": 1.99
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "usd-star.svg",
+          "width": 27.987,
+          "height": 28.021,
+          "x": 2.01,
+          "y": 1.99
+        }
+      ]
+    }
+  },
+  "displayOrder": 18
+}

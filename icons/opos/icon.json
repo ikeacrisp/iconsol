@@ -1,0 +1,47 @@
+{
+  "id": "opos",
+  "name": "OPOS",
+  "category": "infrastructure",
+  "aliases": [
+    "opos",
+    "only-possible-on-solana"
+  ],
+  "tags": [
+    "branding",
+    "ecosystem",
+    "solana"
+  ],
+  "description": "The 'Only Possible On Solana' mark celebrates products and moments that showcase Solana's unique capabilities.",
+  "relatedIds": [
+    "sol",
+    "powered-by-solana",
+    "superteam"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "opos.svg",
+          "width": 27.996,
+          "height": 11.485,
+          "x": 2.0020000000000007,
+          "y": 10.2575
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "opos.svg",
+          "width": 27.996,
+          "height": 11.485,
+          "x": 2.0020000000000007,
+          "y": 10.2575
+        }
+      ]
+    }
+  },
+  "displayOrder": 46
+}

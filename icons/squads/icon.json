@@ -1,0 +1,46 @@
+{
+  "id": "squads",
+  "name": "Squads",
+  "category": "infrastructure",
+  "aliases": [
+    "squads",
+    "squads-protocol"
+  ],
+  "tags": [
+    "multisig",
+    "treasury",
+    "governance"
+  ],
+  "website": "https://squads.so",
+  "description": "Squads builds multi-signature and treasury tooling that helps teams manage permissions, assets, and operational workflows.",
+  "relatedIds": [
+    "sol",
+    "phantom",
+    "marginfi"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "squads.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "squads.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 59
+}

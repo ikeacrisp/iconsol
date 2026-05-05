@@ -1,0 +1,15 @@
+{
+  "id": "orca",
+  "name": "Orca",
+  "category": "defi",
+  "aliases": [
+    "orca dex",
+    "whirlpool"
+  ],
+  "tags": [
+    "dex",
+    "amm",
+    "concentrated-liquidity"
+  ],
+  "website": "https://orca.so"
+}

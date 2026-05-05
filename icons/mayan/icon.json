@@ -1,0 +1,14 @@
+{
+  "id": "mayan",
+  "name": "Mayan Finance",
+  "category": "infrastructure",
+  "aliases": [
+    "mayan"
+  ],
+  "tags": [
+    "bridge",
+    "cross-chain",
+    "swap"
+  ],
+  "website": "https://mayan.finance"
+}

@@ -1,0 +1,47 @@
+{
+  "id": "meteora",
+  "name": "Meteora",
+  "category": "defi",
+  "aliases": [
+    "meteora"
+  ],
+  "tags": [
+    "liquidity",
+    "amm",
+    "yield"
+  ],
+  "website": "https://meteora.ag",
+  "description": "Meteora is a Solana liquidity platform offering dynamic pools and capital-efficient market-making primitives.",
+  "relatedIds": [
+    "jup",
+    "raydium",
+    "kamino"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "meteora.svg",
+          "width": 18.454,
+          "height": 19.992,
+          "x": 6.773,
+          "y": 6.004
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "meteora.svg",
+          "width": 25.538,
+          "height": 27.666,
+          "x": 3.231,
+          "y": 2.167
+        }
+      ]
+    }
+  },
+  "displayOrder": 50
+}

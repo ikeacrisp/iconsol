@@ -1,0 +1,47 @@
+{
+  "id": "scloud",
+  "name": "sCLOUD",
+  "category": "tokens",
+  "aliases": [
+    "scloud",
+    "sanctum-cloud"
+  ],
+  "tags": [
+    "liquid-staking",
+    "staking"
+  ],
+  "website": "https://sanctum.so",
+  "description": "sCLOUD is Sanctum's liquid-staked version of CLOUD, earning staking rewards while remaining usable across Solana DeFi.",
+  "relatedIds": [
+    "sanctum",
+    "infsol",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "scloud.svg",
+          "width": 27.992,
+          "height": 27.541,
+          "x": 2.0039999999999996,
+          "y": 2.2295
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "scloud.svg",
+          "width": 27.992,
+          "height": 27.541,
+          "x": 2.0039999999999996,
+          "y": 2.2295
+        }
+      ]
+    }
+  },
+  "displayOrder": 22
+}

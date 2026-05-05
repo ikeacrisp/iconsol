@@ -1,0 +1,45 @@
+{
+  "id": "sendai",
+  "name": "SendAI",
+  "category": "infrastructure",
+  "aliases": [
+    "sendai"
+  ],
+  "tags": [
+    "ai",
+    "automation",
+    "infrastructure"
+  ],
+  "website": "https://sendai.fun",
+  "description": "SendAI builds AI-native tooling and agent infrastructure for the Solana ecosystem.",
+  "relatedIds": [
+    "superteam",
+    "colosseum",
+    "helius"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "sendai.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "sendai.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 37
+}

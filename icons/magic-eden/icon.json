@@ -1,0 +1,46 @@
+{
+  "id": "magic-eden",
+  "name": "Magic Eden",
+  "category": "nft",
+  "aliases": [
+    "magic eden",
+    "me"
+  ],
+  "tags": [
+    "marketplace",
+    "nft",
+    "trading"
+  ],
+  "website": "https://magiceden.io",
+  "description": "Magic Eden is a consumer marketplace and launch platform for collectibles, creators, and community-led digital products.",
+  "relatedIds": [
+    "madlads",
+    "claynosaurz",
+    "phantom"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "magic-eden.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "magic-eden.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 20
+}

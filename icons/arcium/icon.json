@@ -1,0 +1,47 @@
+{
+  "id": "arcium",
+  "name": "Arcium",
+  "category": "infrastructure",
+  "aliases": [
+    "arcium"
+  ],
+  "tags": [
+    "privacy",
+    "mpc",
+    "confidential-computing"
+  ],
+  "website": "https://arcium.com",
+  "description": "Arcium is a confidential computing network enabling encrypted compute and MPC-based privacy for Solana apps.",
+  "relatedIds": [
+    "sol",
+    "helius",
+    "umbra"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "arcium.svg",
+          "width": 22.08,
+          "height": 15.989,
+          "x": 4.960000000000001,
+          "y": 8.0055
+        }
+      ],
+      "background": "#6d45ff",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "arcium.svg",
+          "width": 25.37,
+          "height": 18.372,
+          "x": 3.3149999999999995,
+          "y": 6.814
+        }
+      ]
+    }
+  },
+  "displayOrder": 29
+}

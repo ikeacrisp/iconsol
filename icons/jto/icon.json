@@ -1,0 +1,48 @@
+{
+  "id": "jto",
+  "name": "Jito",
+  "category": "tokens",
+  "aliases": [
+    "jito"
+  ],
+  "tags": [
+    "governance",
+    "liquid-staking"
+  ],
+  "ticker": "JTO",
+  "website": "https://jito.network",
+  "mintAddress": "jtojtomepa8beP8AuQc6eXt5FriJwfFMwQx2v2f9mCL",
+  "description": "JTO is the governance token of Jito, coordinating decisions across Jito's staking and MEV infrastructure on Solana.",
+  "relatedIds": [
+    "jito",
+    "jitosol",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jto.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jto.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ]
+    }
+  },
+  "displayOrder": 36
+}

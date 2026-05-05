@@ -1,0 +1,48 @@
+{
+  "id": "usdt",
+  "name": "USDT",
+  "category": "tokens",
+  "aliases": [
+    "usdt",
+    "tether"
+  ],
+  "tags": [
+    "stablecoin"
+  ],
+  "ticker": "USDT",
+  "website": "https://tether.to",
+  "mintAddress": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+  "description": "USDT is Tether's US dollar stablecoin, the largest dollar-denominated crypto asset, available on Solana.",
+  "relatedIds": [
+    "usdc",
+    "sol",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "usdt.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "usdt.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 60
+}

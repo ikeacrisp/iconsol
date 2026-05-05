@@ -1,0 +1,45 @@
+{
+  "id": "dflow",
+  "name": "DFlow",
+  "category": "defi",
+  "aliases": [
+    "dflow"
+  ],
+  "tags": [
+    "dex",
+    "order-flow",
+    "payments"
+  ],
+  "website": "https://dflow.net",
+  "description": "DFlow is an order flow marketplace connecting wallets and apps to execution venues with price improvement.",
+  "relatedIds": [
+    "jup",
+    "phantom",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "dflow.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "dflow.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 14
+}

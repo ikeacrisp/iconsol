@@ -1,0 +1,48 @@
+{
+  "id": "pump-fun",
+  "name": "Pump.fun",
+  "category": "infrastructure",
+  "aliases": [
+    "pump",
+    "pump.fun"
+  ],
+  "tags": [
+    "token-launch",
+    "meme",
+    "launchpad"
+  ],
+  "website": "https://pump.fun",
+  "description": "Pump.fun is a consumer launch surface for discovering and trading fast-moving, community-driven tokens on Solana.",
+  "relatedIds": [
+    "bonk",
+    "moonshot",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "pump-fun.svg",
+          "width": 19.995,
+          "height": 20.606,
+          "x": 6,
+          "y": 5.697
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "pump-fun.svg",
+          "width": 28.002,
+          "height": 28.857,
+          "x": 1.9990000000000006,
+          "y": 1.5715000000000003
+        }
+      ]
+    }
+  },
+  "displayOrder": 15
+}

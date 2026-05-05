@@ -1,0 +1,47 @@
+{
+  "id": "fuse",
+  "name": "Fuse",
+  "category": "defi",
+  "aliases": [
+    "fuse"
+  ],
+  "tags": [
+    "defi",
+    "yield",
+    "restaking"
+  ],
+  "website": "https://fuse.fi",
+  "description": "Fuse is a Solana restaking and yield protocol enabling new security and reward primitives on top of existing LSTs.",
+  "relatedIds": [
+    "sol",
+    "jito",
+    "marinade"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "fuse.svg",
+          "width": 19.959,
+          "height": 19.679,
+          "x": 6.0205,
+          "y": 6.160500000000001
+        }
+      ],
+      "background": "#ffffff",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "fuse.svg",
+          "width": 27.985,
+          "height": 27.594,
+          "x": 2.0075000000000003,
+          "y": 2.2029999999999994
+        }
+      ]
+    }
+  },
+  "displayOrder": 17
+}

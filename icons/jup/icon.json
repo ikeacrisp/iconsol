@@ -1,0 +1,49 @@
+{
+  "id": "jup",
+  "name": "Jupiter",
+  "category": "tokens",
+  "aliases": [
+    "jupiter",
+    "jup.ag"
+  ],
+  "tags": [
+    "governance",
+    "dex",
+    "aggregator"
+  ],
+  "ticker": "JUP",
+  "website": "https://jup.ag",
+  "mintAddress": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
+  "description": "Jupiter is Solana's leading swap and routing layer for discovering liquidity across tokens, perps, and new markets.",
+  "relatedIds": [
+    "jupsol",
+    "jupusd",
+    "jupiter-lend",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jup.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jup.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 3
+}

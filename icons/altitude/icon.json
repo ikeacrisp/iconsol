@@ -1,0 +1,44 @@
+{
+  "id": "altitude",
+  "name": "Altitude",
+  "category": "defi",
+  "aliases": [
+    "altitude"
+  ],
+  "tags": [
+    "defi",
+    "yield"
+  ],
+  "website": "https://altitude.fi",
+  "description": "Altitude is a Solana-native yield protocol for looped staking and leveraged liquid staking strategies.",
+  "relatedIds": [
+    "jup",
+    "kamino",
+    "marinade"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "altitude.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "altitude.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 13
+}

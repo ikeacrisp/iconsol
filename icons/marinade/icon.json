@@ -1,0 +1,46 @@
+{
+  "id": "marinade",
+  "name": "Marinade",
+  "category": "defi",
+  "aliases": [
+    "marinade"
+  ],
+  "tags": [
+    "liquid-staking",
+    "defi"
+  ],
+  "website": "https://marinade.finance",
+  "description": "Marinade is a Solana liquid staking protocol issuing mSOL and coordinating stake across a diverse, decentralized validator set.",
+  "relatedIds": [
+    "jito",
+    "jitosol",
+    "sanctum"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "marinade.svg",
+          "width": 19.996,
+          "height": 13.528,
+          "x": 6.002000000000001,
+          "y": 9.236
+        }
+      ],
+      "background": "#0b9890",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "marinade.svg",
+          "width": 28,
+          "height": 18.943,
+          "x": 2,
+          "y": 6.528499999999999
+        }
+      ]
+    }
+  },
+  "displayOrder": 52
+}

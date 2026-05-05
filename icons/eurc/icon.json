@@ -1,0 +1,48 @@
+{
+  "id": "eurc",
+  "name": "EURC",
+  "category": "tokens",
+  "aliases": [
+    "eurc"
+  ],
+  "tags": [
+    "stablecoin",
+    "euro"
+  ],
+  "ticker": "EURC",
+  "website": "https://www.circle.com/eurc",
+  "mintAddress": "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr",
+  "description": "EURC is Circle's euro-denominated stablecoin, fully reserved and issued onchain for payments and trading.",
+  "relatedIds": [
+    "usdc",
+    "circle",
+    "usdt"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "eurc.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "eurc.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 38
+}

@@ -1,0 +1,46 @@
+{
+  "id": "carrot",
+  "name": "Carrot",
+  "category": "defi",
+  "aliases": [
+    "carrot"
+  ],
+  "tags": [
+    "yield",
+    "liquid-staking"
+  ],
+  "website": "https://carrot.so",
+  "description": "Carrot is a yield-bearing product on Solana that allocates deposits across curated onchain yield strategies.",
+  "relatedIds": [
+    "jitosol",
+    "marinade",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "carrot.svg",
+          "width": 20.002,
+          "height": 20.002,
+          "x": 5.9990000000000006,
+          "y": 5.9990000000000006
+        }
+      ],
+      "background": "#022c22",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "carrot.svg",
+          "width": 26,
+          "height": 26,
+          "x": 3,
+          "y": 3
+        }
+      ]
+    }
+  },
+  "displayOrder": 11
+}

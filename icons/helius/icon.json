@@ -1,0 +1,45 @@
+{
+  "id": "helius",
+  "name": "Helius",
+  "category": "infrastructure",
+  "aliases": [
+    "helius"
+  ],
+  "tags": [
+    "rpc",
+    "api",
+    "developer"
+  ],
+  "website": "https://helius.dev",
+  "description": "Helius provides Solana developer infrastructure for RPC, indexing, webhooks, and real-time data delivery at scale.",
+  "relatedIds": [
+    "sol",
+    "jup",
+    "phantom"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "helius.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "helius.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 2
+}

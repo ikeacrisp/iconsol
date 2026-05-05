@@ -1,0 +1,15 @@
+{
+  "id": "pengu",
+  "name": "Pudgy Penguins",
+  "category": "tokens",
+  "aliases": [
+    "pudgy-penguins",
+    "pengu"
+  ],
+  "tags": [
+    "meme",
+    "nft"
+  ],
+  "ticker": "PENGU",
+  "mintAddress": "2zMMhcVQEXDtdE6vsFS7S7D5oUodfJHE8vd1gnBouauv"
+}

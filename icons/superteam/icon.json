@@ -1,0 +1,45 @@
+{
+  "id": "superteam",
+  "name": "Superteam",
+  "category": "infrastructure",
+  "aliases": [
+    "superteam"
+  ],
+  "tags": [
+    "dao",
+    "ecosystem",
+    "community"
+  ],
+  "website": "https://superteam.fun",
+  "description": "Superteam helps founders, operators, and creators contribute to Solana through programs, bounties, education, and support.",
+  "relatedIds": [
+    "colosseum",
+    "sol",
+    "sendai"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "superteam.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "superteam.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 10
+}

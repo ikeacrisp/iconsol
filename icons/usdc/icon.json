@@ -1,0 +1,48 @@
+{
+  "id": "usdc",
+  "name": "USDC",
+  "category": "tokens",
+  "aliases": [
+    "usdc",
+    "usd-coin"
+  ],
+  "tags": [
+    "stablecoin"
+  ],
+  "ticker": "USDC",
+  "website": "https://www.circle.com/usdc",
+  "mintAddress": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+  "description": "USDC is Circle's fully reserved US dollar stablecoin and the most widely used dollar-backed asset on Solana.",
+  "relatedIds": [
+    "usdt",
+    "sol",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "usdc.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "usdc.svg",
+          "width": 27.961,
+          "height": 27.146,
+          "x": 2.02,
+          "y": 2.43
+        }
+      ]
+    }
+  },
+  "displayOrder": 39
+}

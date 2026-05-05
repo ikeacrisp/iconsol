@@ -1,0 +1,49 @@
+{
+  "id": "sol",
+  "name": "Solana",
+  "category": "tokens",
+  "aliases": [
+    "solana",
+    "sol"
+  ],
+  "tags": [
+    "native",
+    "gas",
+    "staking"
+  ],
+  "ticker": "SOL",
+  "website": "https://solana.com",
+  "mintAddress": "So11111111111111111111111111111111111111112",
+  "description": "Solana is a high-performance layer 1 network powering online capital markets, payments, and cryptocurrency applications.",
+  "relatedIds": [
+    "jup",
+    "usdc",
+    "jitosol",
+    "jupsol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "sol.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "sol.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 0
+}

@@ -1,0 +1,46 @@
+{
+  "id": "jupiter-lend",
+  "name": "Jupiter Lend",
+  "category": "defi",
+  "aliases": [
+    "jupiter-lend",
+    "jup-lend"
+  ],
+  "tags": [
+    "lending",
+    "borrowing",
+    "jupiter"
+  ],
+  "website": "https://jup.ag",
+  "description": "Jupiter Lend is Jupiter's lending market for borrowing and earning against major Solana assets.",
+  "relatedIds": [
+    "jup",
+    "jupsol",
+    "jupusd"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jupiter-lend.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jupiter-lend.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 34
+}

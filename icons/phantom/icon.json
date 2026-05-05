@@ -1,0 +1,45 @@
+{
+  "id": "phantom",
+  "name": "Phantom",
+  "category": "wallets",
+  "aliases": [
+    "phantom wallet"
+  ],
+  "tags": [
+    "wallet",
+    "browser-extension",
+    "mobile"
+  ],
+  "website": "https://phantom.app",
+  "description": "Phantom is a widely used Solana wallet for signing, sending, swapping, and exploring apps, collectibles, and onchain assets.",
+  "relatedIds": [
+    "sol",
+    "jup",
+    "magic-eden"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "phantom.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "phantom.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 4
+}

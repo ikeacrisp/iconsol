@@ -1,0 +1,13 @@
+{
+  "id": "solend",
+  "name": "Solend",
+  "category": "defi",
+  "aliases": [
+    "solend"
+  ],
+  "tags": [
+    "lending",
+    "borrowing"
+  ],
+  "website": "https://solend.fi"
+}

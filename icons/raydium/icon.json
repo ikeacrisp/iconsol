@@ -1,0 +1,44 @@
+{
+  "id": "raydium",
+  "name": "Raydium",
+  "category": "defi",
+  "aliases": [
+    "raydium"
+  ],
+  "tags": [
+    "dex",
+    "amm"
+  ],
+  "website": "https://raydium.io",
+  "description": "Raydium is a Solana liquidity venue for swaps, pools, launches, and active market participation across the ecosystem.",
+  "relatedIds": [
+    "jup",
+    "meteora",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "raydium.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "raydium.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 54
+}

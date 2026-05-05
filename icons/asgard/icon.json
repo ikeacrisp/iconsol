@@ -1,0 +1,44 @@
+{
+  "id": "asgard",
+  "name": "Asgard",
+  "category": "defi",
+  "aliases": [
+    "asgard"
+  ],
+  "tags": [
+    "defi",
+    "yield"
+  ],
+  "website": "https://asgard.finance",
+  "description": "Asgard is a Solana yield and structured product platform for onchain capital strategies.",
+  "relatedIds": [
+    "jup",
+    "sol",
+    "kamino"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "asgard.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "asgard.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 32
+}

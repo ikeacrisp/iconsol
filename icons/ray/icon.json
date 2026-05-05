@@ -1,0 +1,15 @@
+{
+  "id": "ray",
+  "name": "Raydium",
+  "category": "tokens",
+  "aliases": [
+    "raydium"
+  ],
+  "tags": [
+    "governance",
+    "dex",
+    "amm"
+  ],
+  "ticker": "RAY",
+  "mintAddress": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R"
+}
