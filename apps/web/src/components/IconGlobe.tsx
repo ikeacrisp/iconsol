@@ -209,9 +209,10 @@ export function IconGlobe({
     onDragReleaseRef.current = onDragRelease;
   }, [onDragHighlight, onDragRelease]);
 
-  // Single, stable node set — same nodes are used for idle and search modes
-  // so the visual is one continuous globe; only the visual treatment changes
-  // when the user enters search mode.
+  // Build the node set: parent-supplied positions take precedence (used to
+  // cluster relevant icons around a focused logo); otherwise spread the
+  // supplied icons across a fibonacci sphere; if no icons at all, fall
+  // back to the default decorative idle dots (mobile mini globe).
   const nodes = useMemo<Node[]>(() => {
     if (icons && icons.length > 0) {
       // If the parent provided explicit positions (e.g. clustering
@@ -803,6 +804,10 @@ export function IconGlobe({
     radiusScale,
     jitterAmplitude,
     nodePositions,
+    keepOutTopVy,
+    keepOutBottomVy,
+    keepOutRectRef,
+    keepOutRectBufferPx,
   ]);
 
   // ------- Pointer interaction (drag-to-rotate, only when draggable) -------
@@ -942,7 +947,14 @@ export function IconGlobe({
   // smooth easing so the existing globe (same nodes) appears to "lean in".
   const containerScale = mode === "search" ? searchScale : idleScale;
 
-  const preloadSrcs = useMemo(() => Array.from(new Set(DEFAULT_IDLE_SRCS)), []);
+  // Only emit decorative-idle preload hints when this instance is using
+  // the fallback set (e.g. the mobile mini globe) — every other instance
+  // renders <SolidLogo> directly and doesn't touch DEFAULT_IDLE_SRCS.
+  const preloadSrcs = useMemo(
+    () =>
+      icons && icons.length > 0 ? [] : Array.from(new Set(DEFAULT_IDLE_SRCS)),
+    [icons],
+  );
 
   return (
     <>
