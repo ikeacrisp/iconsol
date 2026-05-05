@@ -132,6 +132,15 @@ interface IconGlobeProps {
    * window. Skipped when null/undefined.
    */
   dragMarginPx?: number | null;
+  /**
+   * Optional ref to a viewport-positioned element (e.g. the focused
+   * name pill) treated as a static collision rect for the cluster
+   * physics. Each frame the element's bounding rect is read and
+   * non-focused icons are pushed out so they never overlap it.
+   */
+  keepOutRectRef?: React.RefObject<HTMLElement | null> | null;
+  /** Pixel barrier added on every side of `keepOutRectRef`. Default 0. */
+  keepOutRectBufferPx?: number;
 }
 
 export function IconGlobe({
@@ -152,6 +161,8 @@ export function IconGlobe({
   onDragRelease,
   draggable,
   dragMarginPx = null,
+  keepOutRectRef = null,
+  keepOutRectBufferPx = 0,
 }: IconGlobeProps = {}) {
   // Drag is a separate gesture from click — defaults to whatever
   // `interactive` is so the previous (click-and-drag) behaviour holds
@@ -641,6 +652,53 @@ export function IconGlobe({
           if (px + halfIcon > rightBoundLocal) {
             p.ox = rightBoundLocal - halfIcon - home.sx;
             if (p.vx > 0) p.vx *= BOUNCE_DAMP;
+          }
+        }
+
+        // Static rect keep-out (e.g. focused-name pill). Each non-focused
+        // icon is pushed out of the rect (expanded by buffer + halfIcon)
+        // toward the nearest edge, so cluster logos can never overlap or
+        // intersect it.
+        const keepRectEl = keepOutRectRef?.current ?? null;
+        if (keepRectEl) {
+          const rectVp = keepRectEl.getBoundingClientRect();
+          if (rectVp.width > 0 && rectVp.height > 0) {
+            const buf = keepOutRectBufferPx + halfIcon;
+            const rl = (rectVp.left - containerLeftVx) / visScale - buf;
+            const rr = (rectVp.right - containerLeftVx) / visScale + buf;
+            const rt = (rectVp.top - containerTopVy) / visScale - buf;
+            const rb = (rectVp.bottom - containerTopVy) / visScale + buf;
+            for (let i = 0; i < homePos.length; i++) {
+              const home = homePos[i];
+              const node = nodes[i];
+              if (!home || !node?.id) continue;
+              if (focusedIdx === i) continue;
+              const p = physics.get(node.id);
+              if (!p) continue;
+              const px = home.sx + p.ox;
+              const py = home.sy + p.oy;
+              if (px > rl && px < rr && py > rt && py < rb) {
+                // Inside the inflated rect — push to nearest edge.
+                const dxL = px - rl;
+                const dxR = rr - px;
+                const dyT = py - rt;
+                const dyB = rb - py;
+                const minD = Math.min(dxL, dxR, dyT, dyB);
+                if (minD === dxL) {
+                  p.ox = rl - home.sx;
+                  if (p.vx > 0) p.vx *= BOUNCE_DAMP;
+                } else if (minD === dxR) {
+                  p.ox = rr - home.sx;
+                  if (p.vx < 0) p.vx *= BOUNCE_DAMP;
+                } else if (minD === dyT) {
+                  p.oy = rt - home.sy;
+                  if (p.vy > 0) p.vy *= BOUNCE_DAMP;
+                } else {
+                  p.oy = rb - home.sy;
+                  if (p.vy < 0) p.vy *= BOUNCE_DAMP;
+                }
+              }
+            }
           }
         }
       }

@@ -265,6 +265,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const searchParams = useSearchParams();
   const desktopInputRef = useRef<HTMLInputElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
+  // Tracks the live pill DOM element so the cluster overlay can read
+  // its bounding rect each frame and treat it as a static keep-out zone
+  // (logos in the cluster can't overlap or intersect it).
+  const pillRef = useRef<HTMLSpanElement>(null);
   const [desktopQuery, setDesktopQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
   const [copied, setCopied] = useState(false);
@@ -572,24 +576,31 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                     ? window.innerHeight - 220 - 18 - 24
                     : 501
                 }
+                // The focused-name pill is a static collision element for
+                // the cluster — logos can't overlap or intersect it, with
+                // a 4px barrier on every side.
+                keepOutRectRef={pillRef}
+                keepOutRectBufferPx={4}
               />
             </motion.div>
           ) : null}
         </AnimatePresence>
 
-        {/* Focused name pill — anchored to the focused logo (24px below
-            its bottom edge), independent of the search bar. Animates
-            with opacity + scale + blur on every focus change. */}
+        {/* Focused name pill — anchored to a 0-size point ~64px below
+            the focused logo (and shifted up by the cluster's translateY)
+            so each pill, regardless of text length, is independently
+            centred at the anchor. The outer div is just an anchor point
+            so popLayout can't shift the pill horizontally between focus
+            changes. The pill itself collides with cluster icons via
+            `keepOutRectRef` so logos can't overlap it. */}
         <div
           aria-hidden={!focusedIcon}
           style={{
             position: "absolute",
-            top: "50%",
+            top: "calc(50% + 68px - 72px)",
             left: "50%",
-            // Shift below focused-logo bottom (~44px half-size) + 24px
-            // gap, then apply the same cluster lift so the pill
-            // follows the focused logo.
-            transform: "translate(-50%, calc(-50% + 68px - 72px))",
+            width: 0,
+            height: 0,
             zIndex: 4,
             pointerEvents: "none",
           }}
@@ -598,23 +609,41 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             {focusedIcon ? (
               <motion.span
                 key={focusedIcon.id}
-                initial={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
-                // Match the focused logo's globe-glide so the pill and the
-                // logo cross-fade together when shuffling through icons.
+                ref={pillRef}
+                initial={{
+                  opacity: 0,
+                  scale: 0.85,
+                  filter: "blur(6px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
+                animate={{
+                  opacity: 1,
+                  scale: 1,
+                  filter: "blur(0px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
+                exit={{
+                  opacity: 0,
+                  scale: 0.85,
+                  filter: "blur(6px)",
+                  x: "-50%",
+                  y: "-50%",
+                }}
                 transition={{
-                  duration: 0.52,
+                  duration: 0.32,
                   ease: [0.65, 0, 0.35, 1],
                 }}
                 style={{
-                  display: "inline-block",
-                  padding: "6px 10px",
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  padding: "24px 10px 6px 10px",
                   borderRadius: 12,
                   background: "rgba(13,15,18,0.5)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
-                  border: "1px solid #16181B",
                   fontSize: 13,
                   color: "#ffffff",
                   whiteSpace: "nowrap",
