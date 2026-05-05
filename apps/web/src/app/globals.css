@@ -630,3 +630,14 @@ input[type="text"]:focus-visible {
   }
 }
 
+/* Globe "pick me next" pendulum — short decreasing-angle wiggle paired
+   with a smooth scale-up that breathes in and out as the rotation
+   plays, drawing the eye to the icon. */
+@keyframes globe-pendulum {
+  0%   { transform: rotate(0deg) scale(1); }
+  22%  { transform: rotate(-12deg) scale(1.12); }
+  48%  { transform: rotate(7deg) scale(1.18); }
+  74%  { transform: rotate(-3deg) scale(1.10); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+
