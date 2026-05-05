@@ -341,9 +341,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const handleSurprise = useCallback(() => {
     const id = pickSurpriseLogoId();
     if (searchMode) {
-      // In search mode: focus the random logo on the globe by typing its id.
-      // Setting the query causes bestMatchId to resolve to it.
-      setDesktopQuery(id);
+      // In search mode: focus the random logo on the globe via manual
+      // focus rather than typing its id into the search bar — the user
+      // wants the bar to stay empty (or keep whatever they had typed).
+      setManualFocusId(id);
       return;
     }
     router.push(`/icon/${id}`);
@@ -520,45 +521,53 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
 
         {/*
          * Cluster overlay — focused logo + relevant cluster on the front
-         * face. Mounted only while a focus is active. Has its own scale
-         * + rotation; the persistent idle globe behind it stays put.
+         * face. Mounted only while a focus is active. On exit (clearing
+         * the search) the entire cluster — focused + relevant — fades,
+         * shrinks, and blurs out together so the dismiss reads as a
+         * deliberate transition rather than an unmount.
          */}
-        {focusedId ? (
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              pointerEvents: searchMode ? "auto" : "none",
-              zIndex: 1,
-              // Lift the focused logo + cluster a touch above the
-              // viewport's vertical centre so the focused-logo / pill /
-              // search bar / surprise stack reads as centred (without
-              // the focused logo sitting dead centre).
-              transform: "translateY(-72px)",
-              transition:
-                "transform 520ms cubic-bezier(0.65, 0, 0.35, 1)",
-              willChange: "transform",
-            }}
-          >
-            <IconGlobe
-              icons={visibleIcons}
-              mode="search"
-              focusedId={focusedId}
-              onIconClick={handleGlobeIconClick}
-              interactive={searchMode}
-              idleScale={1.32}
-              searchScale={1.5}
-              radiusScale={radiusScale}
-              jitterAmplitude={1.5}
-              nodePositions={nodePositions}
-              keepOutBottomVy={
-                typeof window !== "undefined"
-                  ? window.innerHeight - 220 - 18 - 24
-                  : 501
-              }
-            />
-          </div>
-        ) : null}
+        <AnimatePresence>
+          {focusedId ? (
+            <motion.div
+              key="cluster-overlay"
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(8px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.85, filter: "blur(12px)" }}
+              transition={{ duration: 0.36, ease: [0.65, 0, 0.35, 1] }}
+              style={{
+                position: "absolute",
+                inset: 0,
+                pointerEvents: searchMode ? "auto" : "none",
+                zIndex: 1,
+                // Lift the focused logo + cluster a touch above the
+                // viewport's vertical centre so the focused-logo / pill /
+                // search bar / surprise stack reads as centred (without
+                // the focused logo sitting dead centre).
+                y: -72,
+                transformOrigin: "center",
+                willChange: "transform, opacity, filter",
+              }}
+            >
+              <IconGlobe
+                icons={visibleIcons}
+                mode="search"
+                focusedId={focusedId}
+                onIconClick={handleGlobeIconClick}
+                interactive={searchMode}
+                idleScale={1.32}
+                searchScale={1.5}
+                radiusScale={radiusScale}
+                jitterAmplitude={1.5}
+                nodePositions={nodePositions}
+                keepOutBottomVy={
+                  typeof window !== "undefined"
+                    ? window.innerHeight - 220 - 18 - 24
+                    : 501
+                }
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {/* Focused name pill — anchored to the focused logo (24px below
             its bottom edge), independent of the search bar. Animates
