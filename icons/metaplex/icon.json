@@ -1,0 +1,45 @@
+{
+  "id": "metaplex",
+  "name": "Metaplex",
+  "category": "nft",
+  "aliases": [
+    "metaplex"
+  ],
+  "tags": [
+    "nft",
+    "standard",
+    "infrastructure"
+  ],
+  "website": "https://metaplex.com",
+  "description": "Metaplex provides Solana standards and tooling for minting, managing, and distributing digital assets and collectibles.",
+  "relatedIds": [
+    "magic-eden",
+    "madlads",
+    "claynosaurz"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "metaplex.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "metaplex.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 53
+}

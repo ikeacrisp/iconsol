@@ -1,0 +1,45 @@
+{
+  "id": "zora",
+  "name": "Zora",
+  "category": "nft",
+  "aliases": [
+    "zora"
+  ],
+  "tags": [
+    "marketplace",
+    "nft",
+    "creator"
+  ],
+  "website": "https://zora.co",
+  "description": "Zora is a creator protocol for minting, trading, and distributing media as onchain digital objects.",
+  "relatedIds": [
+    "magic-eden",
+    "metaplex",
+    "crossmint"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "zora.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "zora.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 55
+}

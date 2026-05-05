@@ -1,0 +1,62 @@
+{
+  "id": "infsol",
+  "name": "infSOL",
+  "category": "tokens",
+  "aliases": [
+    "infsol",
+    "infinite-sol"
+  ],
+  "tags": [
+    "liquid-staking",
+    "staking"
+  ],
+  "website": "https://sanctum.so",
+  "description": "infSOL is a basket liquid staking token from Sanctum Infinity, routing stake across many validators for diversified yield.",
+  "relatedIds": [
+    "sanctum",
+    "jitosol",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "infsol-left.svg",
+          "width": 11.771,
+          "height": 11.771,
+          "x": 5.9285,
+          "y": 10.1143
+        },
+        {
+          "src": "infsol-right.svg",
+          "width": 11.771,
+          "height": 11.771,
+          "x": 14.2515,
+          "y": 10.1143
+        },
+        {
+          "src": "infsol-center.svg",
+          "width": 5.885,
+          "height": 5.885,
+          "x": 13.0575,
+          "y": 13.0575,
+          "rotation": 45
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "infsol.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 26
+}

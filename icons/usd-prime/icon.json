@@ -1,0 +1,46 @@
+{
+  "id": "usd-prime",
+  "name": "USD Prime",
+  "category": "tokens",
+  "aliases": [
+    "usd-prime",
+    "usdprime"
+  ],
+  "tags": [
+    "stablecoin"
+  ],
+  "ticker": "USDPrime",
+  "description": "USD Prime is a Solana-native stablecoin designed for institutional flows and deep onchain liquidity.",
+  "relatedIds": [
+    "usdc",
+    "usdt",
+    "perena"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "usd-prime.svg",
+          "width": 27.976,
+          "height": 27.976,
+          "x": 2.02,
+          "y": 2.01
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "usd-prime.svg",
+          "width": 27.976,
+          "height": 27.976,
+          "x": 2.02,
+          "y": 2.01
+        }
+      ]
+    }
+  },
+  "displayOrder": 16
+}

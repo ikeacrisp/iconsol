@@ -1,0 +1,49 @@
+{
+  "id": "jitosol",
+  "name": "Jito Staked SOL",
+  "category": "tokens",
+  "aliases": [
+    "jitosol",
+    "jito-staked-sol"
+  ],
+  "tags": [
+    "liquid-staking",
+    "defi"
+  ],
+  "ticker": "JitoSOL",
+  "website": "https://jito.network",
+  "mintAddress": "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
+  "description": "JitoSOL is the Jito liquid staking token, representing SOL staked with MEV-optimized validator operations.",
+  "relatedIds": [
+    "jito",
+    "jto",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jitosol.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jitosol.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ]
+    }
+  },
+  "displayOrder": 44
+}

@@ -1,0 +1,46 @@
+{
+  "id": "claynosaurz",
+  "name": "Claynosaurz",
+  "category": "nft",
+  "aliases": [
+    "claynosaurz"
+  ],
+  "tags": [
+    "nft",
+    "collection"
+  ],
+  "website": "https://claynosaurz.com",
+  "description": "Claynosaurz is a narrative-driven Solana NFT collection and animation studio building original IP onchain.",
+  "relatedIds": [
+    "magic-eden",
+    "madlads",
+    "metaplex"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "claynosaurz.svg",
+          "width": 19.992,
+          "height": 18.743,
+          "x": 6.004,
+          "y": 6.628500000000001
+        }
+      ],
+      "background": "linear-gradient(180deg, #fc956c 0%, #ec725b 100%)",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "claynosaurz.svg",
+          "width": 27.991,
+          "height": 26.241,
+          "x": 2.0045,
+          "y": 2.8795
+        }
+      ]
+    }
+  },
+  "displayOrder": 56
+}

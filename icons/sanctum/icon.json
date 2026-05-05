@@ -1,0 +1,44 @@
+{
+  "id": "sanctum",
+  "name": "Sanctum",
+  "category": "defi",
+  "aliases": [
+    "sanctum"
+  ],
+  "tags": [
+    "liquid-staking"
+  ],
+  "website": "https://sanctum.so",
+  "description": "Sanctum is a Solana liquid staking infrastructure protocol unifying LSTs into a single, interoperable staking economy.",
+  "relatedIds": [
+    "infsol",
+    "scloud",
+    "jitosol",
+    "marinade"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "sanctum.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "sanctum.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 1
+}

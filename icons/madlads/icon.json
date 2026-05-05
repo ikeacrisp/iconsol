@@ -1,0 +1,52 @@
+{
+  "id": "madlads",
+  "name": "Madlads",
+  "category": "nft",
+  "aliases": [
+    "madlads",
+    "mad-lads"
+  ],
+  "tags": [
+    "nft",
+    "collection",
+    "backpack"
+  ],
+  "website": "https://madlads.com",
+  "description": "Mad Lads is a flagship Solana NFT collection closely tied to the Backpack wallet and xNFT ecosystem.",
+  "relatedIds": [
+    "backpack",
+    "magic-eden",
+    "claynosaurz"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "madlads.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "madlads-fill.svg",
+          "width": 27.991,
+          "height": 27.991,
+          "x": 2.0045,
+          "y": 2.0045,
+          "maskSrcs": [
+            "madlads-mask-a.svg",
+            "madlads-mask-b.svg"
+          ],
+          "maskPositions": "0px 0px, -0.026px -0.003px",
+          "maskSizes": "100% 100%, 100% 100%"
+        }
+      ]
+    }
+  },
+  "displayOrder": 45
+}

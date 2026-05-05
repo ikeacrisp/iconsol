@@ -1,0 +1,46 @@
+{
+  "id": "powered-by-solana",
+  "name": "Powered by Solana",
+  "category": "infrastructure",
+  "aliases": [
+    "powered-by-solana"
+  ],
+  "tags": [
+    "branding",
+    "ecosystem",
+    "solana"
+  ],
+  "description": "The 'Powered by Solana' mark identifies products and apps built on the Solana network.",
+  "relatedIds": [
+    "sol",
+    "opos",
+    "superteam"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "powered-by-solana.svg",
+          "width": 27.996,
+          "height": 8.735,
+          "x": 2.0020000000000007,
+          "y": 11.6325
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "powered-by-solana.svg",
+          "width": 27.996,
+          "height": 8.735,
+          "x": 2.0020000000000007,
+          "y": 11.6325
+        }
+      ]
+    }
+  },
+  "displayOrder": 42
+}

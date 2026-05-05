@@ -1,0 +1,48 @@
+{
+  "id": "seeker",
+  "name": "Seeker",
+  "category": "wallets",
+  "aliases": [
+    "seeker",
+    "solana-seeker"
+  ],
+  "tags": [
+    "wallet",
+    "mobile",
+    "hardware"
+  ],
+  "website": "https://solanamobile.com",
+  "description": "Seeker is Solana Mobile's crypto-native smartphone, shipping with wallet access and deep app integrations.",
+  "relatedIds": [
+    "phantom",
+    "backpack",
+    "solflare"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "seeker.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "background": "linear-gradient(180deg, #000000 32.982%, #125d74 61.607%, #85cbc1 90.231%)",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "seeker.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 57
+}

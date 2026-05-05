@@ -1,0 +1,14 @@
+{
+  "id": "cloud",
+  "name": "Sanctum",
+  "category": "tokens",
+  "aliases": [
+    "sanctum"
+  ],
+  "tags": [
+    "governance",
+    "liquid-staking"
+  ],
+  "ticker": "CLOUD",
+  "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "moonpay",
+  "name": "MoonPay",
+  "category": "infrastructure",
+  "aliases": [
+    "moonpay"
+  ],
+  "tags": [
+    "payments",
+    "onramp",
+    "fiat"
+  ],
+  "website": "https://moonpay.com",
+  "description": "MoonPay connects users to digital assets through payments, onboarding, and checkout experiences across crypto products.",
+  "relatedIds": [
+    "usdc",
+    "sol",
+    "phantom"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "moonpay.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "moonpay.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 35
+}

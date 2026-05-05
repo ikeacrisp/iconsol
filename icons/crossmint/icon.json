@@ -1,0 +1,45 @@
+{
+  "id": "crossmint",
+  "name": "Crossmint",
+  "category": "infrastructure",
+  "aliases": [
+    "crossmint"
+  ],
+  "tags": [
+    "nft",
+    "api",
+    "developer"
+  ],
+  "website": "https://crossmint.com",
+  "description": "Crossmint provides developer infrastructure for onboarding users, minting NFTs, and accepting payments across chains.",
+  "relatedIds": [
+    "sol",
+    "phantom",
+    "magic-eden"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "crossmint.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "crossmint.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 23
+}

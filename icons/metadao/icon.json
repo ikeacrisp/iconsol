@@ -1,0 +1,49 @@
+{
+  "id": "metadao",
+  "name": "MetaDAO",
+  "category": "infrastructure",
+  "aliases": [
+    "metadao",
+    "meta-dao"
+  ],
+  "tags": [
+    "dao",
+    "governance"
+  ],
+  "website": "https://metadao.fi",
+  "description": "MetaDAO is a futarchy-based governance system using onchain prediction markets to make decisions.",
+  "relatedIds": [
+    "sol",
+    "superteam",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "metadao.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "metadao-fill.svg",
+          "width": 22.423,
+          "height": 22.423,
+          "x": 4.7885,
+          "y": 4.7885,
+          "maskSrcs": [
+            "metadao-mask.svg"
+          ],
+          "maskSizes": "100% 100%"
+        }
+      ]
+    }
+  },
+  "displayOrder": 49
+}

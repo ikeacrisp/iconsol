@@ -1,0 +1,46 @@
+{
+  "id": "drip-haus",
+  "name": "Drip Haus",
+  "category": "nft",
+  "aliases": [
+    "drip-haus",
+    "drip"
+  ],
+  "tags": [
+    "nft",
+    "creator",
+    "drops"
+  ],
+  "website": "https://drip.haus",
+  "description": "Drip Haus is a Solana creator platform distributing free collectible drops to engaged audiences.",
+  "relatedIds": [
+    "magic-eden",
+    "madlads",
+    "metaplex"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "drip-haus.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "drip-haus.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 47
+}

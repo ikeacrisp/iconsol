@@ -1,0 +1,14 @@
+{
+  "id": "lifinity",
+  "name": "Lifinity",
+  "category": "defi",
+  "aliases": [
+    "lifinity"
+  ],
+  "tags": [
+    "dex",
+    "amm",
+    "proactive-market-making"
+  ],
+  "website": "https://lifinity.io"
+}

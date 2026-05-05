@@ -1,0 +1,44 @@
+{
+  "id": "fomo",
+  "name": "FOMO",
+  "category": "defi",
+  "aliases": [
+    "fomo"
+  ],
+  "tags": [
+    "defi",
+    "trading"
+  ],
+  "website": "https://fomo.fund",
+  "description": "FOMO is a Solana social trading platform focused on live markets and community-driven discovery.",
+  "relatedIds": [
+    "sol",
+    "jup",
+    "bonk"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "fomo.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "fomo.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 33
+}

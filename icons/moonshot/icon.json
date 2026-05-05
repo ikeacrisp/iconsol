@@ -1,0 +1,44 @@
+{
+  "id": "moonshot",
+  "name": "Moonshot",
+  "category": "infrastructure",
+  "aliases": [
+    "moonshot"
+  ],
+  "tags": [
+    "token-launch",
+    "launchpad"
+  ],
+  "website": "https://moonshot.money",
+  "description": "Moonshot is a consumer mobile app for buying, selling, and launching tokens on Solana.",
+  "relatedIds": [
+    "pump-fun",
+    "bonk",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "moonshot.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "moonshot.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 27
+}

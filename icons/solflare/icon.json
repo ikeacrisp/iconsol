@@ -1,0 +1,53 @@
+{
+  "id": "solflare",
+  "name": "Solflare",
+  "category": "wallets",
+  "aliases": [
+    "solflare wallet"
+  ],
+  "tags": [
+    "wallet",
+    "browser-extension",
+    "mobile"
+  ],
+  "website": "https://solflare.com",
+  "description": "Solflare is a long-standing Solana wallet for staking, swaps, portfolio access, and secure account management across devices.",
+  "relatedIds": [
+    "sol",
+    "jup",
+    "phantom"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "solflare-fill.svg",
+          "width": 18.791,
+          "height": 19.957,
+          "x": 6.6045,
+          "y": 6.0215,
+          "maskSrcs": [
+            "solflare-mask.svg"
+          ]
+        }
+      ],
+      "background": "#ffef46",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "solflare-fill.svg",
+          "width": 24.451,
+          "height": 25.968,
+          "x": 3.7744999999999997,
+          "y": 3.016,
+          "maskSrcs": [
+            "solflare-mask.svg"
+          ]
+        }
+      ]
+    }
+  },
+  "displayOrder": 7
+}

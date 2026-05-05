@@ -1,0 +1,49 @@
+{
+  "id": "jupsol",
+  "name": "JupSOL",
+  "category": "tokens",
+  "aliases": [
+    "jupsol",
+    "jupiter-staked-sol"
+  ],
+  "tags": [
+    "liquid-staking",
+    "jupiter"
+  ],
+  "ticker": "JupSOL",
+  "website": "https://jup.ag",
+  "mintAddress": "jupSoLaHXQiZZTSfEWMTRRgpnyFm8f6sZdosWBjx93v",
+  "description": "JupSOL is Jupiter's liquid staking token, routing SOL stake through high-performance validator operations.",
+  "relatedIds": [
+    "jup",
+    "jupusd",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "jupsol.svg",
+          "width": 27.992,
+          "height": 27.992,
+          "x": 2,
+          "y": 2.03
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "jupsol.svg",
+          "width": 27.992,
+          "height": 27.992,
+          "x": 2,
+          "y": 2.03
+        }
+      ]
+    }
+  },
+  "displayOrder": 48
+}

@@ -1,0 +1,45 @@
+{
+  "id": "avici",
+  "name": "Avici",
+  "category": "defi",
+  "aliases": [
+    "avici"
+  ],
+  "tags": [
+    "defi"
+  ],
+  "website": "https://avici.io",
+  "description": "Avici is a Solana DeFi product focused on capital-efficient onchain strategies.",
+  "relatedIds": [
+    "jup",
+    "sol",
+    "kamino"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "avici.svg",
+          "width": 19.993,
+          "height": 18.502,
+          "x": 6.003500000000001,
+          "y": 6.7490000000000006
+        }
+      ],
+      "background": "#ffffff",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "avici.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 58
+}

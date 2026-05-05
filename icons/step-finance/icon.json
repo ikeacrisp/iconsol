@@ -1,0 +1,14 @@
+{
+  "id": "step-finance",
+  "name": "Step Finance",
+  "category": "infrastructure",
+  "aliases": [
+    "step"
+  ],
+  "tags": [
+    "portfolio",
+    "dashboard",
+    "analytics"
+  ],
+  "website": "https://step.finance"
+}

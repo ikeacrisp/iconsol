@@ -1,0 +1,44 @@
+{
+  "id": "oro",
+  "name": "Oro",
+  "category": "tokens",
+  "aliases": [
+    "oro"
+  ],
+  "tags": [
+    "defi"
+  ],
+  "ticker": "ORO",
+  "website": "https://oro.so",
+  "description": "Oro is a Solana-native product for tokenized gold, offering onchain exposure to the physical metal.",
+  "relatedIds": [
+    "jup",
+    "usdc",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "oro.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "oro.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 12
+}

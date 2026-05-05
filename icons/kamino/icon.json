@@ -1,0 +1,45 @@
+{
+  "id": "kamino",
+  "name": "Kamino Finance",
+  "category": "defi",
+  "aliases": [
+    "kamino"
+  ],
+  "tags": [
+    "yield",
+    "lending",
+    "liquidity"
+  ],
+  "website": "https://kamino.finance",
+  "description": "Kamino is a Solana DeFi platform for lending, vaults, leverage, and capital-efficient yield strategies.",
+  "relatedIds": [
+    "marginfi",
+    "jup",
+    "marinade"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "kamino.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "kamino.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 25
+}

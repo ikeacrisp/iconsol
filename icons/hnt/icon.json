@@ -1,0 +1,14 @@
+{
+  "id": "hnt",
+  "name": "Helium",
+  "category": "tokens",
+  "aliases": [
+    "helium"
+  ],
+  "tags": [
+    "depin",
+    "iot"
+  ],
+  "ticker": "HNT",
+  "mintAddress": "hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux"
+}

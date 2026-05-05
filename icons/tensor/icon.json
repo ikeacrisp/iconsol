@@ -1,0 +1,16 @@
+{
+  "id": "tensor",
+  "name": "Tensor",
+  "category": "nft",
+  "aliases": [
+    "tensor",
+    "tensor.trade"
+  ],
+  "tags": [
+    "marketplace",
+    "nft",
+    "defi",
+    "amm"
+  ],
+  "website": "https://tensor.trade"
+}

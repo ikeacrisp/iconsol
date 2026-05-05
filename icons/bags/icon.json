@@ -1,0 +1,44 @@
+{
+  "id": "bags",
+  "name": "Bags",
+  "category": "defi",
+  "aliases": [
+    "bags"
+  ],
+  "tags": [
+    "defi",
+    "portfolio"
+  ],
+  "website": "https://bags.fm",
+  "description": "Bags is a Solana social wallet and portfolio experience built around shared onchain discovery.",
+  "relatedIds": [
+    "jup",
+    "sol",
+    "phantom"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "bags.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "bags.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 41
+}

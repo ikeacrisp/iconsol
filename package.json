@@ -9,7 +9,8 @@
     "fetch-icons": "node --import tsx scripts/fetch-icons.ts",
     "generate": "node --import tsx scripts/generate-components.ts",
     "clean": "turbo run clean",
-    "copy-icons": "node --import tsx scripts/copy-icons-to-public.ts"
+    "copy-icons": "node --import tsx scripts/copy-icons-to-public.ts",
+    "icons:build": "node --import tsx tools/icons/build.ts"
   },
   "devDependencies": {
     "@svgr/core": "^8.1.0",

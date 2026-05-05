@@ -1,83 +1,46 @@
 /**
- * Server-only icon utilities. Uses imported manifest metadata plus the exact
- * logo asset set that powers the dashboard/icon detail UIs.
+ * Server-only icon directory. Sources data from the build-time generated
+ * module (`icons.generated.ts`), which is itself produced from
+ * icons/<id>/icon.json.
  */
 import "server-only";
 
-import manifest from "../../../../icons/manifest.json";
-import {
-  DEFAULT_CONTRIBUTORS,
-  type Contributor,
-  type Icon,
-  type IconCategory,
-} from "./icon-data";
 import {
   BRAND_LOGO_ASSETS,
+  ICON_META,
   LOGO_ORDER,
-  META_OVERRIDES,
-  META_SOURCE_IDS,
   type LogoId,
-} from "./logo-assets";
+} from "./icons.generated";
+import { DEFAULT_CONTRIBUTORS, type Icon } from "./icon-data";
 
 export type { Contributor, Icon, IconCategory } from "./icon-data";
 export { CATEGORIES, CATEGORY_COLORS, DEFAULT_CONTRIBUTORS } from "./icon-data";
 
-type ManifestIcon = {
-  id: string;
-  name: string;
-  ticker?: string;
-  category: IconCategory;
-  aliases: string[];
-  tags: string[];
-  mintAddress?: string;
-  website?: string;
-  description?: string;
-  relatedIds?: string[];
-  contributors?: Contributor[];
-};
-
-const MANIFEST_BY_ID = new Map<string, ManifestIcon>(
-  (manifest as ManifestIcon[]).map((entry) => [entry.id, entry])
-);
-
 function buildIcon(id: LogoId): Icon {
-  const sourceId = META_SOURCE_IDS[id] ?? id;
-  const base = MANIFEST_BY_ID.get(sourceId);
-  const override = META_OVERRIDES[id];
-
-  const fallbackName =
-    id === "usd-prime"
-      ? "USD Prime"
-      : id === "usd-star"
-        ? "USD STAR"
-        : id === "powered-by-solana"
-          ? "Powered by Solana"
-          : id === "sanctum-gateway"
-            ? "Sanctum Gateway"
-            : id === "helius-orb"
-              ? "Helius Orb"
-              : id.replace(/-/g, " ");
-
+  const meta = ICON_META[id];
+  if (!meta) {
+    throw new Error(`No metadata for icon "${id}" in icons.generated.ts`);
+  }
+  const brandSpec = BRAND_LOGO_ASSETS[id];
   return {
     id,
-    name: override?.name ?? base?.name ?? fallbackName,
-    ticker: override?.ticker ?? base?.ticker,
-    category: override?.category ?? base?.category ?? "infrastructure",
-    aliases: override?.aliases ?? base?.aliases ?? [id],
-    tags: override?.tags ?? base?.tags ?? ["brand-logo"],
-    mintAddress: base?.mintAddress,
-    website: override?.website ?? base?.website,
-    description: override?.description ?? base?.description,
-    relatedIds: override?.relatedIds ?? base?.relatedIds,
-    contributors:
-      override?.contributors ?? base?.contributors ?? DEFAULT_CONTRIBUTORS,
-    src: BRAND_LOGO_ASSETS[id].layers[0]?.src ?? "",
+    name: meta.name,
+    ticker: meta.ticker,
+    category: meta.category,
+    aliases: meta.aliases,
+    tags: meta.tags,
+    mintAddress: meta.mintAddress,
+    website: meta.website,
+    description: meta.description,
+    relatedIds: meta.relatedIds,
+    contributors: meta.contributors ?? DEFAULT_CONTRIBUTORS,
+    src: brandSpec?.layers[0]?.src ?? "",
     hasLocalFile: true,
     fileType: "svg",
   };
 }
 
-const ALL_ICONS = LOGO_ORDER.map(buildIcon);
+const ALL_ICONS: Icon[] = LOGO_ORDER.map(buildIcon);
 
 export function getAllIcons(): Icon[] {
   return ALL_ICONS;

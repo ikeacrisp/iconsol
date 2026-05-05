@@ -1,0 +1,45 @@
+{
+  "id": "perena",
+  "name": "Perena",
+  "category": "defi",
+  "aliases": [
+    "perena"
+  ],
+  "tags": [
+    "stablecoin",
+    "amm",
+    "liquidity"
+  ],
+  "website": "https://perena.org",
+  "description": "Perena is a Solana stablecoin liquidity protocol building deep pools and yield rails for the stablecoin economy.",
+  "relatedIds": [
+    "usdc",
+    "usdt",
+    "usd-star"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "perena.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "perena.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 9
+}

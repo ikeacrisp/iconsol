@@ -108,6 +108,8 @@ function GithubLink() {
         flexShrink: 0,
         opacity: hovered ? 1 : 0.4,
         background: hovered ? "rgba(255,255,255,0.03)" : "transparent",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
         transition:
           "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
         textDecoration: "none",
@@ -685,6 +687,8 @@ export function Header({
                       background: highlightLens
                         ? "rgba(255,255,255,0.05)"
                         : "transparent",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
                       opacity: highlightLens ? 1 : 0.4,
                       transition:
                         "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -715,6 +719,8 @@ export function Header({
                       background: pathname === "/lens"
                         ? "rgba(255,255,255,0.05)"
                         : "transparent",
+                      backdropFilter: "blur(10px)",
+                      WebkitBackdropFilter: "blur(10px)",
                       opacity: pathname === "/lens" ? 1 : 0.4,
                       transition:
                         "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
@@ -745,6 +751,8 @@ export function Header({
                     height: 32,
                     borderRadius: 8,
                     background: highlightGrid ? "rgba(255,255,255,0.02)" : "transparent",
+                    backdropFilter: "blur(10px)",
+                    WebkitBackdropFilter: "blur(10px)",
                     opacity: 0.4,
                     transition:
                       "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), background 180ms cubic-bezier(0.16, 1, 0.3, 1)",

@@ -1,0 +1,47 @@
+{
+  "id": "bonk",
+  "name": "BONK",
+  "category": "tokens",
+  "aliases": [
+    "bonk"
+  ],
+  "tags": [
+    "meme"
+  ],
+  "ticker": "BONK",
+  "website": "https://bonkcoin.com",
+  "mintAddress": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+  "description": "BONK is Solana's original community meme coin, widely distributed across the network's users, apps, and ecosystem.",
+  "relatedIds": [
+    "pump-fun",
+    "jup",
+    "moonshot"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "bonk.svg",
+          "width": 28,
+          "height": 28,
+          "x": 2,
+          "y": 2
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "bonk.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 30
+}

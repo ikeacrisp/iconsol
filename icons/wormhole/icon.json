@@ -1,0 +1,14 @@
+{
+  "id": "wormhole",
+  "name": "Wormhole",
+  "category": "infrastructure",
+  "aliases": [
+    "wormhole bridge"
+  ],
+  "tags": [
+    "bridge",
+    "interoperability",
+    "cross-chain"
+  ],
+  "website": "https://wormhole.com"
+}

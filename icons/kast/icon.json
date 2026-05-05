@@ -1,0 +1,45 @@
+{
+  "id": "kast",
+  "name": "Kast",
+  "category": "defi",
+  "aliases": [
+    "kast"
+  ],
+  "tags": [
+    "debit-card",
+    "payments",
+    "defi"
+  ],
+  "website": "https://kast.app",
+  "description": "Kast is a stablecoin-powered debit card and spending app for everyday payments onchain.",
+  "relatedIds": [
+    "sol",
+    "usdc",
+    "moonpay"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "kast.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "kast.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 31
+}

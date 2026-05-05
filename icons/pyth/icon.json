@@ -1,0 +1,15 @@
+{
+  "id": "pyth",
+  "name": "Pyth Network",
+  "category": "tokens",
+  "aliases": [
+    "pyth",
+    "pyth-network"
+  ],
+  "tags": [
+    "oracle",
+    "infrastructure"
+  ],
+  "ticker": "PYTH",
+  "mintAddress": "HZ1JovNiVvGrGNiiYvEozEVgZ58xaU3RKwX8eACQBCt3"
+}

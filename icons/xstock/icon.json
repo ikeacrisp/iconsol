@@ -1,0 +1,45 @@
+{
+  "id": "xstock",
+  "name": "xStock",
+  "category": "defi",
+  "aliases": [
+    "xstock"
+  ],
+  "tags": [
+    "stocks",
+    "tokenized",
+    "trading"
+  ],
+  "website": "https://xstock.io",
+  "description": "xStock brings tokenized public equities onchain, letting Solana users access stock exposure around the clock.",
+  "relatedIds": [
+    "usdc",
+    "jup",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "xstock.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "xstock.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 19
+}

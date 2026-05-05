@@ -4,12 +4,22 @@ Thanks for your interest! There are three main ways to contribute.
 
 ## 1. Add or update a logo
 
-1. Open an [issue](https://github.com/ikeacrisp/iconsol/issues/new?labels=logo-request) describing the project and linking to its official brand assets.
-2. After triage, open a PR that:
-   - Adds the SVG to `icons/<category>/<id>.svg` (and `apps/web/public/icons/<category>/<id>.svg`)
-   - Adds an entry to `icons/manifest.json`
-3. Optimize the SVG (`pnpm svgo` or [svgomg](https://jakearchibald.github.io/svgomg/)) — keep file size < 4 KB where possible.
-4. Use a `viewBox`, no inline `width`/`height`, no embedded raster images.
+Each logo lives in its own folder at `icons/<id>/`. See
+[icons/README.md](icons/README.md) for the full schema and quality bar.
+
+1. Open an [issue](https://github.com/ikeacrisp/iconsol/issues/new?labels=logo-request)
+   describing the project and linking to its official brand assets.
+2. After triage, open a PR that adds:
+   - `icons/<id>/icon.json` — metadata + display spec
+   - `icons/<id>/brand/<name>.svg` — brand variant (color)
+   - `icons/<id>/solid/<name>.svg` — solid variant (single-color glyph)
+3. Run `pnpm icons:build` from the repo root and commit the regenerated files
+   (`apps/web/src/lib/icons.generated.ts`, `apps/web/public/{brand,solid}/*.svg`,
+   `apps/web/public/api/icons.json`, `icons/manifest.json`).
+4. Run `pnpm --filter web dev` and visually confirm `/dashboard` and
+   `/icon/<id>` look right.
+5. Optimize SVGs (`pnpm svgo` or [svgomg](https://jakearchibald.github.io/svgomg/)) — keep file size < 4 KB where possible. Use a `viewBox`, no inline
+   `width`/`height`, no embedded raster images.
 
 ## 2. Improve the site
 

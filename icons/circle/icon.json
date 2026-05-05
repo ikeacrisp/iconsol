@@ -1,0 +1,47 @@
+{
+  "id": "circle",
+  "name": "Circle",
+  "category": "infrastructure",
+  "aliases": [
+    "circle"
+  ],
+  "tags": [
+    "stablecoin",
+    "payments",
+    "infrastructure"
+  ],
+  "website": "https://www.circle.com",
+  "description": "Circle issues USDC and EURC, providing stablecoin infrastructure and payments rails across major blockchains including Solana.",
+  "relatedIds": [
+    "usdc",
+    "eurc",
+    "sol"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "circle.svg",
+          "width": 19.997,
+          "height": 19.997,
+          "x": 6.0015,
+          "y": 6.0015
+        }
+      ],
+      "background": "#1a1a1a",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "circle.svg",
+          "width": 27.953,
+          "height": 27.953,
+          "x": 2.01,
+          "y": 2.03
+        }
+      ]
+    }
+  },
+  "displayOrder": 40
+}

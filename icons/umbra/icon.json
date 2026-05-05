@@ -1,0 +1,45 @@
+{
+  "id": "umbra",
+  "name": "Umbra",
+  "category": "defi",
+  "aliases": [
+    "umbra"
+  ],
+  "tags": [
+    "privacy",
+    "stealth",
+    "defi"
+  ],
+  "website": "https://umbra.cash",
+  "description": "Umbra brings private, stealth-address-style transactions to Solana for confidential payments and flows.",
+  "relatedIds": [
+    "sol",
+    "jup",
+    "arcium"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "umbra.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "umbra.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 28
+}

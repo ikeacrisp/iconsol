@@ -1,0 +1,46 @@
+{
+  "id": "helius-orb",
+  "name": "Helius Orb",
+  "category": "infrastructure",
+  "aliases": [
+    "helius-orb",
+    "helius orb"
+  ],
+  "tags": [
+    "rpc",
+    "api",
+    "developer"
+  ],
+  "website": "https://helius.dev",
+  "description": "Orb is Helius' consumer-facing product surface built on top of its Solana RPC and developer infrastructure.",
+  "relatedIds": [
+    "helius",
+    "sol",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "helius-orb.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "helius-orb.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
+        }
+      ]
+    }
+  },
+  "displayOrder": 5
+}

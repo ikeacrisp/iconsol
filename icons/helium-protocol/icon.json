@@ -1,0 +1,15 @@
+{
+  "id": "helium-protocol",
+  "name": "Helium",
+  "category": "infrastructure",
+  "aliases": [
+    "helium",
+    "helium network"
+  ],
+  "tags": [
+    "depin",
+    "iot",
+    "wireless"
+  ],
+  "website": "https://helium.com"
+}

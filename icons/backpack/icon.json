@@ -1,0 +1,48 @@
+{
+  "id": "backpack",
+  "name": "Backpack",
+  "category": "wallets",
+  "aliases": [
+    "backpack wallet",
+    "xnft"
+  ],
+  "tags": [
+    "wallet",
+    "browser-extension",
+    "xnft"
+  ],
+  "website": "https://backpack.app",
+  "description": "Backpack is a wallet and product suite focused on simple, secure Solana access across apps, assets, and mobile flows.",
+  "relatedIds": [
+    "madlads",
+    "sol",
+    "jup"
+  ],
+  "display": {
+    "brand": {
+      "layers": [
+        {
+          "src": "backpack.svg",
+          "width": 13.771,
+          "height": 19.975,
+          "x": 9.1145,
+          "y": 6.0125
+        }
+      ],
+      "background": "#e33e3f",
+      "radius": 8
+    },
+    "solid": {
+      "layers": [
+        {
+          "src": "backpack.svg",
+          "width": 17.85,
+          "height": 25.892,
+          "x": 7.0753,
+          "y": 3.0542
+        }
+      ]
+    }
+  },
+  "displayOrder": 6
+}
