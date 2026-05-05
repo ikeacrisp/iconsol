@@ -119,6 +119,19 @@ interface IconGlobeProps {
   onDragHighlight?: (id: string | null) => void;
   /** Called on drag-end with the id of the icon nearest screen centre. */
   onDragRelease?: (id: string | null) => void;
+  /**
+   * Whether drag-to-rotate is enabled. Click handling stays gated on
+   * `interactive`; drag is a separate gesture so the same globe can be
+   * click-only (BG globe) or click-and-drag (cluster overlay).
+   * Defaults to the value of `interactive`.
+   */
+  draggable?: boolean;
+  /**
+   * If set, drag rotation is clamped so the focused logo (lat=0, lon=0)
+   * stays at least this many viewport pixels inside every edge of the
+   * window. Skipped when null/undefined.
+   */
+  dragMarginPx?: number | null;
 }
 
 export function IconGlobe({
@@ -137,7 +150,13 @@ export function IconGlobe({
   keepOutBottomVy = 525,
   onDragHighlight,
   onDragRelease,
+  draggable,
+  dragMarginPx = null,
 }: IconGlobeProps = {}) {
+  // Drag is a separate gesture from click — defaults to whatever
+  // `interactive` is so the previous (click-and-drag) behaviour holds
+  // when `draggable` is omitted.
+  const dragEnabled = draggable ?? interactive;
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const phiRef = useRef(0);
@@ -728,9 +747,9 @@ export function IconGlobe({
     nodePositions,
   ]);
 
-  // ------- Pointer interaction (drag-to-rotate, only when interactive) -------
+  // ------- Pointer interaction (drag-to-rotate, only when draggable) -------
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!interactive) return;
+    if (!dragEnabled) return;
     if (event.button !== 0 && event.pointerType === "mouse") return;
     // Don't initiate a drag from a pointerdown on an icon button — let the
     // button handle the click. Drag only engages on the empty globe area.
@@ -754,7 +773,7 @@ export function IconGlobe({
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (interactive) {
+    if (dragEnabled) {
       const drag = dragRef.current;
       if (drag && event.pointerId === drag.pointerId) {
         const dx = event.clientX - drag.startX;
@@ -763,14 +782,64 @@ export function IconGlobe({
           drag.moved = true;
           userPannedRef.current = true;
         }
-        const size = containerRef.current?.offsetWidth ?? 800;
+        const container = containerRef.current;
+        const size = container?.offsetWidth ?? 800;
         const sensitivity = (Math.PI * 1.4) / size;
-        phiRef.current = drag.basePhi + dx * sensitivity;
-        thetaRef.current = clamp(
+        let nextPhi = drag.basePhi + dx * sensitivity;
+        let nextTheta = clamp(
           drag.baseTheta + dy * sensitivity,
           -Math.PI / 2 + 0.05,
           Math.PI / 2 - 0.05,
         );
+
+        // Drag bounds — clamp phi/theta so the focused logo (lat=0,
+        // lon=0) stays at least `dragMarginPx` from every viewport edge.
+        // Skipped when no margin is set.
+        if (dragMarginPx != null && container) {
+          const rect = container.getBoundingClientRect();
+          const visScale = rect.width / Math.max(1, size);
+          const r = size * 0.45 * radiusScale;
+          // The lat=0, lon=0 point at phi=0, theta=0 is the centre of
+          // the container at (size/2, size/2). The viewport position of
+          // that centre maps to (rect.left + width/2, rect.top + height/2).
+          const cxVp = rect.left + rect.width / 2;
+          const cyVp = rect.top + rect.height / 2;
+          // Focused projection (see code below): viewport offsets from
+          //   centre are
+          //     dx_vp = sin(phi) * r * visScale
+          //     dy_vp = cos(phi) * sin(theta) * r * visScale
+          // Bound the available horizontal travel by the closer edge.
+          const horizBudget = Math.min(
+            cxVp - dragMarginPx,
+            window.innerWidth - dragMarginPx - cxVp,
+          );
+          const sinPhiMax = Math.min(
+            1,
+            Math.max(0, horizBudget / Math.max(1, r * visScale)),
+          );
+          if (Math.abs(Math.sin(nextPhi)) > sinPhiMax) {
+            nextPhi = Math.sign(Math.sin(nextPhi)) * Math.asin(sinPhiMax);
+          }
+          const cosP = Math.cos(nextPhi);
+          const vertBudget = Math.min(
+            cyVp - dragMarginPx,
+            window.innerHeight - dragMarginPx - cyVp,
+          );
+          const sinThetaMax = Math.min(
+            1,
+            Math.max(
+              0,
+              vertBudget / Math.max(1, r * visScale * Math.max(0.05, cosP)),
+            ),
+          );
+          if (Math.abs(Math.sin(nextTheta)) > sinThetaMax) {
+            nextTheta =
+              Math.sign(Math.sin(nextTheta)) * Math.asin(sinThetaMax);
+          }
+        }
+
+        phiRef.current = nextPhi;
+        thetaRef.current = nextTheta;
         velPhiRef.current = (event.clientX - drag.lastX) * sensitivity * 0.6;
         velThetaRef.current = (event.clientY - drag.lastY) * sensitivity * 0.6;
         drag.lastX = event.clientX;
@@ -792,7 +861,7 @@ export function IconGlobe({
   };
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!interactive) return;
+    if (!dragEnabled) return;
     const drag = dragRef.current;
     if (drag && event.pointerId === drag.pointerId) {
       const moved = drag.moved;
@@ -832,8 +901,12 @@ export function IconGlobe({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          cursor: interactive ? (grabbing ? "grabbing" : "grab") : "default",
-          touchAction: interactive ? "none" : "auto",
+          cursor: dragEnabled
+            ? grabbing
+              ? "grabbing"
+              : "grab"
+            : "default",
+          touchAction: dragEnabled ? "none" : "auto",
           userSelect: "none",
         }}
         onPointerDown={handlePointerDown}

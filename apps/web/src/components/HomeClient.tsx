@@ -514,6 +514,9 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             mode="idle"
             onIconClick={handleGlobeIconClick}
             interactive={searchMode && !focusedId}
+            // Background globe is click-only — drag belongs to the
+            // cluster overlay so the user never rotates the BG layer.
+            draggable={false}
             idleScale={searchMode ? 1.32 : 1.14}
             jitterAmplitude={1.5}
           />
@@ -554,6 +557,11 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                 focusedId={focusedId}
                 onIconClick={handleGlobeIconClick}
                 interactive={searchMode}
+                // Drag the cluster, but stop 96px from every viewport
+                // edge so the focused logo (and its surrounding cluster)
+                // can't be flung off-screen.
+                draggable={searchMode}
+                dragMarginPx={96}
                 idleScale={1.32}
                 searchScale={1.5}
                 radiusScale={radiusScale}
@@ -586,15 +594,17 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             pointerEvents: "none",
           }}
         >
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             {focusedIcon ? (
               <motion.span
                 key={focusedIcon.id}
                 initial={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
                 animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, scale: 0.85, filter: "blur(6px)" }}
+                // Match the focused logo's globe-glide so the pill and the
+                // logo cross-fade together when shuffling through icons.
                 transition={{
-                  duration: 0.09,
+                  duration: 0.52,
                   ease: [0.65, 0, 0.35, 1],
                 }}
                 style={{
