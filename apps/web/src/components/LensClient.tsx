@@ -187,7 +187,9 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   }, []);
 
   const handleSurprise = useCallback(() => {
-    setQuery(pickSurpriseLogoId());
+    const id = pickSurpriseLogoId();
+    setDragHighlightId(null);
+    setCommittedFocusId(id);
   }, []);
 
   const handleGlobeIconClick = useCallback(
@@ -206,18 +208,58 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         zIndex: 1,
       }}
     >
-      <IconGlobe
-        icons={icons}
-        mode={focusedId ? "search" : "idle"}
-        focusedId={focusedId}
-        onIconClick={handleGlobeIconClick}
-        interactive
-        idleScale={1.4}
-        searchScale={1.4}
-        jitterAmplitude={1.5}
-        onDragHighlight={handleDragHighlight}
-        onDragRelease={handleDragRelease}
-      />
+      {/* Background globe — full icon set, autospinning, always idle.
+          Stays visible (faded + blurred) behind the cluster when a logo
+          is focused, so the lens never loses the "world of logos" backdrop. */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 0,
+          pointerEvents: focusedId ? "none" : "auto",
+          opacity: focusedId ? 0.32 : 1,
+          filter: focusedId ? "blur(5px)" : "none",
+          WebkitFilter: focusedId ? "blur(5px)" : "none",
+          transition:
+            "opacity 320ms cubic-bezier(0.65, 0, 0.35, 1), filter 320ms cubic-bezier(0.65, 0, 0.35, 1)",
+        }}
+      >
+        <IconGlobe
+          icons={icons}
+          mode="idle"
+          onIconClick={handleGlobeIconClick}
+          interactive={!focusedId}
+          draggable={!focusedId}
+          idleScale={1.4}
+          jitterAmplitude={1.5}
+        />
+      </div>
+
+      {/* Cluster / search globe — only the focused logo's cluster.
+          Mounted on top of the background globe whenever a focus exists. */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          zIndex: 1,
+          pointerEvents: focusedId ? "auto" : "none",
+          opacity: focusedId ? 1 : 0,
+          transition: "opacity 220ms cubic-bezier(0.65, 0, 0.35, 1)",
+        }}
+      >
+        <IconGlobe
+          icons={icons}
+          mode={focusedId ? "search" : "idle"}
+          focusedId={focusedId}
+          onIconClick={handleGlobeIconClick}
+          interactive
+          idleScale={1.4}
+          searchScale={1.4}
+          jitterAmplitude={1.5}
+          onDragHighlight={handleDragHighlight}
+          onDragRelease={handleDragRelease}
+        />
+      </div>
 
       {/* Search column — pinned 64px above the footer (footer height 73px). */}
       <div

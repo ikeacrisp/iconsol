@@ -652,7 +652,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                   y: "-50%",
                 }}
                 transition={{
-                  duration: 0.32,
+                  duration: 0.18,
                   ease: [0.65, 0, 0.35, 1],
                 }}
                 style={{
