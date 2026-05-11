@@ -275,6 +275,14 @@ input[type="text"]:focus-visible {
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Smart-animate the home → lens search bar morph. */
+::view-transition-group(lens-search-bar),
+::view-transition-old(lens-search-bar),
+::view-transition-new(lens-search-bar) {
+  animation-duration: 0.55s;
+  animation-timing-function: var(--ease-in-out-cubic);
+}
+
 @keyframes dropdownIn {
   0% {
     opacity: 0;

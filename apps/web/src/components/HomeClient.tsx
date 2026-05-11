@@ -721,16 +721,18 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               zIndex: 3,
             }}
           >
-            <HomeSearchBar
-              value={desktopQuery}
-              onChange={handleQueryChange}
-              onSubmit={submitDesktop}
-              onClear={handleClear}
-              onActivate={handleSearchActivate}
-              inputRef={desktopInputRef}
-              showShortcut
-              forceClearAffordance={searchMode}
-            />
+            <div style={{ width: "100%", viewTransitionName: "lens-search-bar" } as React.CSSProperties}>
+              <HomeSearchBar
+                value={desktopQuery}
+                onChange={handleQueryChange}
+                onSubmit={submitDesktop}
+                onClear={handleClear}
+                onActivate={handleSearchActivate}
+                inputRef={desktopInputRef}
+                showShortcut
+                forceClearAffordance={searchMode}
+              />
+            </div>
 
             {/* Surprise me — 24px below the search bar */}
             <div
