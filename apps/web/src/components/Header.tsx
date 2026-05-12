@@ -9,7 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { ComponentType, MouseEvent } from "react";
+import type { ComponentType, MouseEvent, ReactNode } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import { ImageIcon, MaskIcon } from "@/components/UiIcon";
@@ -291,6 +291,173 @@ function NpmBox({
         <CopyIcon copied={copied} />
       </div>
     </button>
+  );
+}
+
+const MCP_CONFIG_SNIPPET = `{
+  "mcpServers": {
+    "iconsol": {
+      "command": "npx",
+      "args": ["-y", "iconsol-mcp"]
+    }
+  }
+}`;
+
+function CubeIcon() {
+  return <MaskIcon src="/ui/cube.svg" size={14} color="#ffffff" opacity={1} />;
+}
+
+function MarkdownIcon() {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 14,
+        height: 14,
+      }}
+    >
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M2 8V2L4.5 5L7 2V8"
+          stroke="#ffffff"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M10 2V8M10 8L8.5 6.5M10 8L11.5 6.5"
+          stroke="#ffffff"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function AgentMenuItem({
+  icon,
+  title,
+  copied,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  copied?: boolean;
+  onClick: () => void;
+}) {
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
+  const [hovered, setHovered] = useState(false);
+  const opacity = copied || hovered ? 1 : 0.4;
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={() => {
+        playSync();
+        onClick();
+      }}
+      onMouseEnter={() => {
+        playHover();
+        setHovered(true);
+      }}
+      onMouseLeave={() => setHovered(false)}
+      onFocus={() => setHovered(true)}
+      onBlur={() => setHovered(false)}
+      className="pressable pressable-soft flex items-center"
+      style={{
+        width: "100%",
+        gap: 10,
+        padding: 8,
+        borderRadius: 8,
+        background: hovered ? "rgba(255,255,255,0.05)" : "transparent",
+        textAlign: "left",
+        opacity,
+        transition:
+          "background 160ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
+    >
+      <span
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 16,
+          height: 16,
+          flexShrink: 0,
+        }}
+      >
+        {copied ? (
+          <MaskIcon src="/ui/check.svg" size={14} color="#28E0B9" opacity={1} />
+        ) : (
+          icon
+        )}
+      </span>
+      <span
+        style={{
+          fontSize: 13,
+          fontWeight: 500,
+          lineHeight: "18px",
+          color: copied ? "rgba(40,224,185,1)" : "#fff",
+          transition: "color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {copied ? "Copied" : title}
+      </span>
+    </button>
+  );
+}
+
+function AgentMenu({
+  copiedItem,
+  onCopyLlmsTxt,
+  onCopyMcp,
+}: {
+  copiedItem: string | null;
+  onCopyLlmsTxt: () => void;
+  onCopyMcp: () => void;
+}) {
+  return (
+    <div
+      role="menu"
+      className="flex flex-col frost-dither"
+      style={{
+        position: "absolute",
+        top: "calc(100% + 8px)",
+        right: 0,
+        width: 176,
+        padding: 4,
+        gap: 12,
+        borderRadius: 8,
+        background: "rgba(255,255,255,0.03)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        boxShadow: "0 18px 48px rgba(0,0,0,0.42)",
+        animation: "agentMenuIn 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+        transformOrigin: "top right",
+        zIndex: 100,
+        willChange: "transform, opacity, filter",
+      }}
+    >
+      <AgentMenuItem
+        icon={<MarkdownIcon />}
+        title="Copy llms.txt URL"
+        copied={copiedItem === "llms"}
+        onClick={onCopyLlmsTxt}
+      />
+      <AgentMenuItem
+        icon={<CubeIcon />}
+        title="Copy MCP config"
+        copied={copiedItem === "mcp"}
+        onClick={onCopyMcp}
+      />
+    </div>
   );
 }
 
@@ -603,9 +770,12 @@ export function Header({
   const pathname = usePathname();
   const [framework, setFramework] = useState<Framework>("react");
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [agentMenuOpen, setAgentMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedAgentItem, setCopiedAgentItem] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const agentMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const nextQuery = new URLSearchParams(window.location.search).get("q") ?? "";
@@ -622,6 +792,24 @@ export function Header({
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [dropdownOpen]);
+
+  useEffect(() => {
+    if (!agentMenuOpen) return;
+    const handlePointerDown = (event: MouseEvent | globalThis.MouseEvent) => {
+      if (agentMenuRef.current && !agentMenuRef.current.contains(event.target as Node)) {
+        setAgentMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [agentMenuOpen]);
+
+  const flashCopiedItem = useCallback((id: string) => {
+    setCopiedAgentItem(id);
+    window.setTimeout(() => {
+      setCopiedAgentItem((current) => (current === id ? null : current));
+    }, 1600);
+  }, []);
 
   const npmCommand = FRAMEWORK_CONFIG[framework].npmPrefix + FRAMEWORK_CONFIG[framework].npmPkg;
   const playConfetti = useSound(confetti);
@@ -777,7 +965,12 @@ export function Header({
               </div>
 
               <div
-                className="desktop-only flex items-center frost-dither"
+                ref={agentMenuRef}
+                className="desktop-only"
+                style={{ position: "relative" }}
+              >
+              <div
+                className="flex items-center frost-dither"
                 style={{
                   width: 176,
                   height: 32,
@@ -868,6 +1061,17 @@ export function Header({
 
                 <button
                   type="button"
+                  onClick={() => {
+                    playSync();
+                    setAgentMenuOpen((value) => !value);
+                  }}
+                  onMouseEnter={(event) => {
+                    playHover();
+                    event.currentTarget.style.opacity = "1";
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.opacity = agentMenuOpen ? "1" : "0.4";
+                  }}
                   className="pressable pressable-soft flex items-center justify-center"
                   style={{
                     width: 16,
@@ -875,18 +1079,14 @@ export function Header({
                     padding: 0,
                     background: "transparent",
                     flexShrink: 0,
-                    opacity: 0.4,
-                    transition: "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    opacity: agentMenuOpen ? 1 : 0.4,
+                    transition:
+                      "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+                    transform: agentMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
                   }}
-                  onMouseEnter={(event) => {
-                    event.currentTarget.style.opacity = "1";
-                  }}
-                  onMouseLeave={(event) => {
-                    event.currentTarget.style.opacity = "0.4";
-                  }}
-                  aria-label="More install options"
+                  aria-label="More install options for agents"
                   aria-haspopup="menu"
-                  aria-expanded={false}
+                  aria-expanded={agentMenuOpen}
                 >
                   <svg
                     width="16"
@@ -905,6 +1105,23 @@ export function Header({
                     />
                   </svg>
                 </button>
+              </div>
+
+              {agentMenuOpen ? (
+                <AgentMenu
+                  copiedItem={copiedAgentItem}
+                  onCopyLlmsTxt={async () => {
+                    playConfetti();
+                    await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
+                    flashCopiedItem("llms");
+                  }}
+                  onCopyMcp={async () => {
+                    playConfetti();
+                    await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
+                    flashCopiedItem("mcp");
+                  }}
+                />
+              ) : null}
               </div>
             </div>
           </div>

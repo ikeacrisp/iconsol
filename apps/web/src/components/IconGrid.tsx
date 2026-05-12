@@ -37,7 +37,7 @@ const SIDEBAR_BG = easingGradient(
 // Brand/Solid toggle shell — matches the icon detail page version.
 const TOGGLE_SHELL_BG = easingGradient(
   "180deg",
-  "#0D0F12",
+  "rgba(13,15,18,0.5)",
   "rgba(13,15,18,0.2)",
 );
 const TOGGLE_SHELL_BORDER = "1px solid #191B1E";

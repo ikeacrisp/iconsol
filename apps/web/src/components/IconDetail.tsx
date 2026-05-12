@@ -52,11 +52,11 @@ const PANEL_FADE_BG = easingGradient(
 const PREVIEW_FRAME_GRAD_STOPS = easingGradientStops("#17181B", "#101215");
 const PREVIEW_FRAME_BG = `radial-gradient(circle 480px at var(--preview-grad-x, 50%) var(--preview-grad-y, -50%), ${PREVIEW_FRAME_GRAD_STOPS})`;
 
-// Brand/Solid toggle shell: full page color at the top easing into a
-// 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
+// Brand/Solid toggle shell: 50%-opaque page color at the top easing into
+// a 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
 const TOGGLE_SHELL_BG = easingGradient(
   "180deg",
-  "#0D0F12",
+  "rgba(13,15,18,0.5)",
   "rgba(13,15,18,0.2)",
 );
 const TOGGLE_SHELL_BORDER = "1px solid #191B1E";

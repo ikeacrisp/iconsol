@@ -261,14 +261,18 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         />
       </div>
 
-      {/* Search column — pinned 64px above the footer (footer height 73px). */}
+      {/* Search column — pinned 64px above the footer (footer height 73px).
+          Centred via flex / margin-inline auto rather than transform, so the
+          search bar's backdrop-filter has the page bg as its backdrop root
+          (transforms create an isolating backdrop root and break the blur). */}
       <div
         className="flex flex-col items-center"
         style={{
           position: "absolute",
-          left: "50%",
-          top: "calc(100dvh - 155px)",
-          transform: "translate(-50%, -50%)",
+          left: 0,
+          right: 0,
+          marginInline: "auto",
+          bottom: 137,
           width: 520,
           maxWidth: "calc(100% - 48px)",
           pointerEvents: "auto",

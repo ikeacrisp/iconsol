@@ -710,9 +710,12 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
           <div
             style={{
               position: "absolute",
-              left: "50%",
-              top: searchMode ? "calc(100dvh - 220px)" : "50%",
-              transform: "translate(-50%, -50%)",
+              left: 0,
+              right: 0,
+              marginInline: "auto",
+              top: searchMode
+                ? "calc(100dvh - 220px - 18px)"
+                : "calc(50% - 18px)",
               transition: "top 520ms cubic-bezier(0.65, 0, 0.35, 1)",
               willChange: "top",
               width: 520,
