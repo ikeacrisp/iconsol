@@ -151,15 +151,15 @@ export function HomeSearchBar({
 
   return (
     <div
-      className="relative flex w-full cursor-text items-center justify-between overflow-hidden backdrop-blur-[5px] frost-dither"
+      className="relative flex w-full cursor-text items-center justify-between overflow-hidden backdrop-blur-[10px] frost-dither"
       style={{
         height: 36,
         background: SEARCH_INPUT_BG,
         boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04), 0 24px 64px rgba(0,0,0,0.10)",
         borderRadius: 24,
         padding: showShortcut ? "0 12px 0 12px" : "0 12px",
-        backdropFilter: "blur(5px)",
-        WebkitBackdropFilter: "blur(5px)",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
       }}
       onClick={() => {
         inputRef.current?.focus({ preventScroll: true });

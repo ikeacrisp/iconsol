@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useSound } from "@web-kits/audio/react";
 import { hover } from "@/lib/audio/core";
@@ -99,6 +100,12 @@ export function LensClient({ icons }: { icons: Icon[] }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState("");
+  // Track client mount so we can portal the search column to document.body
+  // without breaking SSR. The portal is required because something in this
+  // component's wrapper tree blocks backdrop-filter on the search bar; moving
+  // the bar to a top-level DOM child makes the blur actually composite.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const playSurpriseHover = useSound(success, {
     volume: 0.22,
     playbackRate: 0.65,
@@ -261,14 +268,17 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         />
       </div>
 
-      {/* Search column — pinned 64px above the footer (footer height 73px).
-          Centred via flex / margin-inline auto rather than transform, so the
-          search bar's backdrop-filter has the page bg as its backdrop root
-          (transforms create an isolating backdrop root and break the blur). */}
-      <div
+      {/* Search column — rendered via portal to <body> so its backdrop-filter
+          composites against the page bg + globe icons. Something in this
+          component's wrapper tree was suppressing backdrop-filter (the
+          standalone CSS was applied but produced no visible blur); moving
+          the column out of that tree fixes the effect. Position is fixed,
+          pinned 137px above the page bottom (64px gap + 73px footer). */}
+      {mounted && createPortal(
+        <div
         className="flex flex-col items-center"
         style={{
-          position: "absolute",
+          position: "fixed",
           left: 0,
           right: 0,
           marginInline: "auto",
@@ -276,7 +286,7 @@ export function LensClient({ icons }: { icons: Icon[] }) {
           width: 520,
           maxWidth: "calc(100% - 48px)",
           pointerEvents: "auto",
-          zIndex: 5,
+          zIndex: 9999,
         }}
       >
         {/* Focused icon name pill */}
@@ -357,7 +367,9 @@ export function LensClient({ icons }: { icons: Icon[] }) {
             </span>
           </button>
         </BlurFade>
-      </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
