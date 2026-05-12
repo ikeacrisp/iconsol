@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
@@ -281,6 +282,13 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const [searchMode, setSearchMode] = useState(
     () => searchParams?.get("lens") === "1",
   );
+  // Client-mount gate for portaling the search column to document.body.
+  // The home page's normal wrapper tree silently flatten's the search bar's
+  // compositing layer, so backdrop-filter renders as a no-op even with
+  // zero CSS backdrop-root creators in the ancestor chain. Portaling
+  // the column out of that tree restores the blur.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const playConfetti = useSound(confetti);
   // Stretched ~1.5x with playbackRate 0.65 so the chord rings out a bit
   // longer to match the hover wave, and dropped to volume 0.22 so it
@@ -707,9 +715,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
            * stack lifts toward the page centre (≈55% down) instead of
            * sitting flush against the footer.
            */}
+          {mounted && createPortal(
           <div
             style={{
-              position: "absolute",
+              position: "fixed",
               left: 0,
               right: 0,
               marginInline: "auto",
@@ -721,7 +730,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
               width: 520,
               maxWidth: "calc(100% - 48px)",
               pointerEvents: "auto",
-              zIndex: 3,
+              zIndex: 9999,
             }}
           >
             <div style={{ width: "100%", viewTransitionName: "lens-search-bar" } as React.CSSProperties}>
@@ -782,7 +791,9 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                 </button>
               </BlurFade>
             </div>
-          </div>
+          </div>,
+          document.body
+          )}
         </main>
 
         <div

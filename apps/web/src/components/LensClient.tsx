@@ -268,27 +268,21 @@ export function LensClient({ icons }: { icons: Icon[] }) {
         />
       </div>
 
-      {/* Search column — rendered via portal to <body> so its backdrop-filter
-          composites against the page bg + globe icons. Something in this
-          component's wrapper tree was suppressing backdrop-filter (the
-          standalone CSS was applied but produced no visible blur); moving
-          the column out of that tree fixes the effect. Position is fixed,
-          pinned 137px above the page bottom (64px gap + 73px footer). */}
       {mounted && createPortal(
         <div
-        className="flex flex-col items-center"
-        style={{
-          position: "fixed",
-          left: 0,
-          right: 0,
-          marginInline: "auto",
-          bottom: 137,
-          width: 520,
-          maxWidth: "calc(100% - 48px)",
-          pointerEvents: "auto",
-          zIndex: 9999,
-        }}
-      >
+          className="flex flex-col items-center"
+          style={{
+            position: "fixed",
+            left: 0,
+            right: 0,
+            marginInline: "auto",
+            bottom: 137,
+            width: 520,
+            maxWidth: "calc(100% - 48px)",
+            pointerEvents: "auto",
+            zIndex: 9999,
+          }}
+        >
         {/* Focused icon name pill */}
         <div
           style={{
