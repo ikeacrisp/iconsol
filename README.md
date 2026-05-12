@@ -1,13 +1,14 @@
 # iconsol
 
-A curated directory of high-quality logos and icons for the Solana ecosystem — tokens, DeFi protocols, wallets, NFT platforms, and infrastructure.
+A curated directory of Solana ecosystem logos — tokens, DeFi protocols, wallets, NFT platforms, and infrastructure.
 
 Live at **[iconsol.me](https://iconsol.me)**.
 
-- Browse and download SVG/PNG
-- Copy as a React, Vue, or Svelte component
-- Soon: `npm i iconsol` for direct React imports
-- MCP endpoint for AI agents at `/api/mcp`
+- Browse and download SVG (PNG fallback where applicable)
+- Copy any logo as React, React Native, Swift, HTML, or SVG
+- Full catalog as plain text at [`/llms.txt`](https://iconsol.me/llms.txt)
+- JSON catalog at [`/api/logos`](https://iconsol.me/api/logos) and per-logo at `/api/logos/{id}`
+- MCP endpoint for agents at [`/api/mcp`](https://iconsol.me/api/mcp) — tools: `search_logos`, `get_logo`
 
 ## Repository
 

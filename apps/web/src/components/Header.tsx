@@ -303,7 +303,35 @@ const MCP_CONFIG_SNIPPET = `{
 }`;
 
 function CubeIcon() {
-  return <MaskIcon src="/ui/cube.svg" size={14} color="#ffffff" opacity={1} />;
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 14,
+        height: 14,
+      }}
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M7 1L12 3.5V10.5L7 13L2 10.5V3.5L7 1Z"
+          stroke="#ffffff"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M2 3.5L7 6M7 6L12 3.5M7 6V13"
+          stroke="#ffffff"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
 }
 
 function MarkdownIcon() {

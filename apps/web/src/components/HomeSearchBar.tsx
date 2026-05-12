@@ -160,7 +160,6 @@ export function HomeSearchBar({
         padding: showShortcut ? "0 12px 0 12px" : "0 12px",
         backdropFilter: "blur(5px)",
         WebkitBackdropFilter: "blur(5px)",
-        isolation: "isolate",
       }}
       onClick={() => {
         inputRef.current?.focus({ preventScroll: true });
