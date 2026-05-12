@@ -297,8 +297,7 @@ function NpmBox({
 const MCP_CONFIG_SNIPPET = `{
   "mcpServers": {
     "iconsol": {
-      "command": "npx",
-      "args": ["-y", "iconsol-mcp"]
+      "url": "https://iconsol.me/api/mcp"
     }
   }
 }`;
