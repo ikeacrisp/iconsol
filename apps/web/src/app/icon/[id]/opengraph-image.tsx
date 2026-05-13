@@ -1,15 +1,38 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getIconById, getAllIcons } from "@/lib/icons";
-import { renderOgCard } from "./og-card";
+import { getIconById } from "@/lib/icons";
+import { renderOgCard } from "../../og-card";
 
 export const runtime = "nodejs";
-export const alt = "iconsol — a curated directory of Solana ecosystem logos and icons";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function OpenGraphImage() {
+export async function generateImageMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const icon = getIconById(id);
+  return [
+    {
+      id: "main",
+      alt: icon
+        ? `${icon.name} on iconsol`
+        : "iconsol — Solana ecosystem logos",
+      contentType,
+      size,
+    },
+  ];
+}
+
+export default async function IconOpenGraphImage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const fontDir = join(process.cwd(), "src/app");
   const [regular, medium, fraunces] = await Promise.all([
     readFile(join(fontDir, "Geist-Regular.ttf")),
@@ -17,10 +40,7 @@ export default async function OpenGraphImage() {
     readFile(join(fontDir, "Fraunces-Regular.ttf")),
   ]);
 
-  // Pick a marquee icon for the un-routed root OG card. Solana is the
-  // emblem most synonymous with the directory, so default to it; fall back
-  // to the first icon if for some reason it's not in the manifest.
-  const icon = getIconById("sol") ?? getAllIcons()[0];
+  const icon = getIconById(id);
 
   return new ImageResponse(await renderOgCard(icon), {
     ...size,
