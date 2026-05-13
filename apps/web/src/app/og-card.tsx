@@ -28,14 +28,31 @@ const PAGE_BG_IMAGE =
 
 async function loadSolidLogoDataUrl(id: string): Promise<string | null> {
   // Solid logos are white-on-transparent SVGs at public/solid/<id>.svg.
-  // Satori's <img> SVG renderer doesn't resolve CSS var(--…) fallbacks,
-  // so we replace each var() with its fallback color before encoding.
-  const file = join(process.cwd(), "public", "solid", `${id}.svg`);
+  // Try the local filesystem first (fast path during static build), and
+  // fall back to an HTTP fetch of the public asset for request-time
+  // serverless functions where fs.readFile doesn't always reach /public.
+  // Either way, strip CSS var(--…) fallbacks before encoding — Satori's
+  // <img> SVG renderer doesn't resolve them.
+  const sanitise = (svg: string) =>
+    svg.replace(/var\(\s*--[^,)]+,\s*([^)]+?)\s*\)/g, "$1");
+
   try {
-    const buffer = await readFile(file);
-    const text = buffer
-      .toString("utf8")
-      .replace(/var\(\s*--[^,)]+,\s*([^)]+?)\s*\)/g, "$1");
+    const buffer = await readFile(
+      join(process.cwd(), "public", "solid", `${id}.svg`),
+    );
+    const text = sanitise(buffer.toString("utf8"));
+    return `data:image/svg+xml;base64,${Buffer.from(text, "utf8").toString("base64")}`;
+  } catch {
+    // Fall through to HTTP fetch.
+  }
+
+  try {
+    const host = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "https://iconsol.me";
+    const res = await fetch(`${host}/solid/${id}.svg`);
+    if (!res.ok) return null;
+    const text = sanitise(await res.text());
     return `data:image/svg+xml;base64,${Buffer.from(text, "utf8").toString("base64")}`;
   } catch {
     return null;
