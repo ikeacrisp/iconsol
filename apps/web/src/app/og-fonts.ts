@@ -23,9 +23,11 @@ export async function loadOgFont(filename: string): Promise<ArrayBuffer> {
     // Fall through to HTTP fetch.
   }
 
-  const host = process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "https://iconsol.me";
+  // Use the public alias, not VERCEL_URL. Vercel's per-deployment URLs
+  // (preview and the production target *.vercel.app) sit behind SSO and
+  // return 401 to anonymous fetches; iconsol.me is the only origin that
+  // serves /public assets to the OG function itself.
+  const host = "https://iconsol.me";
   const res = await fetch(`${host}/og/${filename}`);
   if (!res.ok) {
     throw new Error(`Failed to load font ${filename} from ${host}: ${res.status}`);

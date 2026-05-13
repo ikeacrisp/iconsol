@@ -47,10 +47,9 @@ async function loadSolidLogoDataUrl(id: string): Promise<string | null> {
   }
 
   try {
-    const host = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "https://iconsol.me";
-    const res = await fetch(`${host}/solid/${id}.svg`);
+    // Public alias — VERCEL_URL is SSO-protected and returns 401 to the
+    // OG function's anonymous fetches.
+    const res = await fetch(`https://iconsol.me/solid/${id}.svg`);
     if (!res.ok) return null;
     const text = sanitise(await res.text());
     return `data:image/svg+xml;base64,${Buffer.from(text, "utf8").toString("base64")}`;
