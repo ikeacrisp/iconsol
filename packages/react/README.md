@@ -1,6 +1,6 @@
 # iconsol
 
-React components for Solana ecosystem logos and icons.
+React components for the [iconsol.me](https://iconsol.me) directory of Solana ecosystem logos and icons.
 
 ```bash
 npm i iconsol

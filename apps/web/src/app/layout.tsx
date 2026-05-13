@@ -10,6 +10,7 @@ const AgentationToolbar = dynamic(
 );
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://iconsol.me"),
   title: "iconsol",
   description:
     "A curated directory of high-quality logos and icons for the Solana ecosystem. Tokens, DeFi protocols, wallets, NFT platforms, and infrastructure. Download SVG, copy as React, React Native, Swift, HTML, or SVG.",
@@ -28,8 +29,15 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "iconsol",
-    description: "Solana ecosystem logos and icons",
+    description: "A curated directory of Solana ecosystem logos and icons",
     type: "website",
+    url: "https://iconsol.me",
+    siteName: "iconsol",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "iconsol",
+    description: "A curated directory of Solana ecosystem logos and icons",
   },
 };
 
