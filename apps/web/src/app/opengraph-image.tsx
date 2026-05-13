@@ -10,7 +10,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function OpenGraphImage() {
-  const fontDir = join(process.cwd(), "src/app");
+  const fontDir = join(process.cwd(), "public/og");
   const [regular, medium, fraunces] = await Promise.all([
     readFile(join(fontDir, "Geist-Regular.ttf")),
     readFile(join(fontDir, "Geist-Medium.ttf")),

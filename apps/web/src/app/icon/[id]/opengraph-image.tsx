@@ -33,7 +33,7 @@ export default async function IconOpenGraphImage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const fontDir = join(process.cwd(), "src/app");
+  const fontDir = join(process.cwd(), "public/og");
   const [regular, medium, fraunces] = await Promise.all([
     readFile(join(fontDir, "Geist-Regular.ttf")),
     readFile(join(fontDir, "Geist-Medium.ttf")),
