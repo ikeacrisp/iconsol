@@ -31,21 +31,49 @@ export default async function IconOpenGraphImage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const [regular, medium, fraunces] = await Promise.all([
-    loadOgFont("Geist-Regular.ttf"),
-    loadOgFont("Geist-Medium.ttf"),
-    loadOgFont("Fraunces-Regular.ttf"),
-  ]);
+  try {
+    const { id } = await params;
+    const [regular, medium, fraunces] = await Promise.all([
+      loadOgFont("Geist-Regular.ttf"),
+      loadOgFont("Geist-Medium.ttf"),
+      loadOgFont("Fraunces-Regular.ttf"),
+    ]);
 
-  const icon = getIconById(id);
+    const icon = getIconById(id);
 
-  return new ImageResponse(await renderOgCard(icon), {
-    ...size,
-    fonts: [
-      { name: "Geist", data: regular, style: "normal", weight: 400 },
-      { name: "Geist", data: medium, style: "normal", weight: 500 },
-      { name: "Fraunces", data: fraunces, style: "normal", weight: 400 },
-    ],
-  });
+    return new ImageResponse(await renderOgCard(icon), {
+      ...size,
+      fonts: [
+        { name: "Geist", data: regular, style: "normal", weight: 400 },
+        { name: "Geist", data: medium, style: "normal", weight: 500 },
+        { name: "Fraunces", data: fraunces, style: "normal", weight: 400 },
+      ],
+    });
+  } catch (err) {
+    // Surface the underlying failure as a debug PNG so we can read it
+    // off the live response while diagnosing 500s. This is intentionally
+    // ugly and temporary.
+    const message =
+      err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            padding: 48,
+            backgroundColor: "#0a0b0f",
+            color: "#ff6b6b",
+            fontSize: 28,
+            fontFamily: "sans-serif",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {`cwd=${process.cwd()}\nVERCEL_URL=${process.env.VERCEL_URL ?? "(unset)"}\n\n${message}`}
+        </div>
+      ),
+      size,
+    );
+  }
 }
