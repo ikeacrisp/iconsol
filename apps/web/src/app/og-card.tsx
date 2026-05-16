@@ -1,10 +1,11 @@
 /**
- * Shared OG card layout used by both the root `opengraph-image.tsx` and
- * the per-icon `icon/[id]/opengraph-image.tsx`. Mirrors the Figma design
- * (node 656:238): a 1200x630 dark card with a Fraunces serif headline,
- * an icon tile holding the SOLID (white) brand mark, the brand name in
- * Geist, a Copy code / SVG / PNG affordance, and the iconsol wordmark
- * pinned to the bottom-right.
+ * OG card layout used by the per-icon `icon/[id]/opengraph-image.tsx`.
+ * Mirrors the Figma design (node 656:238): a 1200x630 dark card with a
+ * Fraunces serif headline, an icon tile holding the SOLID (white) brand
+ * mark, the brand name in Geist, a Copy code / SVG / PNG affordance, and
+ * the iconsol wordmark pinned to the bottom-right.
+ *
+ * The root `/` OG is served from the static `app/opengraph-image.png`.
  */
 
 import { readFile } from "node:fs/promises";
