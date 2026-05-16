@@ -6,11 +6,11 @@ import { createPortal } from "react-dom";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
-import { confetti, hover } from "@/lib/audio/core";
+import { confetti, hover, sync } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { AgentMenu, CopyIcon, Header, MCP_CONFIG_SNIPPET } from "@/components/Header";
 import { MaskIcon } from "@/components/UiIcon";
 import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
@@ -73,79 +73,181 @@ const DESKTOP_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0
 const MOBILE_BACKGROUND_IMAGE = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(-0.0000023961 -51.624 29.004 -0.000015086 201 874)'><stop stop-color='rgba(123,100,254,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), url("data:image/svg+xml;utf8,<svg viewBox='0 0 402 874' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%25' width='100%25' fill='url(%23grad)' opacity='1'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(0.0000023961 43.7 -32.137 0.000019746 201 0.0000067347)'><stop stop-color='rgba(255,255,255,0.05)' offset='0'/><stop stop-color='rgba(13,15,18,0)' offset='1'/></radialGradient></defs></svg>"), linear-gradient(90deg, rgb(13, 15, 18) 0%, rgb(13, 15, 18) 100%)`;
 
 
-function CopyInstallButton({
-  width,
-  copied,
-  onCopy,
-}: {
-  width: number;
-  copied: boolean;
-  onCopy: () => void;
-}) {
+function MobileInstallPill() {
+  const playConfetti = useSound(confetti);
+  const playHover = useSound(hover);
+  const playSync = useSound(sync);
+  const [copied, setCopied] = useState(false);
+  const [agentMenuOpen, setAgentMenuOpen] = useState(false);
+  const [copiedAgentItem, setCopiedAgentItem] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!agentMenuOpen) return;
+    const handler = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setAgentMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [agentMenuOpen]);
+
+  const flashCopiedItem = (key: string) => {
+    setCopiedAgentItem(key);
+    window.setTimeout(() => setCopiedAgentItem(null), 1800);
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onCopy}
-      className="pressable pressable-soft flex items-center frost-dither"
-      style={{
-        width,
-        height: 36,
-        padding: "8px 10px 8px 12px",
-        justifyContent: "space-between",
-        background: copied ? "rgba(20,241,149,0.08)" : "rgba(255,255,255,0.03)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderRadius: 8,
-        overflow: "hidden",
-        transition:
-          "background 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-      }}
-      onMouseEnter={(event) => {
-        event.currentTarget.style.background = copied
-          ? "rgba(20,241,149,0.1)"
-          : "rgba(255,255,255,0.05)";
-      }}
-      onMouseLeave={(event) => {
-        event.currentTarget.style.background = copied
-          ? "rgba(20,241,149,0.08)"
-          : "rgba(255,255,255,0.03)";
-      }}
-      aria-label="Copy install command"
-    >
-      <span
+    <div ref={containerRef} style={{ position: "relative" }}>
+      <div
+        className="flex items-center frost-dither"
         style={{
-          fontFamily:
-            'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
-          fontSize: 14,
-          lineHeight: "20px",
-          whiteSpace: "nowrap",
+          width: 200,
+          height: 36,
+          padding: "8px 12px",
+          background: copied ? "rgba(40,224,185,0.03)" : "rgba(255,255,255,0.03)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          borderRadius: 8,
+          overflow: "hidden",
+          justifyContent: "space-between",
+          transition: "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
-        <span style={{ color: copied ? "rgba(20,241,149,0.85)" : "rgba(255,255,255,0.6)" }}>
-          npm
-        </span>
-        <span style={{ color: copied ? "rgba(20,241,149,0.68)" : "rgba(255,255,255,0.4)" }}>
-          {" i iconsol"}
-        </span>
-      </span>
-      <span
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: copied ? 1 : 0.4,
-          transition:
-            "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
-      >
-        <MaskIcon
-          src={copied ? "/ui/check.svg" : "/ui/copy.svg"}
-          size={16}
-          color={copied ? "#14f195" : "#ffffff"}
-          opacity={1}
+        <button
+          type="button"
+          onClick={async () => {
+            playConfetti();
+            await navigator.clipboard.writeText("npm i iconsol");
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1800);
+          }}
+          className="pressable pressable-soft flex items-center"
+          style={{
+            flex: "1 1 auto",
+            minWidth: 0,
+            height: "100%",
+            background: "transparent",
+            padding: 0,
+            gap: 8,
+            justifyContent: "flex-start",
+          }}
+          aria-label="Copy install command"
+        >
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 16,
+              height: 16,
+              flexShrink: 0,
+              opacity: copied ? 1 : 0.4,
+              transition: "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <CopyIcon copied={copied} />
+          </span>
+          <span
+            style={{
+              fontFamily:
+                'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+              fontSize: 13,
+              fontWeight: 500,
+              lineHeight: "normal",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span
+              style={{
+                color: copied ? "rgba(40,224,185,0.6)" : "rgba(255,255,255,0.6)",
+                transition: "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              npm
+            </span>
+            <span
+              style={{
+                color: copied ? "rgba(40,224,185,0.4)" : "rgba(255,255,255,0.4)",
+                transition: "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              {" i iconsol"}
+            </span>
+          </span>
+        </button>
+
+        <div
+          aria-hidden="true"
+          style={{
+            width: 1.5,
+            alignSelf: "stretch",
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: 50,
+            flexShrink: 0,
+            margin: "0 8px",
+          }}
         />
-      </span>
-    </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            playSync();
+            setAgentMenuOpen((value) => !value);
+          }}
+          onMouseEnter={() => playHover()}
+          className="pressable pressable-soft flex items-center justify-center"
+          style={{
+            width: 16,
+            height: 16,
+            padding: 0,
+            background: "transparent",
+            flexShrink: 0,
+            opacity: agentMenuOpen ? 1 : 0.5,
+            transition:
+              "opacity 180ms cubic-bezier(0.16, 1, 0.3, 1), transform 220ms cubic-bezier(0.16, 1, 0.3, 1)",
+            transform: agentMenuOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}
+          aria-label="More install options for agents"
+          aria-haspopup="menu"
+          aria-expanded={agentMenuOpen}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+            style={{ display: "block" }}
+          >
+            <path
+              d="M4 6L8 10L12 6"
+              stroke="rgba(255,255,255,0.6)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {agentMenuOpen ? (
+        <AgentMenu
+          copiedItem={copiedAgentItem}
+          onCopyLlmsTxt={async () => {
+            playConfetti();
+            await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
+            flashCopiedItem("llms");
+          }}
+          onCopyMcp={async () => {
+            playConfetti();
+            await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
+            flashCopiedItem("mcp");
+          }}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -273,7 +375,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   const pillRef = useRef<HTMLSpanElement>(null);
   const [desktopQuery, setDesktopQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
-  const [copied, setCopied] = useState(false);
+  const [mobileNudgeActive, setMobileNudgeActive] = useState(false);
   // Search mode is the single source of truth — sticky once activated by the
   // user typing into the search bar OR clicking the lens header button.
   // Cleared only by clicking the iconsol logo (per product spec).
@@ -422,13 +524,6 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     router.replace("/", { scroll: false });
   }, [router, searchParams]);
 
-  const handleCopy = useCallback(async () => {
-    playConfetti();
-    await navigator.clipboard.writeText("npm i iconsol");
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1800);
-  }, [playConfetti]);
-
   // Submit (Enter): if a focused icon exists, open it. Otherwise fall back
   // to the dashboard route.
   const submitDesktop = useCallback(() => {
@@ -442,9 +537,9 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
   }, [focusedId, desktopQuery, router]);
 
   const submitMobile = useCallback(() => {
-    const trimmed = mobileQuery.trim();
-    router.push(trimmed ? `/dashboard?q=${encodeURIComponent(trimmed)}` : "/dashboard");
-  }, [mobileQuery, router]);
+    setMobileNudgeActive(false);
+    window.requestAnimationFrame(() => setMobileNudgeActive(true));
+  }, []);
 
   // The × button only clears the query — it does NOT exit search mode.
   // The search bar stays at its lower position; only the iconsol logo
@@ -717,6 +812,7 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
            */}
           {mounted && createPortal(
           <div
+            className="desktop-only"
             style={{
               position: "fixed",
               left: 0,
@@ -830,8 +926,8 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             position: "absolute",
             inset: 0,
             pointerEvents: "none",
-            opacity: 0.28,
-            transform: "scale(0.62)",
+            opacity: 0.32,
+            transform: "scale(0.95)",
             overflow: "visible",
           }}
         >
@@ -849,15 +945,15 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             justifyContent: "center",
             position: "relative",
             zIndex: 1,
-            paddingLeft: 42,
-            paddingRight: 42,
+            paddingLeft: 24,
+            paddingRight: 24,
           }}
         >
-          <CopyInstallButton width={219} copied={copied} onCopy={handleCopy} />
+          <MobileInstallPill />
 
           <p
             style={{
-              maxWidth: 320,
+              maxWidth: "min(320px, 100%)",
               fontFamily: '"Geist Pixel", var(--font-geist-sans), sans-serif',
               fontSize: 28,
               lineHeight: "40px",
@@ -876,7 +972,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
           </p>
 
           <div
-            className="flex items-center justify-center"
+            className={`mobile-desktop-note flex items-center justify-center ${
+              mobileNudgeActive ? "is-active" : ""
+            }`}
+            onAnimationEnd={() => setMobileNudgeActive(false)}
             style={{ gap: 8, paddingRight: 20, flexShrink: 0, marginBottom: 64 }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -900,13 +999,18 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
             </p>
           </div>
 
-          <HomeSearchBar
-            value={mobileQuery}
-            onChange={setMobileQuery}
-            onSubmit={submitMobile}
-            inputRef={mobileInputRef}
-            showShortcut={false}
-          />
+          <div
+            className={`mobile-search-nudge ${mobileNudgeActive ? "is-active" : ""}`}
+            style={{ width: "100%" }}
+          >
+            <HomeSearchBar
+              value={mobileQuery}
+              onChange={setMobileQuery}
+              onSubmit={submitMobile}
+              inputRef={mobileInputRef}
+              showShortcut={false}
+            />
+          </div>
         </div>
 
         <Footer variant="home" />

@@ -3,6 +3,7 @@ import dynamic from "next/dynamic";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { AudioProvider } from "@/components/AudioProvider";
+import { MobileRouteGuard } from "@/components/MobileRouteGuard";
 import "./globals.css";
 
 const AgentationToolbar = dynamic(
@@ -64,6 +65,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable}`}>
+        <MobileRouteGuard />
         <AudioProvider>{children}</AudioProvider>
         {showAgentation && <AgentationToolbar enabled />}
       </body>

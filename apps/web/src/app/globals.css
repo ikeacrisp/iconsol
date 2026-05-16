@@ -309,6 +309,44 @@ input[type="text"]:focus-visible {
   }
 }
 
+@keyframes mobile-search-nudge {
+  0% { transform: translateX(0); }
+  16% { transform: translateX(-10px); }
+  32% { transform: translateX(8px); }
+  48% { transform: translateX(-5px); }
+  64% { transform: translateX(3px); }
+  80% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes mobile-note-highlight {
+  0% {
+    transform: scale(1);
+    filter: none;
+  }
+
+  28% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 14px rgba(116,120,255,0.32));
+  }
+
+  58% {
+    transform: scale(1.03);
+    filter: drop-shadow(0 0 8px rgba(116,120,255,0.22));
+  }
+
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+@keyframes mobile-note-icon-highlight {
+  0%, 100% { filter: none; }
+  35% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.55)) brightness(1.4); }
+  65% { filter: drop-shadow(0 0 4px rgba(255,255,255,0.35)) brightness(1.2); }
+}
+
 @media (max-width: 520px) {
   .dashboard-footer-social {
     display: none;
@@ -319,10 +357,14 @@ input[type="text"]:focus-visible {
   .desktop-only {
     display: none !important;
   }
+  .desktop-github-only {
+    display: none !important;
+  }
 
-  /* Stack the brand row vertically (Twenty'26 / Built for…) and keep
-     the meta row pinned to the right edge — no wrapping to a 2nd line. */
+  /* Stack each side vertically, then center the two stacks together
+     so brand text sits level with the MIT/version stack on the right. */
   .footer-row {
+    position: relative !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
   }
@@ -330,7 +372,35 @@ input[type="text"]:focus-visible {
     flex-direction: column !important;
     align-items: flex-start !important;
     flex-wrap: nowrap !important;
-    gap: 4px !important;
+    gap: 6px !important;
+  }
+  .footer-meta-row {
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    gap: 6px !important;
+  }
+  .mobile-header-github {
+    position: fixed !important;
+    top: 24px !important;
+    right: 24px !important;
+    z-index: 40 !important;
+  }
+  .mobile-search-nudge.is-active {
+    animation: mobile-search-nudge 760ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .mobile-desktop-note {
+    transform-origin: center;
+    will-change: transform, filter;
+  }
+  .mobile-desktop-note.is-active {
+    animation: mobile-note-highlight 1200ms var(--ease-ui);
+  }
+  .mobile-desktop-note.is-active,
+  .mobile-desktop-note.is-active p {
+    color: rgba(255,255,255,0.92) !important;
+  }
+  .mobile-desktop-note.is-active img {
+    animation: mobile-note-icon-highlight 1200ms var(--ease-ui);
   }
 }
 
@@ -662,4 +732,3 @@ input[type="text"]:focus-visible {
   74%  { transform: rotate(-3deg) scale(1.10); }
   100% { transform: rotate(0deg) scale(1); }
 }
-

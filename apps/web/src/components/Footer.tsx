@@ -78,7 +78,7 @@ function FooterBrandRow() {
 
 function FooterMetaRow() {
   return (
-    <div className="flex items-center" style={{ gap: 12 }}>
+    <div className="footer-meta-row flex items-center" style={{ gap: 12 }}>
       <a
         href={MIT_LICENSE_URL}
         target="_blank"

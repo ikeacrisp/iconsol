@@ -33,7 +33,7 @@ function SearchIcon() {
   return <MaskIcon src="/ui/search.svg" size={16} color="#ffffff" opacity={1} />;
 }
 
-function CopyIcon({ copied = false }: { copied?: boolean }) {
+export function CopyIcon({ copied = false }: { copied?: boolean }) {
   return (
     <span
       aria-hidden="true"
@@ -80,6 +80,46 @@ function GithubIcon() {
 }
 
 const GITHUB_REPO_URL = "https://github.com/ikeacrisp/iconsol";
+
+function MobileGithubLink() {
+  const playSync = useSound(sync);
+
+  return (
+    <a
+      href={GITHUB_REPO_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="iconsol on GitHub"
+      className="mobile-header-github mobile-only pressable pressable-soft flex items-center justify-center"
+      onClick={() => playSync()}
+      style={{
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        flexShrink: 0,
+        opacity: 0.55,
+        textDecoration: "none",
+      }}
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden="true"
+        style={{ display: "block" }}
+      >
+        <path
+          d="M6.38288 13.69689C5.66003 13.9848 4.87602 14.08488 4.10401 13.98781C2.87569 13.56762 3.19893 12.45243 2.56861 11.99181C2.26571 11.77526 1.90625 11.65162 1.53423 11.6362M14.46394 6.18146C14.46394 8.60579 12.88813 10.42404 8.80721 10.42404C4.72626 10.42404 3.15045 8.60579 3.15045 6.18146C3.13048 5.34036 3.31929 4.50742 3.69996 3.75713C3.4252 2.56921 3.53026 1.10653 4.12018 0.81561C4.7101 0.52469 5.95459 1.05805 6.98089 1.74494C7.58371 1.63736 8.19487 1.58328 8.80721 1.58331C9.41909 1.57794 10.03024 1.62662 10.6335 1.72877C11.65987 1.04188 12.96086 0.53277 13.49421 0.79945C14.02756 1.06612 14.18922 2.55304 13.91449 3.74097C14.29773 4.49611 14.48664 5.33492 14.46394 6.18146Z"
+          stroke="#ffffff"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </a>
+  );
+}
 
 function GithubLink() {
   const [hovered, setHovered] = useState(false);
@@ -294,7 +334,7 @@ function NpmBox({
   );
 }
 
-const MCP_CONFIG_SNIPPET = `{
+export const MCP_CONFIG_SNIPPET = `{
   "mcpServers": {
     "iconsol": {
       "url": "https://iconsol.me/api/mcp"
@@ -441,7 +481,7 @@ function AgentMenuItem({
   );
 }
 
-function AgentMenu({
+export function AgentMenu({
   copiedItem,
   onCopyLlmsTxt,
   onCopyMcp,
@@ -988,7 +1028,10 @@ export function Header({
                   <GridIcon />
                 </Link>
 
-                <GithubLink />
+                <span className="desktop-github-only">
+                  <GithubLink />
+                </span>
+                <MobileGithubLink />
               </div>
 
               <div
