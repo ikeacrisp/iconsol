@@ -36,7 +36,7 @@ import {
   type Contributor,
   type Icon,
 } from "@/lib/icon-data";
-import { easingGradient, easingGradientStops } from "@/lib/easing-gradient";
+import { easingGradient } from "@/lib/easing-gradient";
 
 const PANEL_FADE_BG = easingGradient(
   "180deg",
@@ -44,13 +44,10 @@ const PANEL_FADE_BG = easingGradient(
   "rgba(255,255,255,0.01)",
 );
 
-// Radial fill anchored ABOVE the card so the top of the surface always
-// reads as brightest and the bottom dims out. The centre nudges with
-// tilt for a subtle response, but never enters the visible area —
-// keeping the bright→dim direction stable. 14 eased stops + a 480px
-// radius give a band-free top-to-bottom falloff.
-const PREVIEW_FRAME_GRAD_STOPS = easingGradientStops("#17181B", "#101215");
-const PREVIEW_FRAME_BG = `radial-gradient(circle 480px at var(--preview-grad-x, 50%) var(--preview-grad-y, -50%), ${PREVIEW_FRAME_GRAD_STOPS})`;
+// Top-to-bottom eased linear fill: #17181B → #101215, both fully opaque.
+// Static (no tilt response) — the surface reads brightest at the top edge
+// and dims toward the bottom with a band-free falloff.
+const PREVIEW_FRAME_BG = easingGradient("180deg", "#17181B", "#101215");
 
 // Brand/Solid toggle shell: 50%-opaque page color at the top easing into
 // a 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
@@ -1490,16 +1487,6 @@ export function IconDetail({
       target.style.setProperty("--shine-x", `${rect.width - cursorX}px`);
       target.style.setProperty("--shine-y", `${rect.height - cursorY}px`);
       target.style.setProperty("--shine-opacity", "1");
-
-      // Tilt-responsive radial centre: stays anchored above the card
-      // (so top stays brightest) but slides horizontally with the
-      // cursor and lifts/lowers in a small range for a subtle parallax.
-      // X: 20%..80% (cursor maps to 30%..70% across the card → 20..80)
-      // Y: -70%..-35% (always outside the top edge)
-      const shiftX = 50 + (x - 0.5) * 60; // 20..80
-      const shiftY = -50 + (y - 0.5) * 30; // -65..-35
-      target.style.setProperty("--preview-grad-x", `${shiftX}%`);
-      target.style.setProperty("--preview-grad-y", `${shiftY}%`);
     },
     [prefersReducedMotion, previewRotateX, previewRotateY]
   );
@@ -1509,8 +1496,6 @@ export function IconDetail({
       previewRotateX.set(0);
       previewRotateY.set(0);
       event.currentTarget.style.setProperty("--shine-opacity", "0");
-      event.currentTarget.style.setProperty("--preview-grad-x", "50%");
-      event.currentTarget.style.setProperty("--preview-grad-y", "-50%");
     },
     [previewRotateX, previewRotateY]
   );
