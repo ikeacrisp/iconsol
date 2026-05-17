@@ -1564,10 +1564,83 @@ export function IconDetail({
     const assetUrl = icon.src.startsWith("http")
       ? icon.src
       : `${window.location.origin}${icon.src}`;
-    await navigator.clipboard.writeText(assetUrl);
-    setCopiedLogo(true);
-    window.setTimeout(() => setCopiedLogo(false), 1800);
-  }, [icon.src]);
+
+    try {
+      const response = await fetch(assetUrl);
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+
+      const isSvg = icon.fileType === "svg" || assetUrl.endsWith(".svg");
+      const supportsClipboardItem =
+        typeof ClipboardItem !== "undefined" &&
+        typeof navigator.clipboard?.write === "function";
+
+      if (isSvg) {
+        // SVG: stash the markup as text/plain (Figma, Illustrator, code
+        // editors all paste this as vector or source) AND a rasterized
+        // PNG so image-only paste targets like Twitter compose still
+        // accept it as an attachment.
+        const svgText = await response.text();
+        const svgTextBlob = new Blob([svgText], { type: "text/plain" });
+
+        let pngBlob: Blob | null = null;
+        try {
+          const svgImageBlob = new Blob([svgText], { type: "image/svg+xml" });
+          const objectUrl = URL.createObjectURL(svgImageBlob);
+          try {
+            const img = new window.Image();
+            img.decoding = "async";
+            img.src = objectUrl;
+            await new Promise<void>((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject(new Error("svg decode failed"));
+            });
+            const size = 512;
+            const canvas = document.createElement("canvas");
+            canvas.width = size;
+            canvas.height = size;
+            const context = canvas.getContext("2d");
+            if (context) {
+              context.drawImage(img, 0, 0, size, size);
+              pngBlob = await new Promise<Blob | null>((resolve) => {
+                canvas.toBlob((blob) => resolve(blob), "image/png");
+              });
+            }
+          } finally {
+            URL.revokeObjectURL(objectUrl);
+          }
+        } catch {
+          // PNG fallback is best-effort; text/plain still gets written.
+          pngBlob = null;
+        }
+
+        if (supportsClipboardItem) {
+          const payload: Record<string, Blob> = { "text/plain": svgTextBlob };
+          if (pngBlob) payload["image/png"] = pngBlob;
+          await navigator.clipboard.write([new ClipboardItem(payload)]);
+        } else {
+          await navigator.clipboard.writeText(svgText);
+        }
+      } else {
+        // PNG (or other raster): write the image bytes directly so image
+        // paste targets receive an attachment.
+        const blob = await response.blob();
+        if (supportsClipboardItem) {
+          await navigator.clipboard.write([
+            new ClipboardItem({ "image/png": blob }),
+          ]);
+        } else {
+          // No raster fallback for text-only clipboards — bail out.
+          return;
+        }
+      }
+
+      setCopiedLogo(true);
+      window.setTimeout(() => setCopiedLogo(false), 1800);
+    } catch {
+      // Clipboard or fetch failed (permissions, unfocused window, etc.) —
+      // leave UI state alone so we don't claim a copy that didn't happen.
+    }
+  }, [icon.fileType, icon.src]);
 
   const handlePngDownload = useCallback(async () => {
     if (typeof window === "undefined") return;
