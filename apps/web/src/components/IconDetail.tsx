@@ -1559,17 +1559,23 @@ export function IconDetail({
     return () => window.clearTimeout(timer);
   }, [gravityMode, frozenGravityLines]);
 
+  // Resolves to the SVG path of whichever variant is active (brand vs
+  // solid). Falls back to the canonical brand src if no variant spec
+  // exists for this icon. This is the single source of truth for the
+  // Copy Logo / SVG download / PNG download actions.
+  const activeAssetSrc = activeSpec?.layers[0]?.src ?? icon.src;
+
   const handleLogoCopy = useCallback(async () => {
     if (typeof window === "undefined") return;
-    const assetUrl = icon.src.startsWith("http")
-      ? icon.src
-      : `${window.location.origin}${icon.src}`;
+    const assetUrl = activeAssetSrc.startsWith("http")
+      ? activeAssetSrc
+      : `${window.location.origin}${activeAssetSrc}`;
 
     try {
       const response = await fetch(assetUrl);
       if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
 
-      const isSvg = icon.fileType === "svg" || assetUrl.endsWith(".svg");
+      const isSvg = assetUrl.endsWith(".svg");
       const supportsClipboardItem =
         typeof ClipboardItem !== "undefined" &&
         typeof navigator.clipboard?.write === "function";
@@ -1640,7 +1646,7 @@ export function IconDetail({
       // Clipboard or fetch failed (permissions, unfocused window, etc.) —
       // leave UI state alone so we don't claim a copy that didn't happen.
     }
-  }, [icon.fileType, icon.src]);
+  }, [activeAssetSrc]);
 
   const handlePngDownload = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -1648,9 +1654,9 @@ export function IconDetail({
     const img = new window.Image();
     img.crossOrigin = "anonymous";
     img.decoding = "async";
-    img.src = icon.src.startsWith("http")
-      ? icon.src
-      : `${window.location.origin}${icon.src}`;
+    img.src = activeAssetSrc.startsWith("http")
+      ? activeAssetSrc
+      : `${window.location.origin}${activeAssetSrc}`;
 
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
@@ -1668,11 +1674,14 @@ export function IconDetail({
 
     const link = document.createElement("a");
     link.href = canvas.toDataURL("image/png");
-    link.download = `${icon.id}.png`;
+    link.download = `${icon.id}${solidMode ? "-solid" : ""}.png`;
     link.click();
-  }, [icon.id, icon.src]);
+  }, [activeAssetSrc, icon.id, solidMode]);
 
-  const svgDownloadHref = icon.fileType === "svg" ? icon.src : undefined;
+  const svgDownloadHref = activeAssetSrc.endsWith(".svg")
+    ? activeAssetSrc
+    : undefined;
+  const svgDownloadName = `${icon.id}${solidMode ? "-solid" : ""}.svg`;
   const previewArtBoxHeight = 136.513;
 
   return (
@@ -2048,7 +2057,7 @@ export function IconDetail({
                       >
                         <a
                           href={svgDownloadHref}
-                          download={svgDownloadHref ? `${icon.id}.svg` : undefined}
+                          download={svgDownloadHref ? svgDownloadName : undefined}
                           aria-label={`Download ${icon.name} SVG`}
                           className="pressable pressable-soft flex items-center justify-center"
                           style={{
