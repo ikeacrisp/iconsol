@@ -389,15 +389,53 @@ function MarkdownIcon() {
       <svg width="14" height="10" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
           d="M2 8V2L4.5 5L7 2V8"
-          stroke="#ffffff"
+          stroke="currentColor"
           strokeWidth="1.4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M10 2V8M10 8L8.5 6.5M10 8L11.5 6.5"
-          stroke="#ffffff"
+          stroke="currentColor"
           strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </span>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: 14,
+        height: 14,
+      }}
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 11.271 12"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M5.0522 6C5.0522 5.67783 5.31336 5.41667 5.63553 5.41667C5.9577 5.41667 6.21886 5.67783 6.21886 6C6.21886 6.32217 5.9577 6.58333 5.63553 6.58333C5.31336 6.58333 5.0522 6.32217 5.0522 6Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M3.62974 1.51967C4.36044 1.09807 4.7258 0.887263 5.11422 0.804754C5.4579 0.731749 5.81309 0.731749 6.15677 0.804754C6.54519 0.887263 6.91055 1.09807 7.64125 1.51967L8.51515 2.0239C9.24586 2.44551 9.61121 2.65631 9.87692 2.95122C10.112 3.21217 10.2896 3.51958 10.3982 3.85353C10.5209 4.23095 10.5209 4.65256 10.5209 5.49577V6.50423C10.5209 7.34744 10.5209 7.76905 10.3982 8.14647C10.2896 8.48042 10.112 8.78783 9.87692 9.04877C9.61121 9.34369 9.24586 9.55449 8.51515 9.9761L7.64125 10.4803C6.91055 10.9019 6.54519 11.1127 6.15677 11.1952C5.81309 11.2683 5.4579 11.2683 5.11422 11.1952C4.7258 11.1127 4.36044 10.9019 3.62974 10.4803L2.75583 9.9761C2.02513 9.55449 1.65978 9.34369 1.39406 9.04877C1.15896 8.78783 0.981363 8.48042 0.872788 8.14647C0.750077 7.76905 0.750077 7.34744 0.750077 6.50423V5.49577C0.750077 4.65256 0.750077 4.23095 0.872788 3.85353C0.981363 3.51958 1.15896 3.21217 1.39406 2.95122C1.65978 2.65631 2.02513 2.44551 2.75583 2.0239L3.62974 1.51967Z"
+          stroke="currentColor"
+          strokeWidth="1.5"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
@@ -420,7 +458,7 @@ function AgentMenuItem({
   const playHover = useSound(hover);
   const playSync = useSound(sync);
   const [hovered, setHovered] = useState(false);
-  const opacity = copied || hovered ? 1 : 0.4;
+  const isActive = copied || hovered;
   return (
     <button
       type="button"
@@ -439,14 +477,14 @@ function AgentMenuItem({
       className="pressable pressable-soft flex items-center"
       style={{
         width: "100%",
-        gap: 10,
+        gap: 8,
         padding: 8,
-        borderRadius: 8,
-        background: hovered ? "rgba(255,255,255,0.05)" : "transparent",
+        borderRadius: isActive ? 6 : 8,
+        background: isActive ? "rgba(255,255,255,0.03)" : "transparent",
         textAlign: "left",
-        opacity,
+        color: isActive ? "#fff" : "rgba(255,255,255,0.4)",
         transition:
-          "background 160ms cubic-bezier(0.16, 1, 0.3, 1), opacity 160ms cubic-bezier(0.16, 1, 0.3, 1)",
+          "background 160ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
     >
       <span
@@ -454,9 +492,10 @@ function AgentMenuItem({
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
-          width: 16,
-          height: 16,
+          width: 14,
+          height: 14,
           flexShrink: 0,
+          color: copied ? "#28E0B9" : "currentColor",
         }}
       >
         {copied ? (
@@ -467,10 +506,10 @@ function AgentMenuItem({
       </span>
       <span
         style={{
-          fontSize: 13,
+          fontSize: 12,
           fontWeight: 500,
-          lineHeight: "18px",
-          color: copied ? "rgba(40,224,185,1)" : "#fff",
+          lineHeight: "normal",
+          color: copied ? "rgba(40,224,185,1)" : "currentColor",
           transition: "color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
           whiteSpace: "nowrap",
         }}
@@ -498,9 +537,9 @@ export function AgentMenu({
         position: "absolute",
         top: "calc(100% + 8px)",
         right: 0,
-        width: 176,
-        padding: 4,
-        gap: 12,
+        width: 188,
+        padding: 6,
+        gap: 2,
         borderRadius: 8,
         background: "rgba(255,255,255,0.03)",
         backdropFilter: "blur(20px)",
@@ -514,13 +553,13 @@ export function AgentMenu({
     >
       <AgentMenuItem
         icon={<MarkdownIcon />}
-        title="Copy llms.txt URL"
+        title="Copy Markdown file"
         copied={copiedItem === "llms"}
         onClick={onCopyLlmsTxt}
       />
       <AgentMenuItem
-        icon={<CubeIcon />}
-        title="Copy MCP config"
+        icon={<SettingsIcon />}
+        title="Copy MCP Config"
         copied={copiedItem === "mcp"}
         onClick={onCopyMcp}
       />
