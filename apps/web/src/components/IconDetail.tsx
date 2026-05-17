@@ -1152,6 +1152,96 @@ function HighlightedCode({ lines }: { lines: CodeLine[] }) {
   );
 }
 
+// Deterministic pseudo-random in [0, 1) \u2014 same seed produces the same value
+// across renders so the fall animation doesn't twitch on re-render.
+function gravityRand(seed: number) {
+  const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+  return value - Math.floor(value);
+}
+
+function FallingCode({ lines }: { lines: CodeLine[] }) {
+  // Split each segment into whitespace-preserving tokens so individual
+  // words can be animated while spaces and indentation stay put.
+  const tokensByLine = useMemo(
+    () =>
+      lines.map((line) =>
+        line.flatMap((segment) => {
+          if (!segment.text) return [];
+          const parts = segment.text.split(/(\s+)/).filter((part) => part !== "");
+          return parts.map((part) => ({
+            text: part,
+            color: segment.color,
+            isSpace: /^\s+$/.test(part),
+          }));
+        })
+      ),
+    [lines]
+  );
+
+  return (
+    <div
+      style={{
+        display: "inline-block",
+        minWidth: "max-content",
+        color: CODE_COLORS.default,
+        fontFamily:
+          'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+        fontSize: 12,
+        lineHeight: "18px",
+      }}
+    >
+      {tokensByLine.map((tokens, lineIndex) => (
+        <div key={lineIndex} style={{ whiteSpace: "pre" }}>
+          {tokens.length === 0 ? (
+            "\u00a0"
+          ) : (
+            tokens.map((token, tokenIndex) => {
+              if (token.isSpace) {
+                return (
+                  <span
+                    key={`${lineIndex}-${tokenIndex}`}
+                    style={{ color: token.color ?? CODE_COLORS.default }}
+                  >
+                    {token.text}
+                  </span>
+                );
+              }
+              const seed = lineIndex * 131 + tokenIndex * 17 + 1;
+              const r1 = gravityRand(seed);
+              const r2 = gravityRand(seed + 53);
+              const r3 = gravityRand(seed + 211);
+              const delay = r1 * 0.45;
+              const fallY = 520 + r2 * 240;
+              const rotate = (r3 - 0.5) * 160;
+              const xShift = (gravityRand(seed + 307) - 0.5) * 90;
+              const duration = 1.5 + r2 * 0.7;
+              return (
+                <motion.span
+                  key={`${lineIndex}-${tokenIndex}`}
+                  style={{
+                    display: "inline-block",
+                    color: token.color ?? CODE_COLORS.default,
+                    willChange: "transform",
+                  }}
+                  initial={{ y: 0, x: 0, rotate: 0 }}
+                  animate={{ y: fallY, x: xShift, rotate }}
+                  transition={{
+                    duration,
+                    delay,
+                    ease: [0.55, 0.06, 0.85, 0.4],
+                  }}
+                >
+                  {token.text}
+                </motion.span>
+              );
+            })
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function IconDetail({
   icon,
   relatedIcons,
@@ -1165,6 +1255,9 @@ export function IconDetail({
   const [solidMode, setSolidMode] = useState(() => searchParams.get("mode") === "solid");
   const [copiedCode, setCopiedCode] = useState(false);
   const [copyBurstTick, setCopyBurstTick] = useState(0);
+  const [gravityMode, setGravityMode] = useState(false);
+  const [frozenGravityLines, setFrozenGravityLines] = useState<CodeLine[] | null>(null);
+  const rapidClickTimestampsRef = useRef<number[]>([]);
   const [copiedLogo, setCopiedLogo] = useState(false);
   const [copyLogoHovered, setCopyLogoHovered] = useState(false);
   const [activeFramework, setActiveFramework] = useState<FrameworkId>("react");
@@ -1423,12 +1516,63 @@ export function IconDetail({
   );
 
   const handleCodeCopy = useCallback(async () => {
+    if (gravityMode) return;
     playConfetti();
     setCopyBurstTick((value) => value + 1);
-    await navigator.clipboard.writeText(copyableCode);
+
+    // Rapid-click detection runs BEFORE the clipboard await so the
+    // easter egg still fires if writeText rejects (e.g. unfocused doc).
+    // 5 clicks within a 1.5s sliding window trips it; reduced-motion
+    // users are spared.
+    if (!prefersReducedMotion) {
+      const now =
+        typeof performance !== "undefined" ? performance.now() : Date.now();
+      const RAPID_WINDOW_MS = 1500;
+      const recent = rapidClickTimestampsRef.current.filter(
+        (timestamp) => now - timestamp < RAPID_WINDOW_MS
+      );
+      recent.push(now);
+      rapidClickTimestampsRef.current = recent;
+      if (recent.length >= 5) {
+        rapidClickTimestampsRef.current = [];
+        setFrozenGravityLines(codeLines);
+        setGravityMode(true);
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(copyableCode);
+    } catch {
+      // Clipboard permissions can fail (unfocused window, insecure
+      // context); the rapid-click effect above is unaffected.
+      return;
+    }
     setCopiedCode(true);
     window.setTimeout(() => setCopiedCode(false), 1800);
-  }, [copyableCode, playConfetti]);
+  }, [
+    codeLines,
+    copyableCode,
+    gravityMode,
+    playConfetti,
+    prefersReducedMotion,
+  ]);
+
+  useEffect(() => {
+    if (!gravityMode) return;
+    const timer = window.setTimeout(() => {
+      setGravityMode(false);
+    }, 5000);
+    return () => window.clearTimeout(timer);
+  }, [gravityMode]);
+
+  useEffect(() => {
+    if (gravityMode || !frozenGravityLines) return;
+    // Hold the frozen snapshot through the exit fade, then drop it.
+    const timer = window.setTimeout(() => {
+      setFrozenGravityLines(null);
+    }, 600);
+    return () => window.clearTimeout(timer);
+  }, [gravityMode, frozenGravityLines]);
 
   const handleLogoCopy = useCallback(async () => {
     if (typeof window === "undefined") return;
@@ -2135,20 +2279,39 @@ export function IconDetail({
                         }}
                       >
                         <AnimatePresence mode="popLayout" initial={false}>
-                          <motion.div
-                            key={activeFramework}
-                            initial={{ opacity: 0, scale: 0.985 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.985 }}
-                            transition={{ type: "spring", duration: 0.28, bounce: 0 }}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              willChange: "transform, opacity",
-                            }}
-                          >
-                            <HighlightedCode lines={codeLines} />
-                          </motion.div>
+                          {gravityMode ? (
+                            <motion.div
+                              key="gravity"
+                              initial={{ opacity: 1 }}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                willChange: "opacity",
+                              }}
+                            >
+                              <FallingCode
+                                lines={frozenGravityLines ?? codeLines}
+                              />
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              key={activeFramework}
+                              initial={{ opacity: 0, scale: 0.985 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.985 }}
+                              transition={{ type: "spring", duration: 0.28, bounce: 0 }}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                willChange: "transform, opacity",
+                              }}
+                            >
+                              <HighlightedCode lines={codeLines} />
+                            </motion.div>
+                          )}
                         </AnimatePresence>
                       </div>
                     </div>
