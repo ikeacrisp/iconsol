@@ -64,7 +64,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className={`${GeistSans.className} ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
         <MobileRouteGuard />
         <AudioProvider>{children}</AudioProvider>
         {showAgentation && <AgentationToolbar enabled />}

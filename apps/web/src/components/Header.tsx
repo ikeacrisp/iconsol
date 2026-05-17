@@ -570,11 +570,12 @@ export function AgentMenu({
   return (
     <motion.div
       role="menu"
+      key="menu"
       className="flex flex-col frost-dither"
-      initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-      exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-      transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+      initial={{ opacity: 0, y: "calc(-100% - 4px)", filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{ opacity: 0, y: "-12px", filter: "blur(4px)" }}
+      transition={{ type: "spring", duration: 0.45, bounce: 0 }}
       style={{
         position: "absolute",
         top: "calc(100% + 12px)",
@@ -587,7 +588,7 @@ export function AgentMenu({
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
         boxShadow: "0 10px 28px rgba(0,0,0,0.10)",
-        transformOrigin: "top right",
+        transformOrigin: "top center",
         zIndex: 100,
         willChange: "transform, opacity, filter",
       }}
