@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import type { MouseEvent, ReactNode } from "react";
 import {
   useCallback,
@@ -426,6 +426,13 @@ export function IconGrid({ icons, categories }: IconGridProps) {
   const hoverLockCardRef = useRef<string | null>(null);
   const hoverLockPointerRef = useRef<{ x: number; y: number } | null>(null);
   const hoverLockStartedAtRef = useRef(0);
+  // Which card the purple highlight is currently anchored to, so the
+  // scroll-clamp pass knows whose position to track / clamp.
+  const activeHighlightCardRef = useRef<string | null>(null);
+  // Timestamp of the last mousemove on the scroll area. The scroll-clamp
+  // only engages when the cursor has been still long enough that the
+  // user is clearly scrolling, not pointing.
+  const lastScrollMouseAtRef = useRef(0);
   const toggleActiveX = useMotionValue(0);
   const toggleActiveWidth = useMotionValue(0);
   const cardX = useMotionValue(0);
@@ -606,6 +613,110 @@ export function IconGrid({ icons, categories }: IconGridProps) {
     };
   }, []);
 
+  // Single rAF-throttled scroll listener that does two things in one pass:
+  //   1. Per-card edge blur: each card's filter is set based on its pixel
+  //      distance to the scroll-container's top/bottom edges. Cards in
+  //      the middle band always read blur(0px) so the "whole grid blurs
+  //      on fast scroll" issue (which the per-card useScroll subscription
+  //      caused, because each card's progress raced through the edge
+  //      zones during fast scroll) cannot happen — only cards literally
+  //      near the visible edges get a non-zero filter.
+  //   2. Highlight clamp: when the user is scrolling without moving the
+  //      cursor, the purple highlight stays anchored to the safe zone
+  //      under the "All Logo's" / Brand-Solid header (when its card has
+  //      scrolled above the viewport) or above the footer (when its
+  //      card has scrolled below).
+  useEffect(() => {
+    const scroller = scrollContainerRef.current;
+    if (!scroller) return;
+
+    const EDGE_BLUR_ZONE = 110; // px from container edge where blur ramps in
+    const MAX_EDGE_BLUR = 8;
+    const CARD_SIZE_PX = 160;
+    const SAFE_TOP = 90; // matches the masked label-row zone
+    const SAFE_BOTTOM = 90; // matches the footer fade above the scroll bottom
+    const SCROLL_ONLY_GRACE_MS = 120;
+
+    let rafId = 0;
+
+    const tick = () => {
+      rafId = 0;
+      const sb = scroller.getBoundingClientRect();
+
+      // 1) Per-card edge blur
+      const refs = iconRefs.current;
+      for (const key in refs) {
+        const link = refs[key];
+        if (!link) continue;
+        const frame = link.querySelector<HTMLElement>("[data-icon-frame]");
+        if (!frame) continue;
+        const r = link.getBoundingClientRect();
+        // Skip cards that aren't anywhere near the viewport.
+        if (r.bottom < sb.top - 200 || r.top > sb.bottom + 200) {
+          if (frame.style.filter) frame.style.filter = "";
+          continue;
+        }
+        const cy = r.top + r.height / 2;
+        const distFromTop = cy - sb.top;
+        const distFromBottom = sb.bottom - cy;
+        const minDist = Math.min(distFromTop, distFromBottom);
+        let blur = 0;
+        if (minDist < EDGE_BLUR_ZONE) {
+          const t = Math.max(0, minDist) / EDGE_BLUR_ZONE;
+          blur = Math.round((1 - t) * MAX_EDGE_BLUR);
+        }
+        const desired = blur > 0 ? `blur(${blur}px)` : "";
+        if (frame.style.filter !== desired) frame.style.filter = desired;
+      }
+
+      // 2) Highlight clamp (only while scrolling without active mouse movement)
+      const now = performance.now();
+      const scrollOnly = now - lastScrollMouseAtRef.current > SCROLL_ONLY_GRACE_MS;
+      const activeId = activeHighlightCardRef.current;
+      if (scrollOnly && activeId) {
+        const node = iconRefs.current[activeId];
+        const grid = gridContainerRef.current;
+        if (node && grid) {
+          const gr = grid.getBoundingClientRect();
+          const nodeRect = node.getBoundingClientRect();
+          const cardYInGrid = nodeRect.top - gr.top;
+          const visibleTopInGrid = sb.top - gr.top + SAFE_TOP;
+          const visibleBottomInGrid =
+            sb.bottom - gr.top - SAFE_BOTTOM - CARD_SIZE_PX;
+          let clamped = cardYInGrid;
+          if (cardYInGrid < visibleTopInGrid) clamped = visibleTopInGrid;
+          else if (cardYInGrid > visibleBottomInGrid)
+            clamped = visibleBottomInGrid;
+          // Only write when the value actually moves the spring's target,
+          // so we don't keep retargeting the spring with the same number.
+          if (Math.abs(cardY.get() - clamped) > 0.5) {
+            cardY.set(clamped);
+          }
+        }
+      }
+    };
+
+    const scheduleTick = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(tick);
+    };
+
+    const onMouseMove = () => {
+      lastScrollMouseAtRef.current = performance.now();
+    };
+
+    scroller.addEventListener("scroll", scheduleTick, { passive: true });
+    scroller.addEventListener("mousemove", onMouseMove, { passive: true });
+    // Initial pass so the edge cards blur even before any scroll event.
+    scheduleTick();
+
+    return () => {
+      scroller.removeEventListener("scroll", scheduleTick);
+      scroller.removeEventListener("mousemove", onMouseMove);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [cardY]);
+
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { all: icons.length };
@@ -685,6 +796,8 @@ export function IconGrid({ icons, categories }: IconGridProps) {
       const element = iconRefs.current[id];
       const gridElement = gridContainerRef.current;
       if (!element || !gridElement) return;
+
+      activeHighlightCardRef.current = id;
 
       // Auto-scroll if card is near the edge — skip while snap-locked
       const scrollEl = scrollContainerRef.current;
@@ -1442,6 +1555,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                       releaseHoverLift();
                       releaseHoverLock();
                       hoverLiftArmedRef.current = true;
+                      activeHighlightCardRef.current = null;
                       cardOpacity.set(0);
                     }}
                   >
@@ -1459,6 +1573,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                         y: springCardY,
                         opacity: springCardOpacity,
                         background: "rgba(116,120,255,0.05)",
+                        zIndex: 10,
                       }}
                     />
                     {filtered.map((icon, idx) => {
@@ -1471,7 +1586,6 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                           registerRef={(node) => {
                             iconRefs.current[icon.id] = node;
                           }}
-                          scrollContainerRef={scrollContainerRef}
                         />
                       );
 
@@ -1507,14 +1621,12 @@ function IconCard({
   onActivate,
   onDeactivate,
   registerRef,
-  scrollContainerRef,
 }: {
   icon: Icon;
   solidMode: boolean;
   onActivate: (pointer?: { x: number; y: number }) => void;
   onDeactivate: () => void;
   registerRef: (node: HTMLAnchorElement | null) => void;
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const router = useRouter();
   const playSwoosh = useSound(swoosh, { volume: 0.35 });
@@ -1523,36 +1635,6 @@ function IconCard({
   const href = solidMode ? `/icon/${icon.id}?mode=solid` : `/icon/${icon.id}`;
   const showNeutralBrandShell =
     !solidMode && !logoVariantHasIntrinsicSurface(icon.id, "brand");
-
-  // Depth-of-field blur tied to scroll position: a card is sharp while
-  // it sits in the middle of the scroll viewport and blurs toward 0 and
-  // 1 (the top and bottom edges, i.e. nearest the header / footer).
-  const cardRef = useRef<HTMLAnchorElement | null>(null);
-  const setCardRef = useCallback(
-    (node: HTMLAnchorElement | null) => {
-      cardRef.current = node;
-      registerRef(node);
-    },
-    [registerRef]
-  );
-  const { scrollYProgress } = useScroll({
-    target: cardRef,
-    container: scrollContainerRef,
-    offset: ["start end", "end start"],
-  });
-  const edgeBlur = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [8, 0, 0, 8]
-  );
-  // Round to whole pixels so most frames in the middle "sharp" band
-  // resolve to the same `blur(0px)` string and the browser skips the
-  // style write entirely — the dominant cost when 60+ cards each
-  // recompute on every scroll tick.
-  const edgeFilter = useTransform(
-    edgeBlur,
-    (value) => `blur(${Math.round(value)}px)`
-  );
 
   const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -1601,7 +1683,7 @@ function IconCard({
   return (
     <Link
       href={href}
-      ref={setCardRef}
+      ref={registerRef}
       className="pressable flex flex-col items-center"
       style={{
         position: "relative",
@@ -1629,7 +1711,7 @@ function IconCard({
       onBlur={onDeactivate}
       onClick={handleNavigate}
     >
-      <motion.div
+      <div
         className="dashboard-icon-card flex flex-col items-center justify-center"
         data-icon-frame=""
         data-icon-card=""
@@ -1641,7 +1723,6 @@ function IconCard({
             ? "rgba(255,255,255,0.05)"
             : "transparent",
           transition: "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
-          filter: edgeFilter,
         }}
       >
         <div
@@ -1695,7 +1776,7 @@ function IconCard({
             {icon.name}
           </span>
         </div>
-      </motion.div>
+      </div>
     </Link>
   );
 }
