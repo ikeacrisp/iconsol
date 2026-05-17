@@ -1545,7 +1545,14 @@ function IconCard({
     [0, 0.2, 0.8, 1],
     [8, 0, 0, 8]
   );
-  const edgeFilter = useTransform(edgeBlur, (value) => `blur(${value}px)`);
+  // Round to whole pixels so most frames in the middle "sharp" band
+  // resolve to the same `blur(0px)` string and the browser skips the
+  // style write entirely — the dominant cost when 60+ cards each
+  // recompute on every scroll tick.
+  const edgeFilter = useTransform(
+    edgeBlur,
+    (value) => `blur(${Math.round(value)}px)`
+  );
 
   const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -1635,7 +1642,6 @@ function IconCard({
             : "transparent",
           transition: "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
           filter: edgeFilter,
-          willChange: "filter",
         }}
       >
         <div

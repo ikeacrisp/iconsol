@@ -2012,8 +2012,8 @@ export function IconDetail({
                         onPointerLeave={() => setCopyLogoHovered(false)}
                         onFocus={() => setCopyLogoHovered(true)}
                         onBlur={() => setCopyLogoHovered(false)}
-                        whileTap={{ scale: 0.8 }}
-                        transition={{ type: "spring", duration: 0.5, bounce: 0 }}
+                        whileTap={{ scale: 0.96 }}
+                        transition={{ type: "spring", duration: 0.28, bounce: 0 }}
                         className="flex items-center justify-center frost-dither"
                         style={{
                           width: 110,
