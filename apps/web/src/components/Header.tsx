@@ -528,9 +528,9 @@ export function AgentMenu({
       className="flex flex-col frost-dither"
       style={{
         position: "absolute",
-        top: "calc(100% + 8px)",
+        top: "calc(100% + 12px)",
         right: 0,
-        width: 188,
+        width: 220,
         padding: 6,
         gap: 2,
         borderRadius: 8,
