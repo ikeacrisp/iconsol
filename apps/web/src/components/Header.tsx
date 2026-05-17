@@ -473,9 +473,17 @@ function AgentMenuItem({
         gap: 8,
         padding: 8,
         borderRadius: isActive ? 6 : 8,
-        background: isActive ? "rgba(255,255,255,0.03)" : "transparent",
+        background: copied
+          ? "rgba(40,224,185,0.08)"
+          : hovered
+            ? "rgba(255,255,255,0.03)"
+            : "transparent",
         textAlign: "left",
-        color: isActive ? "#fff" : "rgba(255,255,255,0.4)",
+        color: copied
+          ? "#28E0B9"
+          : hovered
+            ? "#fff"
+            : "rgba(255,255,255,0.4)",
         transition:
           "background 160ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
@@ -485,29 +493,66 @@ function AgentMenuItem({
           display: "inline-flex",
           alignItems: "center",
           justifyContent: "center",
-          width: 14,
-          height: 14,
+          width: 16,
+          height: 16,
           flexShrink: 0,
-          color: copied ? "#28E0B9" : "currentColor",
+          color: "currentColor",
         }}
       >
-        {copied ? (
-          <MaskIcon src="/ui/check.svg" size={14} color="#28E0B9" opacity={1} />
-        ) : (
-          icon
-        )}
+        {icon}
       </span>
       <span
         style={{
           fontSize: 12,
           fontWeight: 500,
           lineHeight: "normal",
-          color: copied ? "rgba(40,224,185,1)" : "currentColor",
-          transition: "color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
+          color: "currentColor",
           whiteSpace: "nowrap",
         }}
       >
-        {copied ? "Copied" : title}
+        {title}
+      </span>
+      <span
+        aria-hidden={!copied}
+        style={{
+          marginLeft: "auto",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 16,
+          height: 16,
+          flexShrink: 0,
+        }}
+      >
+        <AnimatePresence initial={false}>
+          {copied ? (
+            <motion.span
+              key="check"
+              initial={{ opacity: 0, scale: 0.5, filter: "blur(6px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.5, filter: "blur(6px)" }}
+              transition={{
+                duration: 0.22,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 16,
+                height: 16,
+                willChange: "transform, opacity, filter",
+              }}
+            >
+              <MaskIcon
+                src="/ui/check.svg"
+                size={16}
+                color="#28E0B9"
+                opacity={1}
+              />
+            </motion.span>
+          ) : null}
+        </AnimatePresence>
       </span>
     </button>
   );
@@ -537,7 +582,7 @@ export function AgentMenu({
         background: "rgba(255,255,255,0.03)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        boxShadow: "0 18px 48px rgba(0,0,0,0.42)",
+        boxShadow: "0 10px 28px rgba(0,0,0,0.28)",
         animation: "agentMenuIn 180ms cubic-bezier(0.16, 1, 0.3, 1)",
         transformOrigin: "top right",
         zIndex: 100,
