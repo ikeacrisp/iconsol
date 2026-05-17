@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import type { MouseEvent, ReactNode } from "react";
 import {
   useCallback,
@@ -1471,6 +1471,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                           registerRef={(node) => {
                             iconRefs.current[icon.id] = node;
                           }}
+                          scrollContainerRef={scrollContainerRef}
                         />
                       );
 
@@ -1506,12 +1507,14 @@ function IconCard({
   onActivate,
   onDeactivate,
   registerRef,
+  scrollContainerRef,
 }: {
   icon: Icon;
   solidMode: boolean;
   onActivate: (pointer?: { x: number; y: number }) => void;
   onDeactivate: () => void;
   registerRef: (node: HTMLAnchorElement | null) => void;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const router = useRouter();
   const playSwoosh = useSound(swoosh, { volume: 0.35 });
@@ -1520,6 +1523,29 @@ function IconCard({
   const href = solidMode ? `/icon/${icon.id}?mode=solid` : `/icon/${icon.id}`;
   const showNeutralBrandShell =
     !solidMode && !logoVariantHasIntrinsicSurface(icon.id, "brand");
+
+  // Depth-of-field blur tied to scroll position: a card is sharp while
+  // it sits in the middle of the scroll viewport and blurs toward 0 and
+  // 1 (the top and bottom edges, i.e. nearest the header / footer).
+  const cardRef = useRef<HTMLAnchorElement | null>(null);
+  const setCardRef = useCallback(
+    (node: HTMLAnchorElement | null) => {
+      cardRef.current = node;
+      registerRef(node);
+    },
+    [registerRef]
+  );
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    container: scrollContainerRef,
+    offset: ["start end", "end start"],
+  });
+  const edgeBlur = useTransform(
+    scrollYProgress,
+    [0, 0.2, 0.8, 1],
+    [8, 0, 0, 8]
+  );
+  const edgeFilter = useTransform(edgeBlur, (value) => `blur(${value}px)`);
 
   const handleNavigate = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
@@ -1568,7 +1594,7 @@ function IconCard({
   return (
     <Link
       href={href}
-      ref={registerRef}
+      ref={setCardRef}
       className="pressable flex flex-col items-center"
       style={{
         position: "relative",
@@ -1596,7 +1622,7 @@ function IconCard({
       onBlur={onDeactivate}
       onClick={handleNavigate}
     >
-      <div
+      <motion.div
         className="dashboard-icon-card flex flex-col items-center justify-center"
         data-icon-frame=""
         data-icon-card=""
@@ -1608,6 +1634,8 @@ function IconCard({
             ? "rgba(255,255,255,0.05)"
             : "transparent",
           transition: "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+          filter: edgeFilter,
+          willChange: "filter",
         }}
       >
         <div
@@ -1661,7 +1689,7 @@ function IconCard({
             {icon.name}
           </span>
         </div>
-      </div>
+      </motion.div>
     </Link>
   );
 }
