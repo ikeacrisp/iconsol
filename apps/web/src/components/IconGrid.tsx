@@ -944,7 +944,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                       onPointerLeave={() => setHoveredCategory((prev) => (prev === category.value ? null : prev))}
                       onFocus={() => setHoveredCategory(category.value)}
                       onBlur={() => setHoveredCategory(null)}
-                      className="flex items-center justify-between overflow-hidden"
+                      className="pressable pressable-soft flex items-center justify-between overflow-hidden"
                       style={{
                         position: "relative",
                         zIndex: 2,
