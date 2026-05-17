@@ -70,8 +70,12 @@ input::placeholder {
 }
 
 .pressable {
+  /* Tap/click feedback: critically-damped spring-style settle.
+     Mirrors framer-motion's { type: "spring", duration: 0.5, bounce: 0 }
+     using a smooth ease-out cubic-bezier so every button on the site
+     (including the sidebar category rows) shares one press behavior. */
   transition:
-    transform 0.16s var(--ease-ui),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.18s var(--ease-ui),
     background-color 0.18s var(--ease-ui),
     border-color 0.18s var(--ease-ui),
@@ -81,12 +85,9 @@ input::placeholder {
   transform: translateZ(0);
 }
 
-.pressable:active {
-  transform: scale(0.97);
-}
-
+.pressable:active,
 .pressable-soft:active {
-  transform: scale(0.985);
+  transform: scale(0.8);
 }
 
 ::-webkit-scrollbar {

@@ -572,7 +572,7 @@ export function AgentMenu({
       role="menu"
       key="menu"
       className="flex flex-col frost-dither"
-      initial={{ opacity: 0, y: "calc(-100% - 4px)", filter: "blur(4px)" }}
+      initial={{ opacity: 0, y: "-12px", filter: "blur(4px)" }}
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, y: "-12px", filter: "blur(4px)" }}
       transition={{ type: "spring", duration: 0.45, bounce: 0 }}
