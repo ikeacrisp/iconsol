@@ -295,20 +295,6 @@ input[type="text"]:focus-visible {
   }
 }
 
-@keyframes agentMenuIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.94) translateY(-4px);
-    filter: blur(8px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-    filter: blur(0);
-  }
-}
-
 @keyframes mobile-search-nudge {
   0% { transform: translateX(0); }
   16% { transform: translateX(-10px); }

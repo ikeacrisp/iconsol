@@ -539,14 +539,14 @@ function AgentMenuItem({
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: 16,
-                height: 16,
+                width: 12,
+                height: 12,
                 willChange: "transform, opacity, filter",
               }}
             >
               <MaskIcon
                 src="/ui/check.svg"
-                size={16}
+                size={12}
                 color="#28E0B9"
                 opacity={1}
               />
@@ -568,9 +568,13 @@ export function AgentMenu({
   onCopyMcp: () => void;
 }) {
   return (
-    <div
+    <motion.div
       role="menu"
       className="flex flex-col frost-dither"
+      initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+      transition={{ type: "spring", duration: 0.3, bounce: 0 }}
       style={{
         position: "absolute",
         top: "calc(100% + 12px)",
@@ -582,8 +586,7 @@ export function AgentMenu({
         background: "rgba(255,255,255,0.03)",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
-        boxShadow: "0 10px 28px rgba(0,0,0,0.28)",
-        animation: "agentMenuIn 180ms cubic-bezier(0.16, 1, 0.3, 1)",
+        boxShadow: "0 10px 28px rgba(0,0,0,0.10)",
         transformOrigin: "top right",
         zIndex: 100,
         willChange: "transform, opacity, filter",
@@ -601,7 +604,7 @@ export function AgentMenu({
         copied={copiedItem === "mcp"}
         onClick={onCopyMcp}
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -1254,21 +1257,24 @@ export function Header({
                 </button>
               </div>
 
-              {agentMenuOpen ? (
-                <AgentMenu
-                  copiedItem={copiedAgentItem}
-                  onCopyLlmsTxt={async () => {
-                    playConfetti();
-                    await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
-                    flashCopiedItem("llms");
-                  }}
-                  onCopyMcp={async () => {
-                    playConfetti();
-                    await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
-                    flashCopiedItem("mcp");
-                  }}
-                />
-              ) : null}
+              <AnimatePresence initial={false}>
+                {agentMenuOpen ? (
+                  <AgentMenu
+                    key="agent-menu"
+                    copiedItem={copiedAgentItem}
+                    onCopyLlmsTxt={async () => {
+                      playConfetti();
+                      await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
+                      flashCopiedItem("llms");
+                    }}
+                    onCopyMcp={async () => {
+                      playConfetti();
+                      await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
+                      flashCopiedItem("mcp");
+                    }}
+                  />
+                ) : null}
+              </AnimatePresence>
               </div>
             </div>
           </div>
