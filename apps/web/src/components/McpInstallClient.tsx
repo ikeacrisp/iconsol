@@ -156,8 +156,8 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
     <div
       ref={scrollRef}
       style={{
-        flex: 1,
-        minHeight: 0,
+        position: "absolute",
+        inset: 0,
         overflowY: "auto",
         overflowX: "hidden",
       }}
@@ -167,7 +167,10 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
           width: "100%",
           maxWidth: 880,
           margin: "0 auto",
-          padding: "64px 24px 96px",
+          // 84px = the home-variant Header's intrinsic height
+          // (padding 24 + min-height 36 + padding 24); +24px so the
+          // title sits 24px below the header container.
+          padding: "108px 24px 120px",
         }}
       >
         <ScrollRevealBlock scrollRef={scrollRef}>

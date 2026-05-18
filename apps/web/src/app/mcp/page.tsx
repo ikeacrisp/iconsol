@@ -17,17 +17,16 @@ export default function McpPage() {
   return (
     <div
       style={{
-        // Lock the outer page to the viewport height — only the body
-        // (rendered inside McpInstallClient) scrolls. The whole page
-        // never grows past one screen so the Header stays pinned to the
-        // top and the Footer stays pinned to the bottom.
+        // Lock the outer page to the viewport height and let the inner
+        // body scroller take the whole stage. Header and Footer overlay
+        // on top of it (both have transparent backgrounds), so the body
+        // scrolls UNDER them rather than being clipped between them.
         height: "100dvh",
         minHeight: "100dvh",
         maxHeight: "100dvh",
         overflow: "hidden",
+        position: "relative",
         color: "#fff",
-        display: "flex",
-        flexDirection: "column",
         backgroundColor: "#0d0f12",
         backgroundImage: PAGE_BACKGROUND_IMAGE,
         backgroundRepeat: "no-repeat, no-repeat, no-repeat",
@@ -36,9 +35,35 @@ export default function McpPage() {
         isolation: "isolate",
       }}
     >
-      <Header variant="home" />
       <McpInstallClient configSnippet={MCP_CONFIG_SNIPPET} />
-      <Footer variant="home" />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ pointerEvents: "auto" }}>
+          <Header variant="home" />
+        </div>
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          pointerEvents: "none",
+        }}
+      >
+        <div style={{ pointerEvents: "auto" }}>
+          <Footer variant="home" />
+        </div>
+      </div>
     </div>
   );
 }
