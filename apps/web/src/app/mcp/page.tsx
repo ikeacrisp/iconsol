@@ -17,7 +17,14 @@ export default function McpPage() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        // Lock the outer page to the viewport height — only the body
+        // (rendered inside McpInstallClient) scrolls. The whole page
+        // never grows past one screen so the Header stays pinned to the
+        // top and the Footer stays pinned to the bottom.
+        height: "100dvh",
+        minHeight: "100dvh",
+        maxHeight: "100dvh",
+        overflow: "hidden",
         color: "#fff",
         display: "flex",
         flexDirection: "column",

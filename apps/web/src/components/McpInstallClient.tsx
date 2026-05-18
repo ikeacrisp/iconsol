@@ -137,6 +137,10 @@ const HOVER_SPRING = { stiffness: 400, damping: 35 } as const;
 
 export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
   const [activeTool, setActiveTool] = useState<ToolId>("claude-code");
+  // The scrollable wrapper around the main content. Stays in the page's
+  // flex column between <Header /> and <Footer />, takes flex:1 + overflow:auto,
+  // so the page itself never grows past 100dvh — only the body scrolls.
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const active = useMemo(
     () => TOOLS.find((tool) => tool.id === activeTool) ?? TOOLS[0],
@@ -149,47 +153,124 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
   );
 
   return (
-    <main
+    <div
+      ref={scrollRef}
       style={{
         flex: 1,
-        width: "100%",
-        maxWidth: 880,
-        margin: "0 auto",
-        padding: "64px 24px 96px",
+        minHeight: 0,
+        overflowY: "auto",
+        overflowX: "hidden",
       }}
     >
-      <h1
+      <main
         style={{
-          fontSize: 32,
-          lineHeight: 1.1,
-          fontWeight: 600,
-          marginBottom: 12,
-          letterSpacing: "-0.01em",
-          textWrap: "balance",
+          width: "100%",
+          maxWidth: 880,
+          margin: "0 auto",
+          padding: "64px 24px 96px",
         }}
       >
-        Install the iconsol MCP server
-      </h1>
-      <p
-        style={{
-          fontSize: 15,
-          lineHeight: 1.55,
-          color: "rgba(255,255,255,0.6)",
-          marginBottom: 40,
-          maxWidth: 580,
-          textWrap: "balance",
-        }}
-      >
-        Point your AI agent at <code style={inlineCode}>iconsol.me/api/mcp</code>{" "}
-        to let it search, preview, and embed every logo in the directory directly
-        in your editor or chat.
-      </p>
+        <ScrollRevealBlock scrollRef={scrollRef}>
+          <h1
+            style={{
+              fontSize: 32,
+              lineHeight: 1.1,
+              fontWeight: 600,
+              marginBottom: 12,
+              letterSpacing: "-0.01em",
+              textWrap: "balance",
+            }}
+          >
+            Install the iconsol MCP server
+          </h1>
+          <p
+            style={{
+              fontSize: 15,
+              lineHeight: 1.55,
+              color: "rgba(255,255,255,0.6)",
+              marginBottom: 40,
+              maxWidth: 580,
+              textWrap: "balance",
+            }}
+          >
+            Point your AI agent at{" "}
+            <code style={inlineCode}>iconsol.me/api/mcp</code> to let it search,
+            preview, and embed every logo in the directory directly in your
+            editor or chat.
+          </p>
+        </ScrollRevealBlock>
 
-      <Section heading="1. Pick your agent">
-        <ToolTabs activeTool={activeTool} onSelect={setActiveTool} />
-      </Section>
+        <ScrollRevealBlock scrollRef={scrollRef}>
+          <Section heading="1. Pick your agent">
+            <ToolTabs activeTool={activeTool} onSelect={setActiveTool} />
+          </Section>
+        </ScrollRevealBlock>
 
-      <Section heading={`2. Add to ${active.name}`}>
+        <ScrollRevealBlock scrollRef={scrollRef}>
+          <Section heading={`2. Add to ${active.name}`}>
+            <AnimatedToolBody tool={active} snippet={activeSnippet} />
+          </Section>
+        </ScrollRevealBlock>
+
+        <ScrollRevealBlock scrollRef={scrollRef}>
+          <Section heading="3. Restart your agent">
+            <p
+              style={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: "rgba(255,255,255,0.6)",
+                textWrap: "balance",
+              }}
+            >
+              Some agents need to be relaunched to pick up new MCP servers.
+              After that, ask it to{" "}
+              <span style={{ color: "rgba(255,255,255,0.85)" }}>
+                “find the Solana logo”
+              </span>{" "}
+              and you should see iconsol respond.
+            </p>
+          </Section>
+        </ScrollRevealBlock>
+      </main>
+    </div>
+  );
+}
+
+// Wraps a chunk of body content so it springs from blurred → sharp as it
+// scrolls into the visible portion of the body scroller. When the content
+// passes behind the header or footer (less than 50 % in view of the scroll
+// container) it goes back to the blurred initial state.
+function ScrollRevealBlock({
+  scrollRef,
+  children,
+}: {
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+  children: ReactNode;
+}) {
+  return (
+    <motion.div
+      initial={{ filter: "blur(8px)", opacity: 0 }}
+      whileInView={{ filter: "blur(0px)", opacity: 1 }}
+      viewport={{ root: scrollRef, amount: 0.5 }}
+      transition={{ type: "spring", duration: 0.6, bounce: 0 }}
+      style={{ willChange: "filter, opacity" }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// Smoothly handles the 2 things that change when the user picks a different
+// agent: the descriptive paragraph + config path text, AND the ConfigBlock
+// height. Both inner blocks are crossfaded by AnimatePresence (no layout
+// scaling, so nothing visually stretches) and the wrapper around the
+// ConfigBlock animates `height` from the previously-measured value to the
+// next-measured value so the panel resizes smoothly without squishing the
+// pre tag.
+function AnimatedToolBody({ tool, snippet }: { tool: Tool; snippet: string }) {
+  return (
+    <>
+      <AnimatedTextSwap toolId={tool.id}>
         <p
           style={{
             fontSize: 14,
@@ -199,7 +280,7 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
             textWrap: "balance",
           }}
         >
-          {active.description}
+          {tool.description}
         </p>
         <p
           style={{
@@ -211,29 +292,40 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
             marginBottom: 12,
           }}
         >
-          {active.configPath}
+          {tool.configPath}
         </p>
-        <ConfigBlock snippet={activeSnippet} />
-      </Section>
+      </AnimatedTextSwap>
+      <ConfigBlock snippet={snippet} />
+    </>
+  );
+}
 
-      <Section heading="3. Restart your agent">
-        <p
-          style={{
-            fontSize: 14,
-            lineHeight: 1.6,
-            color: "rgba(255,255,255,0.6)",
-            textWrap: "balance",
-          }}
+// Crossfades two pieces of copy when the active tool changes. Uses absolute
+// positioning during the transition so the OUTGOING node doesn't push the
+// incoming one down — both nodes occupy the same spot and slide via opacity
+// + a tiny y-offset, then the incoming node settles into normal flow.
+function AnimatedTextSwap({
+  toolId,
+  children,
+}: {
+  toolId: string;
+  children: ReactNode;
+}) {
+  return (
+    <div style={{ position: "relative" }}>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.div
+          key={toolId}
+          initial={{ opacity: 0, y: 4, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -4, filter: "blur(4px)" }}
+          transition={{ type: "spring", duration: 0.28, bounce: 0 }}
+          style={{ willChange: "transform, opacity, filter" }}
         >
-          Some agents need to be relaunched to pick up new MCP servers. After
-          that, ask it to{" "}
-          <span style={{ color: "rgba(255,255,255,0.85)" }}>
-            “find the Solana logo”
-          </span>{" "}
-          and you should see iconsol respond.
-        </p>
-      </Section>
-    </main>
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -520,8 +612,33 @@ function CopyIcon({ copied = false }: { copied?: boolean }) {
 function ConfigBlock({ snippet }: { snippet: string }) {
   const [copied, setCopied] = useState(false);
   const [burstTick, setBurstTick] = useState(0);
+  const [measuredHeight, setMeasuredHeight] = useState<number | null>(null);
+  const measureRef = useRef<HTMLDivElement | null>(null);
   const playConfetti = useSound(confetti);
   const playSync = useSound(sync);
+
+  // Re-measure the inner content (which is keyed by snippet via
+  // AnimatePresence below) every time the snippet changes. We animate the
+  // outer wrapper's `height` to this number so the panel resizes smoothly
+  // — without applying `layout`/scale to the inner content, which is what
+  // was causing the previous stretchy "squish" effect on the pre tag.
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+    const next = measureRef.current.offsetHeight;
+    setMeasuredHeight(next);
+  }, [snippet]);
+
+  // Track viewport size changes so the height stays accurate across
+  // resizes (font load, scrollbar toggle, etc).
+  useEffect(() => {
+    const node = measureRef.current;
+    if (!node || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(() => {
+      setMeasuredHeight(node.offsetHeight);
+    });
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, [snippet]);
 
   const onCopy = () => {
     playSync();
@@ -537,12 +654,7 @@ function ConfigBlock({ snippet }: { snippet: string }) {
   };
 
   return (
-    <motion.div
-      // Layout animation: when the snippet swaps (e.g. JSON ⇄ TOML),
-      // pre's natural height changes — motion.div with `layout` measures
-      // before/after and springs the outer container's size.
-      layout
-      transition={{ type: "spring", duration: 0.4, bounce: 0 }}
+    <div
       style={{
         position: "relative",
         border: "1px solid #16181B",
@@ -551,23 +663,39 @@ function ConfigBlock({ snippet }: { snippet: string }) {
         overflow: "hidden",
       }}
     >
-      <pre
-        style={{
-          margin: 0,
-          padding: "20px 56px 20px 20px",
-          fontFamily:
-            'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
-          fontSize: 12,
-          lineHeight: "20px",
-          color: "rgba(255,255,255,0.85)",
-          whiteSpace: "pre",
-          overflowX: "auto",
-          position: "relative",
-          zIndex: 0,
-        }}
+      <motion.div
+        animate={{ height: measuredHeight ?? "auto" }}
+        transition={{ type: "spring", duration: 0.4, bounce: 0 }}
+        style={{ position: "relative", overflow: "hidden" }}
       >
-        {snippet}
-      </pre>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div
+            key={snippet}
+            ref={measureRef}
+            initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+            transition={{ type: "spring", duration: 0.32, bounce: 0 }}
+            style={{ willChange: "transform, opacity, filter" }}
+          >
+            <pre
+              style={{
+                margin: 0,
+                padding: "20px 56px 20px 20px",
+                fontFamily:
+                  'var(--font-geist-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace',
+                fontSize: 12,
+                lineHeight: "20px",
+                color: "rgba(255,255,255,0.85)",
+                whiteSpace: "pre",
+                overflowX: "auto",
+              }}
+            >
+              {snippet}
+            </pre>
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
 
       <CopyBurstOverlay trigger={burstTick} />
 
@@ -609,7 +737,7 @@ function ConfigBlock({ snippet }: { snippet: string }) {
           <CopyIcon copied={copied} />
         </span>
       </button>
-    </motion.div>
+    </div>
   );
 }
 
