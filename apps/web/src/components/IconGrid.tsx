@@ -633,11 +633,57 @@ export function IconGrid({ icons, categories }: IconGridProps) {
     const EDGE_BLUR_ZONE = 110; // px from container edge where blur ramps in
     const MAX_EDGE_BLUR = 8;
     const CARD_SIZE_PX = 160;
-    const SAFE_TOP = 90; // matches the masked label-row zone
-    const SAFE_BOTTOM = 90; // matches the footer fade above the scroll bottom
+    const SAFE_TOP = 72; // matches the masked label-row zone (top card row baseline)
+    const SAFE_BOTTOM = 72;
     const SCROLL_ONLY_GRACE_MS = 120;
+    const SCROLL_END_DEBOUNCE_MS = 100;
 
     let rafId = 0;
+    let scrollEndTimer: ReturnType<typeof setTimeout> | null = null;
+    let wasClamping = false;
+
+    // Snap the highlight to fit whichever card is currently nearest the
+    // anchored spot (top safe zone or bottom safe zone) after the user
+    // stops scrolling. The match is grid-Y based, then the highlight is
+    // re-anchored to that card so subsequent scrolls reference its true
+    // position again.
+    const snapHighlightToNearestCard = () => {
+      if (!wasClamping) return;
+      const activeId = activeHighlightCardRef.current;
+      if (!activeId) return;
+      const grid = gridContainerRef.current;
+      if (!grid) return;
+      const gr = grid.getBoundingClientRect();
+      const currentY = cardY.get();
+      const refs = iconRefs.current;
+      let bestId: string | null = null;
+      let bestDist = Infinity;
+      let bestX = 0;
+      let bestY = 0;
+      for (const key in refs) {
+        const node = refs[key];
+        if (!node) continue;
+        const r = node.getBoundingClientRect();
+        const yInGrid = r.top - gr.top;
+        const dist = Math.abs(yInGrid - currentY);
+        if (dist < bestDist) {
+          bestDist = dist;
+          bestId = key;
+          bestX = r.left - gr.left;
+          bestY = yInGrid;
+        }
+      }
+      if (bestId) {
+        activeHighlightCardRef.current = bestId;
+        // Hard snap — bypass the spring on both ends so the highlight
+        // perfectly fits the card with no residual easing or overshoot.
+        cardX.jump(bestX);
+        cardY.jump(bestY);
+        springCardX.jump(bestX);
+        springCardY.jump(bestY);
+      }
+      wasClamping = false;
+    };
 
     const tick = () => {
       rafId = 0;
@@ -684,13 +730,23 @@ export function IconGrid({ icons, categories }: IconGridProps) {
           const visibleBottomInGrid =
             sb.bottom - gr.top - SAFE_BOTTOM - CARD_SIZE_PX;
           let clamped = cardYInGrid;
-          if (cardYInGrid < visibleTopInGrid) clamped = visibleTopInGrid;
-          else if (cardYInGrid > visibleBottomInGrid)
+          let clamping = false;
+          if (cardYInGrid < visibleTopInGrid) {
+            clamped = visibleTopInGrid;
+            clamping = true;
+          } else if (cardYInGrid > visibleBottomInGrid) {
             clamped = visibleBottomInGrid;
-          // Only write when the value actually moves the spring's target,
-          // so we don't keep retargeting the spring with the same number.
-          if (Math.abs(cardY.get() - clamped) > 0.5) {
-            cardY.set(clamped);
+            clamping = true;
+          }
+          if (clamping) {
+            wasClamping = true;
+            // Instant jump — no spring easing. The highlight is locked
+            // to the safe-zone spot for the entire duration of the scroll
+            // and never drifts behind via animation.
+            if (Math.abs(cardY.get() - clamped) > 0.5) {
+              cardY.jump(clamped);
+              springCardY.jump(clamped);
+            }
           }
         }
       }
@@ -701,21 +757,28 @@ export function IconGrid({ icons, categories }: IconGridProps) {
       rafId = requestAnimationFrame(tick);
     };
 
+    const onScroll = () => {
+      scheduleTick();
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
+      scrollEndTimer = setTimeout(snapHighlightToNearestCard, SCROLL_END_DEBOUNCE_MS);
+    };
+
     const onMouseMove = () => {
       lastScrollMouseAtRef.current = performance.now();
     };
 
-    scroller.addEventListener("scroll", scheduleTick, { passive: true });
+    scroller.addEventListener("scroll", onScroll, { passive: true });
     scroller.addEventListener("mousemove", onMouseMove, { passive: true });
     // Initial pass so the edge cards blur even before any scroll event.
     scheduleTick();
 
     return () => {
-      scroller.removeEventListener("scroll", scheduleTick);
+      scroller.removeEventListener("scroll", onScroll);
       scroller.removeEventListener("mousemove", onMouseMove);
       if (rafId) cancelAnimationFrame(rafId);
+      if (scrollEndTimer) clearTimeout(scrollEndTimer);
     };
-  }, [cardY]);
+  }, [cardX, cardY, springCardX, springCardY]);
 
 
   const categoryCounts = useMemo(() => {

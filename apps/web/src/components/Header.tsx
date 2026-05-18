@@ -440,18 +440,15 @@ function SettingsIcon() {
 function AgentMenuItem({
   icon,
   title,
-  copied,
   onClick,
 }: {
   icon: ReactNode;
   title: string;
-  copied?: boolean;
   onClick: () => void;
 }) {
   const playHover = useSound(hover);
   const playSync = useSound(sync);
   const [hovered, setHovered] = useState(false);
-  const isActive = copied || hovered;
   return (
     <button
       type="button"
@@ -472,18 +469,10 @@ function AgentMenuItem({
         width: "100%",
         gap: 8,
         padding: 8,
-        borderRadius: isActive ? 6 : 8,
-        background: copied
-          ? "rgba(40,224,185,0.08)"
-          : hovered
-            ? "rgba(255,255,255,0.03)"
-            : "transparent",
+        borderRadius: hovered ? 6 : 8,
+        background: hovered ? "rgba(255,255,255,0.03)" : "transparent",
         textAlign: "left",
-        color: copied
-          ? "#28E0B9"
-          : hovered
-            ? "#fff"
-            : "rgba(255,255,255,0.4)",
+        color: hovered ? "#fff" : "rgba(255,255,255,0.4)",
         transition:
           "background 160ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms cubic-bezier(0.16, 1, 0.3, 1)",
       }}
@@ -512,60 +501,16 @@ function AgentMenuItem({
       >
         {title}
       </span>
-      <span
-        aria-hidden={!copied}
-        style={{
-          marginLeft: "auto",
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 16,
-          height: 16,
-          flexShrink: 0,
-        }}
-      >
-        <AnimatePresence initial={false}>
-          {copied ? (
-            <motion.span
-              key="check"
-              initial={{ opacity: 0, scale: 0.5, filter: "blur(6px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              exit={{ opacity: 0, scale: 0.5, filter: "blur(6px)" }}
-              transition={{
-                duration: 0.22,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: 12,
-                height: 12,
-                willChange: "transform, opacity, filter",
-              }}
-            >
-              <MaskIcon
-                src="/ui/check.svg"
-                size={12}
-                color="#28E0B9"
-                opacity={1}
-              />
-            </motion.span>
-          ) : null}
-        </AnimatePresence>
-      </span>
     </button>
   );
 }
 
 export function AgentMenu({
-  copiedItem,
   onCopyLlmsTxt,
-  onCopyMcp,
+  onOpenMcpConfig,
 }: {
-  copiedItem: string | null;
   onCopyLlmsTxt: () => void;
-  onCopyMcp: () => void;
+  onOpenMcpConfig: () => void;
 }) {
   return (
     <motion.div
@@ -596,14 +541,12 @@ export function AgentMenu({
       <AgentMenuItem
         icon={<MarkdownIcon />}
         title="Copy Markdown file"
-        copied={copiedItem === "llms"}
         onClick={onCopyLlmsTxt}
       />
       <AgentMenuItem
         icon={<SettingsIcon />}
         title="Copy MCP Config"
-        copied={copiedItem === "mcp"}
-        onClick={onCopyMcp}
+        onClick={onOpenMcpConfig}
       />
     </motion.div>
   );
@@ -920,7 +863,6 @@ export function Header({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [agentMenuOpen, setAgentMenuOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [copiedAgentItem, setCopiedAgentItem] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const agentMenuRef = useRef<HTMLDivElement>(null);
@@ -952,12 +894,6 @@ export function Header({
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [agentMenuOpen]);
 
-  const flashCopiedItem = useCallback((id: string) => {
-    setCopiedAgentItem(id);
-    window.setTimeout(() => {
-      setCopiedAgentItem((current) => (current === id ? null : current));
-    }, 1600);
-  }, []);
 
   const npmCommand = FRAMEWORK_CONFIG[framework].npmPrefix + FRAMEWORK_CONFIG[framework].npmPkg;
   const playConfetti = useSound(confetti);
@@ -1262,16 +1198,19 @@ export function Header({
                 {agentMenuOpen ? (
                   <AgentMenu
                     key="agent-menu"
-                    copiedItem={copiedAgentItem}
-                    onCopyLlmsTxt={async () => {
+                    onCopyLlmsTxt={() => {
                       playConfetti();
-                      await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
-                      flashCopiedItem("llms");
+                      // Fire-and-forget; close the menu immediately so
+                      // the click feels decisive. Clipboard rejection
+                      // (e.g. unfocused doc) is silently ignored.
+                      navigator.clipboard
+                        .writeText("https://iconsol.me/llms.txt")
+                        .catch(() => undefined);
+                      setAgentMenuOpen(false);
                     }}
-                    onCopyMcp={async () => {
-                      playConfetti();
-                      await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
-                      flashCopiedItem("mcp");
+                    onOpenMcpConfig={() => {
+                      setAgentMenuOpen(false);
+                      router.push("/mcp");
                     }}
                   />
                 ) : null}

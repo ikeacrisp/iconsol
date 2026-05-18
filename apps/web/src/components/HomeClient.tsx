@@ -10,7 +10,7 @@ import { confetti, hover, sync } from "@/lib/audio/core";
 import { success } from "@/lib/audio/crisp";
 import { BlurFade } from "@/components/BlurFade";
 import { Footer } from "@/components/Footer";
-import { AgentMenu, CopyIcon, Header, MCP_CONFIG_SNIPPET } from "@/components/Header";
+import { AgentMenu, CopyIcon, Header } from "@/components/Header";
 import { MaskIcon } from "@/components/UiIcon";
 import { LOGO_ORDER } from "@/lib/logo-assets";
 import { HomeSearchBar } from "@/components/HomeSearchBar";
@@ -77,9 +77,9 @@ function MobileInstallPill() {
   const playConfetti = useSound(confetti);
   const playHover = useSound(hover);
   const playSync = useSound(sync);
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [agentMenuOpen, setAgentMenuOpen] = useState(false);
-  const [copiedAgentItem, setCopiedAgentItem] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,11 +92,6 @@ function MobileInstallPill() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [agentMenuOpen]);
-
-  const flashCopiedItem = (key: string) => {
-    setCopiedAgentItem(key);
-    window.setTimeout(() => setCopiedAgentItem(null), 1800);
-  };
 
   return (
     <div ref={containerRef} style={{ position: "relative" }}>
@@ -234,16 +229,16 @@ function MobileInstallPill() {
 
       {agentMenuOpen ? (
         <AgentMenu
-          copiedItem={copiedAgentItem}
-          onCopyLlmsTxt={async () => {
+          onCopyLlmsTxt={() => {
             playConfetti();
-            await navigator.clipboard.writeText("https://iconsol.me/llms.txt");
-            flashCopiedItem("llms");
+            navigator.clipboard
+              .writeText("https://iconsol.me/llms.txt")
+              .catch(() => undefined);
+            setAgentMenuOpen(false);
           }}
-          onCopyMcp={async () => {
-            playConfetti();
-            await navigator.clipboard.writeText(MCP_CONFIG_SNIPPET);
-            flashCopiedItem("mcp");
+          onOpenMcpConfig={() => {
+            setAgentMenuOpen(false);
+            router.push("/mcp");
           }}
         />
       ) : null}
