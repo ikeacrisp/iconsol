@@ -35,7 +35,6 @@ export function Drift({
         transform="matrix(.00185 .00408 -.00313 .0024 8.721 13.03)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.2) 333.31deg,rgba(255,255,255,0) 360deg)",
@@ -59,7 +58,6 @@ export function Drift({
         transform="matrix(.00146 .00244 -.00281 .00286 10.953 11.176)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,.0405) 0deg,rgba(255,255,255,.1) 31.113deg,rgba(255,255,255,0) 338.814deg,rgba(255,255,255,.0405) 360deg)",
@@ -95,7 +93,6 @@ export function Drift({
         transform="matrix(.00185 .00408 -.00313 .0024 8.721 13.03)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.2) 333.31deg,rgba(255,255,255,0) 360deg)",
@@ -119,7 +116,6 @@ export function Drift({
         transform="matrix(.00146 .00244 -.00281 .00286 10.953 11.176)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,.0405) 0deg,rgba(255,255,255,.1) 31.113deg,rgba(255,255,255,0) 338.814deg,rgba(255,255,255,.0405) 360deg)",
@@ -159,7 +155,6 @@ export function Drift({
         transform="matrix(.00185 .00408 -.00313 .0024 8.721 13.03)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.2) 333.31deg,rgba(255,255,255,0) 360deg)",
@@ -184,7 +179,6 @@ export function Drift({
         transform="matrix(.00146 .00244 -.00281 .00286 10.953 11.176)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,rgba(255,255,255,.0405) 0deg,rgba(255,255,255,.1) 31.113deg,rgba(255,255,255,0) 338.814deg,rgba(255,255,255,.0405) 360deg)",

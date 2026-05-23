@@ -27,7 +27,6 @@ export function Infsol({
         transform="matrix(.00432 -.00432 .00432 .00432 11.815 16)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,#9567fe 0deg,#9566ff 1.19349deg,#6dc4fe 93.3206deg,#cdb9fa 291.125deg,#9567fe 360deg)",
@@ -51,7 +50,6 @@ export function Infsol({
         transform="matrix(-.00427 .00427 -.00427 -.00427 20.086 16)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,#fc692a 0deg,#72db5a 28.125deg,#ffd800 225.286deg,#fc692a 360deg)",

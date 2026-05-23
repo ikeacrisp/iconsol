@@ -72,6 +72,12 @@ async function svgToReactComponent(
     .replace(new RegExp(`\nexport default ${componentName};\\s*$`), "")
     .replace(/width="1em"/, "width={size}")
     .replace(/height="1em"/, "height={size}")
+    // Strip the XHTML namespace SVGR carries through from Figma-exported
+    // <foreignObject>/<div> pairs. React's type system rejects `xmlns` as a
+    // prop on HTMLDivElement (TS2322) — and the browser doesn't need it,
+    // because React renders foreignObject children in the HTML namespace
+    // automatically.
+    .replace(/\s+xmlns="http:\/\/www\.w3\.org\/1999\/xhtml"/g, "")
     .trim()
     .replace(/;$/, "");
 

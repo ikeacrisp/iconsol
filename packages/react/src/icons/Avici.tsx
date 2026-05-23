@@ -27,7 +27,6 @@ export function Avici({
         transform="matrix(.00945 .00812 -.00877 .01021 16 17.52)"
       >
         <div
-          xmlns="http://www.w3.org/1999/xhtml"
           style={{
             background:
               "conic-gradient(from 90deg,#020202 0deg,#bebebe 360deg)",
