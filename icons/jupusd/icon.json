@@ -23,23 +23,21 @@
       "layers": [
         {
           "src": "jupusd.svg",
-          "width": 27.996,
-          "height": 27.996,
-          "x": 2,
-          "y": 2
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#1a1a1a",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "jupusd.svg",
-          "width": 25.172,
-          "height": 25.173,
-          "x": 3.4,
-          "y": 3.41
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

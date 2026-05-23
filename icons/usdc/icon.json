@@ -23,23 +23,21 @@
       "layers": [
         {
           "src": "usdc.svg",
-          "width": 28,
-          "height": 28,
-          "x": 2,
-          "y": 2
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#1a1a1a",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "usdc.svg",
-          "width": 27.961,
-          "height": 27.146,
-          "x": 2.02,
-          "y": 2.43
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

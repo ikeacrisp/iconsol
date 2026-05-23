@@ -65,7 +65,8 @@ export type LogoId =
   | "seeker"
   | "avici"
   | "squads"
-  | "usdt";
+  | "usdt"
+  | "drift";
 
 export interface LogoAssetLayer {
   src: string;
@@ -149,6 +150,7 @@ export const LOGO_ORDER: LogoId[] = [
   "avici",
   "squads",
   "usdt",
+  "drift",
 ];
 
 export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
@@ -183,17 +185,13 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   backpack: {
-    background: "#e33e3f",
-    radius: 8,
     layers: [
-      { src: "/brand/backpack.svg", x: 9.1145, y: 6.0125, width: 13.771, height: 19.975 },
+      { src: "/brand/backpack.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   solflare: {
-    background: "#ffef46",
-    radius: 8,
     layers: [
-      { src: "/brand/solflare-fill.svg", x: 6.6045, y: 6.0215, width: 18.791, height: 19.957, maskSrcs: ["/brand/solflare-mask.svg"] },
+      { src: "/brand/solflare.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "sanctum-gateway": {
@@ -234,31 +232,23 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   "pump-fun": {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/pump-fun.svg", x: 6, y: 5.697, width: 19.995, height: 20.606 },
+      { src: "/brand/pump-fun.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "usd-prime": {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/usd-prime.svg", x: 2.02, y: 2.01, width: 27.976, height: 27.976 },
+      { src: "/brand/usd-prime.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   fuse: {
-    background: "#ffffff",
-    radius: 8,
     layers: [
-      { src: "/brand/fuse.svg", x: 6.0205, y: 6.160500000000001, width: 19.959, height: 19.679 },
+      { src: "/brand/fuse.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "usd-star": {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/usd-star.svg", x: 2.01, y: 1.99, width: 27.987, height: 28.021 },
+      { src: "/brand/usd-star.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   xstock: {
@@ -277,10 +267,8 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   scloud: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/scloud.svg", x: 2.0039999999999996, y: 2.2295, width: 27.992, height: 27.541 },
+      { src: "/brand/scloud.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   crossmint: {
@@ -299,12 +287,8 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   infsol: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/infsol-left.svg", x: 5.9285, y: 10.1143, width: 11.771, height: 11.771 },
-      { src: "/brand/infsol-right.svg", x: 14.2515, y: 10.1143, width: 11.771, height: 11.771 },
-      { src: "/brand/infsol-center.svg", x: 13.0575, y: 13.0575, width: 5.885, height: 5.885, rotation: 45 },
+      { src: "/brand/infsol.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   moonshot: {
@@ -318,17 +302,13 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   arcium: {
-    background: "#6d45ff",
-    radius: 8,
     layers: [
-      { src: "/brand/arcium.svg", x: 4.960000000000001, y: 8.0055, width: 22.08, height: 15.989 },
+      { src: "/brand/arcium.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   bonk: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/bonk.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/brand/bonk.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   kast: {
@@ -357,10 +337,8 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   jto: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/jto.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/brand/jto.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   sendai: {
@@ -369,24 +347,18 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   eurc: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/eurc.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/brand/eurc.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   usdc: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/usdc.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/brand/usdc.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   circle: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/circle.svg", x: 6.0015, y: 6.0015, width: 19.997, height: 19.997 },
+      { src: "/brand/circle.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   bags: {
@@ -402,17 +374,13 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   jupusd: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/jupusd.svg", x: 2, y: 2, width: 27.996, height: 27.996 },
+      { src: "/brand/jupusd.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   jitosol: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/jitosol.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/brand/jitosol.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   madlads: {
@@ -433,10 +401,8 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   jupsol: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/jupsol.svg", x: 2, y: 2.03, width: 27.992, height: 27.992 },
+      { src: "/brand/jupsol.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   metadao: {
@@ -445,24 +411,18 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   meteora: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
-      { src: "/brand/meteora.svg", x: 6.773, y: 6.004, width: 18.454, height: 19.992 },
+      { src: "/brand/meteora.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   jito: {
-    background: "#3a7861",
-    radius: 8,
     layers: [
-      { src: "/brand/jito.svg", x: 5.997999999999999, y: 11.8865, width: 20.004, height: 8.227 },
+      { src: "/brand/jito.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   marinade: {
-    background: "#0b9890",
-    radius: 8,
     layers: [
-      { src: "/brand/marinade.svg", x: 6.002000000000001, y: 9.236, width: 19.996, height: 13.528 },
+      { src: "/brand/marinade.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   metaplex: {
@@ -481,24 +441,18 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   claynosaurz: {
-    background: "linear-gradient(180deg, #fc956c 0%, #ec725b 100%)",
-    radius: 8,
     layers: [
-      { src: "/brand/claynosaurz.svg", x: 6.004, y: 6.628500000000001, width: 19.992, height: 18.743 },
+      { src: "/brand/claynosaurz.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   seeker: {
-    background: "linear-gradient(180deg, #000000 32.982%, #125d74 61.607%, #85cbc1 90.231%)",
-    radius: 8,
     layers: [
       { src: "/brand/seeker.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   avici: {
-    background: "#ffffff",
-    radius: 8,
     layers: [
-      { src: "/brand/avici.svg", x: 6.003500000000001, y: 6.7490000000000006, width: 19.993, height: 18.502 },
+      { src: "/brand/avici.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   squads: {
@@ -507,10 +461,13 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
     ],
   },
   usdt: {
-    background: "#1a1a1a",
-    radius: 8,
     layers: [
       { src: "/brand/usdt.svg", x: 0, y: 0, width: 32, height: 32 },
+    ],
+  },
+  drift: {
+    layers: [
+      { src: "/brand/drift.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
 };
@@ -548,12 +505,12 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   backpack: {
     layers: [
-      { src: "/solid/backpack.svg", x: 7.0753, y: 3.0542, width: 17.85, height: 25.892 },
+      { src: "/solid/backpack.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   solflare: {
     layers: [
-      { src: "/solid/solflare-fill.svg", x: 3.7744999999999997, y: 3.016, width: 24.451, height: 25.968, maskSrcs: ["/solid/solflare-mask.svg"] },
+      { src: "/solid/solflare.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "sanctum-gateway": {
@@ -593,22 +550,22 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   "pump-fun": {
     layers: [
-      { src: "/solid/pump-fun.svg", x: 1.9990000000000006, y: 1.5715000000000003, width: 28.002, height: 28.857 },
+      { src: "/solid/pump-fun.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "usd-prime": {
     layers: [
-      { src: "/solid/usd-prime.svg", x: 2.02, y: 2.01, width: 27.976, height: 27.976 },
+      { src: "/solid/usd-prime.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   fuse: {
     layers: [
-      { src: "/solid/fuse.svg", x: 2.0075000000000003, y: 2.2029999999999994, width: 27.985, height: 27.594 },
+      { src: "/solid/fuse.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   "usd-star": {
     layers: [
-      { src: "/solid/usd-star.svg", x: 2.01, y: 1.99, width: 27.987, height: 28.021 },
+      { src: "/solid/usd-star.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   xstock: {
@@ -628,7 +585,7 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   scloud: {
     layers: [
-      { src: "/solid/scloud.svg", x: 2.0039999999999996, y: 2.2295, width: 27.992, height: 27.541 },
+      { src: "/solid/scloud.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   crossmint: {
@@ -663,7 +620,7 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   arcium: {
     layers: [
-      { src: "/solid/arcium.svg", x: 3.3149999999999995, y: 6.814, width: 25.37, height: 18.372 },
+      { src: "/solid/arcium.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   bonk: {
@@ -698,7 +655,7 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   jto: {
     layers: [
-      { src: "/solid/jto.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/solid/jto.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   sendai: {
@@ -713,12 +670,12 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   usdc: {
     layers: [
-      { src: "/solid/usdc.svg", x: 2.02, y: 2.43, width: 27.961, height: 27.146 },
+      { src: "/solid/usdc.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   circle: {
     layers: [
-      { src: "/solid/circle.svg", x: 2.01, y: 2.03, width: 27.953, height: 27.953 },
+      { src: "/solid/circle.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   bags: {
@@ -733,17 +690,17 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   jupusd: {
     layers: [
-      { src: "/solid/jupusd.svg", x: 3.4, y: 3.41, width: 25.172, height: 25.173 },
+      { src: "/solid/jupusd.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   jitosol: {
     layers: [
-      { src: "/solid/jitosol.svg", x: 2, y: 2, width: 28, height: 28 },
+      { src: "/solid/jitosol.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   madlads: {
     layers: [
-      { src: "/solid/madlads-fill.svg", x: 2.0045, y: 2.0045, width: 27.991, height: 27.991, maskSrcs: ["/solid/madlads-mask-a.svg", "/solid/madlads-mask-b.svg"], maskPositions: "0px 0px, -0.026px -0.003px", maskSizes: "100% 100%, 100% 100%" },
+      { src: "/solid/madlads.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   opos: {
@@ -758,27 +715,27 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   jupsol: {
     layers: [
-      { src: "/solid/jupsol.svg", x: 2, y: 2.03, width: 27.992, height: 27.992 },
+      { src: "/solid/jupsol.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   metadao: {
     layers: [
-      { src: "/solid/metadao-fill.svg", x: 4.7885, y: 4.7885, width: 22.423, height: 22.423, maskSrcs: ["/solid/metadao-mask.svg"], maskSizes: "100% 100%" },
+      { src: "/solid/metadao.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   meteora: {
     layers: [
-      { src: "/solid/meteora.svg", x: 3.231, y: 2.167, width: 25.538, height: 27.666 },
+      { src: "/solid/meteora.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   jito: {
     layers: [
-      { src: "/solid/jito.svg", x: 2, y: 10.77, width: 27.996, height: 11.514 },
+      { src: "/solid/jito.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   marinade: {
     layers: [
-      { src: "/solid/marinade.svg", x: 2, y: 6.528499999999999, width: 28, height: 18.943 },
+      { src: "/solid/marinade.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   metaplex: {
@@ -798,7 +755,7 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   },
   claynosaurz: {
     layers: [
-      { src: "/solid/claynosaurz.svg", x: 2.0045, y: 2.8795, width: 27.991, height: 26.241 },
+      { src: "/solid/claynosaurz.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
   seeker: {
@@ -819,6 +776,11 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   usdt: {
     layers: [
       { src: "/solid/usdt.svg", x: 0, y: 0, width: 32, height: 32 },
+    ],
+  },
+  drift: {
+    layers: [
+      { src: "/solid/drift.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
 };
@@ -2131,21 +2093,6 @@ export const ICON_META: Record<string, IconMeta> = {
     ],
     "hasDisplay": true
   },
-  cloud: {
-    "id": "cloud",
-    "name": "Sanctum",
-    "category": "tokens",
-    "aliases": [
-      "sanctum"
-    ],
-    "tags": [
-      "governance",
-      "liquid-staking"
-    ],
-    "ticker": "CLOUD",
-    "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu",
-    "hasDisplay": false
-  },
   drift: {
     "id": "drift",
     "name": "Drift Protocol",
@@ -2159,6 +2106,21 @@ export const ICON_META: Record<string, IconMeta> = {
       "margin"
     ],
     "website": "https://drift.trade",
+    "hasDisplay": true
+  },
+  cloud: {
+    "id": "cloud",
+    "name": "Sanctum",
+    "category": "tokens",
+    "aliases": [
+      "sanctum"
+    ],
+    "tags": [
+      "governance",
+      "liquid-staking"
+    ],
+    "ticker": "CLOUD",
+    "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu",
     "hasDisplay": false
   },
   "helium-protocol": {

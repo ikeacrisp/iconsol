@@ -200,8 +200,8 @@
         "phantom"
       ],
       "assets": {
-        "brand": "/brand/solflare-fill.svg",
-        "solid": "/solid/solflare-fill.svg"
+        "brand": "/brand/solflare.svg",
+        "solid": "/solid/solflare.svg"
       }
     },
     {
@@ -653,7 +653,7 @@
         "sol"
       ],
       "assets": {
-        "brand": "/brand/infsol-left.svg",
+        "brand": "/brand/infsol.svg",
         "solid": "/solid/infsol.svg"
       }
     },
@@ -1113,7 +1113,7 @@
       ],
       "assets": {
         "brand": "/brand/madlads.svg",
-        "solid": "/solid/madlads-fill.svg"
+        "solid": "/solid/madlads.svg"
       }
     },
     {
@@ -1212,7 +1212,7 @@
       ],
       "assets": {
         "brand": "/brand/metadao.svg",
-        "solid": "/solid/metadao-fill.svg"
+        "solid": "/solid/metadao.svg"
       }
     },
     {
@@ -1477,6 +1477,24 @@
       }
     },
     {
+      "id": "drift",
+      "name": "Drift Protocol",
+      "category": "defi",
+      "aliases": [
+        "drift"
+      ],
+      "tags": [
+        "perps",
+        "derivatives",
+        "margin"
+      ],
+      "website": "https://drift.trade",
+      "assets": {
+        "brand": "/brand/drift.svg",
+        "solid": "/solid/drift.svg"
+      }
+    },
+    {
       "id": "cloud",
       "name": "Sanctum",
       "ticker": "CLOUD",
@@ -1489,20 +1507,6 @@
         "liquid-staking"
       ],
       "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu"
-    },
-    {
-      "id": "drift",
-      "name": "Drift Protocol",
-      "category": "defi",
-      "aliases": [
-        "drift"
-      ],
-      "tags": [
-        "perps",
-        "derivatives",
-        "margin"
-      ],
-      "website": "https://drift.trade"
     },
     {
       "id": "helium-protocol",

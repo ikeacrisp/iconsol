@@ -21,23 +21,21 @@
       "layers": [
         {
           "src": "claynosaurz.svg",
-          "width": 19.992,
-          "height": 18.743,
-          "x": 6.004,
-          "y": 6.628500000000001
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "linear-gradient(180deg, #fc956c 0%, #ec725b 100%)",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "claynosaurz.svg",
-          "width": 27.991,
-          "height": 26.241,
-          "x": 2.0045,
-          "y": 2.8795
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

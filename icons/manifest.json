@@ -1229,20 +1229,6 @@
     ]
   },
   {
-    "id": "cloud",
-    "name": "Sanctum",
-    "category": "tokens",
-    "ticker": "CLOUD",
-    "aliases": [
-      "sanctum"
-    ],
-    "tags": [
-      "governance",
-      "liquid-staking"
-    ],
-    "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu"
-  },
-  {
     "id": "drift",
     "name": "Drift Protocol",
     "category": "defi",
@@ -1255,6 +1241,20 @@
       "margin"
     ],
     "website": "https://drift.trade"
+  },
+  {
+    "id": "cloud",
+    "name": "Sanctum",
+    "category": "tokens",
+    "ticker": "CLOUD",
+    "aliases": [
+      "sanctum"
+    ],
+    "tags": [
+      "governance",
+      "liquid-staking"
+    ],
+    "mintAddress": "CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu"
   },
   {
     "id": "helium-protocol",

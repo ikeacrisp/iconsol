@@ -23,23 +23,21 @@
       "layers": [
         {
           "src": "pump-fun.svg",
-          "width": 19.995,
-          "height": 20.606,
-          "x": 6,
-          "y": 5.697
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#1a1a1a",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "pump-fun.svg",
-          "width": 28.002,
-          "height": 28.857,
-          "x": 1.9990000000000006,
-          "y": 1.5715000000000003
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

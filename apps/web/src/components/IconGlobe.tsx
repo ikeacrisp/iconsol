@@ -6,14 +6,12 @@ import { SolidLogo } from "@/components/BrandLogo";
 // Fallback icon set used when no `icons` prop is supplied (e.g. mobile mini
 // globe). Doubles as the preload list for those URLs.
 const DEFAULT_IDLE_SRCS = [
-  "/solid/solana-white.svg",
-  "/solid/jupiter-white.svg",
-  "/solid/phantom-white.svg",
-  "/solid/kamino-white.svg",
-  "/solid/meteora-white.svg",
-  "/solid/seeker.svg",
   "/solid/sol.svg",
   "/solid/jup.svg",
+  "/solid/phantom.svg",
+  "/solid/kamino.svg",
+  "/solid/meteora.svg",
+  "/solid/seeker.svg",
   "/solid/bonk.svg",
   "/solid/jto.svg",
   "/solid/usdc.svg",

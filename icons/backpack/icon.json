@@ -23,23 +23,21 @@
       "layers": [
         {
           "src": "backpack.svg",
-          "width": 13.771,
-          "height": 19.975,
-          "x": 9.1145,
-          "y": 6.0125
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#e33e3f",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "backpack.svg",
-          "width": 17.85,
-          "height": 25.892,
-          "x": 7.0753,
-          "y": 3.0542
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

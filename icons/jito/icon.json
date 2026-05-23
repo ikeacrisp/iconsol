@@ -21,23 +21,21 @@
       "layers": [
         {
           "src": "jito.svg",
-          "width": 20.004,
-          "height": 8.227,
-          "x": 5.997999999999999,
-          "y": 11.8865
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#3a7861",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "jito.svg",
-          "width": 27.996,
-          "height": 11.514,
-          "x": 2,
-          "y": 10.77
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

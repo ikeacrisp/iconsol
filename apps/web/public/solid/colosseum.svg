@@ -1,5 +1,3 @@
-<svg width="32" height="32" overflow="visible" style="display: block;" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Colosseum white">
-<path id="Vector" fill-rule="evenodd" clip-rule="evenodd" d="M27.0914 4.90706H4.90867V7.69982H27.0914V4.90706ZM24.8969 9.86771H7.09843V12.6604H24.8969V9.86771ZM14.6462 14.8292H17.3492V27.0929H14.6462V14.8292ZM11.9434 14.8292H9.24037V27.0929H11.9434V14.8292ZM20.0545 14.8292H22.7575V27.0929H20.0545V14.8292Z" fill="white"/>
-</g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M27.0915 4.90723H4.90869V7.69998H27.0915V4.90723ZM24.8969 9.86787H7.09845V12.6606H24.8969V9.86787ZM14.6463 14.8293H17.3492V27.0931H14.6463V14.8293ZM11.9434 14.8293H9.24039V27.0931H11.9434V14.8293ZM20.0545 14.8293H22.7575V27.0931H20.0545V14.8293Z" fill="white"/>
 </svg>

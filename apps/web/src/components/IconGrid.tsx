@@ -22,6 +22,7 @@ import { BlurFade } from "@/components/BlurFade";
 import { DotField } from "@/components/DotField";
 import { MaskIcon } from "@/components/UiIcon";
 import { easingGradient } from "@/lib/easing-gradient";
+import { logoVariantHasIntrinsicSurface } from "@/lib/logo-assets";
 
 // Subtle near-monochrome gradient — a longer easing chain keeps the
 // per-stop delta below the 8-bit rounding threshold to soften banding.
@@ -49,7 +50,6 @@ import {
   setPendingIconTransition,
   shouldUseIconViewTransition,
 } from "@/lib/icon-view-transition";
-import { logoVariantHasIntrinsicSurface } from "@/lib/logo-assets";
 import type { Icon, IconCategory } from "@/lib/icon-data";
 import { searchIcons } from "@/lib/search";
 

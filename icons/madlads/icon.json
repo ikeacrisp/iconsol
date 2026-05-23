@@ -33,17 +33,11 @@
     "solid": {
       "layers": [
         {
-          "src": "madlads-fill.svg",
-          "width": 27.991,
-          "height": 27.991,
-          "x": 2.0045,
-          "y": 2.0045,
-          "maskSrcs": [
-            "madlads-mask-a.svg",
-            "madlads-mask-b.svg"
-          ],
-          "maskPositions": "0px 0px, -0.026px -0.003px",
-          "maskSizes": "100% 100%, 100% 100%"
+          "src": "madlads.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

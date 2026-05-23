@@ -21,30 +21,22 @@
     "brand": {
       "layers": [
         {
-          "src": "solflare-fill.svg",
-          "width": 18.791,
-          "height": 19.957,
-          "x": 6.6045,
-          "y": 6.0215,
-          "maskSrcs": [
-            "solflare-mask.svg"
-          ]
+          "src": "solflare.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#ffef46",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
-          "src": "solflare-fill.svg",
-          "width": 24.451,
-          "height": 25.968,
-          "x": 3.7744999999999997,
-          "y": 3.016,
-          "maskSrcs": [
-            "solflare-mask.svg"
-          ]
+          "src": "solflare.svg",
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

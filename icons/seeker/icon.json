@@ -28,9 +28,7 @@
           "x": 0,
           "y": 0
         }
-      ],
-      "background": "linear-gradient(180deg, #000000 32.982%, #125d74 61.607%, #85cbc1 90.231%)",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [

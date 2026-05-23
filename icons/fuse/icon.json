@@ -22,23 +22,21 @@
       "layers": [
         {
           "src": "fuse.svg",
-          "width": 19.959,
-          "height": 19.679,
-          "x": 6.0205,
-          "y": 6.160500000000001
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#ffffff",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "fuse.svg",
-          "width": 27.985,
-          "height": 27.594,
-          "x": 2.0075000000000003,
-          "y": 2.2029999999999994
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

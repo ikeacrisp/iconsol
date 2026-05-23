@@ -28,9 +28,7 @@
           "x": 0,
           "y": 0
         }
-      ],
-      "background": "#1a1a1a",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [

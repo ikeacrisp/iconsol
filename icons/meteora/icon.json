@@ -22,23 +22,21 @@
       "layers": [
         {
           "src": "meteora.svg",
-          "width": 18.454,
-          "height": 19.992,
-          "x": 6.773,
-          "y": 6.004
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
-      ],
-      "background": "#1a1a1a",
-      "radius": 8
+      ]
     },
     "solid": {
       "layers": [
         {
           "src": "meteora.svg",
-          "width": 25.538,
-          "height": 27.666,
-          "x": 3.231,
-          "y": 2.167
+          "width": 32,
+          "height": 32,
+          "x": 0,
+          "y": 0
         }
       ]
     }

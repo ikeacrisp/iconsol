@@ -12,11 +12,6 @@ export function Oro({
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
-    overflow="visible"
-    preserveAspectRatio="none"
-    style={{
-      display: "block",
-    }}
     viewBox="0 0 32 32"
     width={size}
     height={size}
@@ -24,8 +19,8 @@ export function Oro({
   >
     <rect width={32} height={32} fill="url(#a)" rx={8} />
     <path
-      fill="var(--fill-0, #B0A66C)"
-      d="M22.45 12.709h-2.284l-1.476 6.708h-2.312L14.93 26H8.074l1.476-6.709h2.312l1.447-6.583h2.285L17.07 6h6.856z"
+      fill="#B0A66C"
+      d="M22.45 12.709h-2.284l-1.476 6.708h-2.312L14.93 26H8.074l1.476-6.709h2.312l1.447-6.583h2.285L17.069 6h6.857z"
     />
     <defs>
       <linearGradient

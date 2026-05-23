@@ -1,11 +1,9 @@
-<svg width="32" height="32" overflow="visible" style="display: block;" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Zora white">
-<g clip-path="url(#clip0_0_4)">
-<path id="Vector" d="M12.3333 1.90735e-06L0 11.2V20.8L12.3333 9.6V32H19.7333V9.6L32 20.8V11.2L19.7333 0L12.3333 1.90735e-06Z" fill="white"/>
-</g>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_48_674)">
+<path d="M12.3333 1.90735e-06L0 11.2V20.8L12.3333 9.6V32H19.7333V9.6L32 20.8V11.2L19.7333 0L12.3333 1.90735e-06Z" fill="white"/>
 </g>
 <defs>
-<clipPath id="clip0_0_4">
+<clipPath id="clip0_48_674">
 <rect width="32" height="32" rx="8" fill="white"/>
 </clipPath>
 </defs>

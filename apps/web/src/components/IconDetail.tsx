@@ -49,6 +49,14 @@ const PANEL_FADE_BG = easingGradient(
 // and dims toward the bottom with a band-free falloff.
 const PREVIEW_FRAME_BG = easingGradient("180deg", "#17181B", "#101215");
 
+// The image is placed inside a tight container the same size as the
+// rendered logo art with a 5%-white fill. Its corner radius keeps the
+// same image-radius ratio as the refined SVGs themselves (rx=8 on a
+// 32×32 viewBox → 0.25 of the side length), so the wrapper visually
+// echoes the SVG's own card geometry in both Brand and Solid modes.
+const LOGO_WRAPPER_BG = "rgba(255,255,255,0.05)";
+const LOGO_WRAPPER_RADIUS_RATIO = 8 / 32;
+
 // Brand/Solid toggle shell: 50%-opaque page color at the top easing into
 // a 20%-opaque page color at the bottom, with a 1px #191B1E hairline border.
 const TOGGLE_SHELL_BG = easingGradient(
@@ -621,54 +629,43 @@ function escapeHtmlAttr(value: string) {
     .replace(/>/g, "&gt;");
 }
 
-// A handful of logos (e.g. avici, infsol) render via SVG <foreignObject> with
-// embedded XHTML. That intentionally uses browser HTML/CSS rendering, so the
-// React Native (`react-native-svg`) and SwiftUI native SVG decoders won't draw
-// them. We surface that honestly in the generated snippet rather than ship
-// silently-broken code.
-const FOREIGN_OBJECT_NOTE_LINES = [
-  "// NOTE: This logo is illustrated with embedded HTML inside the SVG",
-  "// (<foreignObject>) — that's intentional for browser rendering but is",
-  "// not supported by react-native-svg or SwiftUI's AsyncImage. The URL",
-  "// will display correctly in a WebView/<img>; for a native render you'll",
-  "// need a pre-rasterised PNG.",
-];
-
-function buildReactNativeCode(
-  componentName: string,
-  assetUrl: string,
-  usesForeignObject: boolean
-) {
-  const note = usesForeignObject ? FOREIGN_OBJECT_NOTE_LINES.join("\n") + "\n\n" : "";
-  return `${note}import { SvgUri } from "react-native-svg";
+function buildReactNativeCode(componentName: string, pngUrl: string) {
+  // React Native's core <Image> decodes PNG/JPG natively. We deliberately
+  // avoid recommending react-native-svg here — it's a heavyweight
+  // peer-dependency that not every project wants, and the PNG URL renders
+  // pixel-identical in both web previews and on-device.
+  return `import { Image } from "react-native";
 
 type ${componentName}Props = {
   size?: number;
 };
 
-const ICON_URL = "${escapeDoubleQuoted(assetUrl)}";
+const ICON_URL = "${escapeDoubleQuoted(pngUrl)}";
 
 export function ${componentName}({ size = 32 }: ${componentName}Props) {
-  return <SvgUri width={size} height={size} uri={ICON_URL} />;
+  return (
+    <Image
+      source={{ uri: ICON_URL }}
+      style={{ width: size, height: size }}
+      resizeMode="contain"
+    />
+  );
 }
 `;
 }
 
-function buildSwiftCode(
-  componentName: string,
-  assetUrl: string,
-  usesForeignObject: boolean
-) {
-  const note = usesForeignObject
-    ? FOREIGN_OBJECT_NOTE_LINES.map((l) => l.replace(/^\/\//, "//")).join("\n") + "\n\n"
-    : "";
-  return `${note}import SwiftUI
+function buildSwiftCode(componentName: string, pngUrl: string) {
+  // SwiftUI's AsyncImage can decode PNG/JPG out of the box but has no
+  // built-in SVG decoder — pointing it at the SVG URL silently renders
+  // nothing on device. The PNG endpoint resolves cleanly on every iOS
+  // version that supports AsyncImage (iOS 15+).
+  return `import SwiftUI
 
 struct ${componentName}: View {
     var size: CGFloat = 32
 
     var body: some View {
-        AsyncImage(url: URL(string: "${escapeDoubleQuoted(assetUrl)}")) { image in
+        AsyncImage(url: URL(string: "${escapeDoubleQuoted(pngUrl)}")) { image in
             image
                 .resizable()
                 .scaledToFit()
@@ -1413,19 +1410,22 @@ export function IconDetail({
         if (cancelled) return;
         const assetTexts = Object.fromEntries(entries);
         const markup = buildHtmlMarkup(activeSpec, assetTexts);
-        const assetUrl = `https://iconsol.me${icon.src}`;
-        // Cheap structural check — only the avici / infsol art uses this.
-        // Anchoring on the open tag rules out false positives inside paths
-        // or attribute values.
-        const usesForeignObject = Object.values(assetTexts).some((text) =>
-          text.includes("<foreignObject")
-        );
+        const svgUrl = `https://iconsol.me${
+          solidMode ? `/solid/${icon.id}.svg` : `/brand/${icon.id}.svg`
+        }`;
+        // Native frameworks (SwiftUI AsyncImage, RN Image) can't decode SVG
+        // — they need a real raster. The category-grouped PNG endpoint is
+        // a 128×128 RGBA asset for every refined logo, generated alongside
+        // the SVG (Brand → /icons/<cat>/<id>.png, Solid → -solid.png).
+        const pngUrl = `https://iconsol.me/icons/${icon.category}/${icon.id}${
+          solidMode ? "-solid" : ""
+        }.png`;
 
         setExactCodeByFramework({
           react: buildReactMarkupCode(componentName, markup),
-          "react-native": buildReactNativeCode(componentName, assetUrl, usesForeignObject),
-          swift: buildSwiftCode(componentName, assetUrl, usesForeignObject),
-          html: buildHtmlCode(assetUrl),
+          "react-native": buildReactNativeCode(componentName, pngUrl),
+          swift: buildSwiftCode(componentName, pngUrl),
+          html: buildHtmlCode(svgUrl),
           svg: buildSvgCode(activeSpec, assetTexts),
         });
       })
@@ -1443,7 +1443,7 @@ export function IconDetail({
     return () => {
       cancelled = true;
     };
-  }, [activeSpec, componentName, icon.src]);
+  }, [activeSpec, componentName, icon.category, icon.id, solidMode]);
 
   useLayoutEffect(() => {
     const activeToggle = solidMode ? toggleSolidRef.current : toggleBrandRef.current;
@@ -1682,6 +1682,44 @@ export function IconDetail({
   const handlePngDownload = useCallback(async () => {
     if (typeof window === "undefined") return;
 
+    // Always download the pre-rasterised PNG file at its original
+    // dimensions (128×128 for every refined logo). Rasterising the SVG on
+    // the client to its 32×32 intrinsic size used to produce pixelated
+    // exports — that's what this avoids.
+    const fileName = `${icon.id}${solidMode ? "-solid" : ""}.png`;
+    const pngPath = `/icons/${icon.category}/${icon.id}${
+      solidMode ? "-solid" : ""
+    }.png`;
+    const pngUrl = `${window.location.origin}${pngPath}`;
+
+    const triggerDownload = (href: string) => {
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = fileName;
+      link.rel = "noopener";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    try {
+      const response = await fetch(pngUrl);
+      if (response.ok) {
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        triggerDownload(objectUrl);
+        // Give the browser a tick to start the download before we revoke
+        // the object URL — Safari aborts the download otherwise.
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 4000);
+        return;
+      }
+    } catch {
+      // Network or CORS failure — fall through to SVG rasterisation so the
+      // user still gets something.
+    }
+
+    // Fallback for legacy icons that ship without a PNG file: rasterise
+    // the active SVG at a generous resolution to avoid the 32×32 pixelation.
     const img = new window.Image();
     img.crossOrigin = "anonymous";
     img.decoding = "async";
@@ -1689,25 +1727,32 @@ export function IconDetail({
       ? activeAssetSrc
       : `${window.location.origin}${activeAssetSrc}`;
 
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("Failed to load icon"));
-    });
+    try {
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error("Failed to load icon"));
+      });
+    } catch {
+      return;
+    }
 
+    const FALLBACK_RASTER_SIZE = 512;
+    const intrinsicW = img.naturalWidth || FALLBACK_RASTER_SIZE;
+    const intrinsicH = img.naturalHeight || FALLBACK_RASTER_SIZE;
+    // SVG natural dimensions match the viewBox (32×32) — that's tiny.
+    // Scale up to FALLBACK_RASTER_SIZE on the longest edge to keep the
+    // export crisp without blowing up already-large rasters.
+    const longestEdge = Math.max(intrinsicW, intrinsicH);
+    const scale =
+      longestEdge < FALLBACK_RASTER_SIZE ? FALLBACK_RASTER_SIZE / longestEdge : 1;
     const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth || 256;
-    canvas.height = img.naturalHeight || 256;
+    canvas.width = Math.round(intrinsicW * scale);
+    canvas.height = Math.round(intrinsicH * scale);
     const context = canvas.getContext("2d");
-
     if (!context) return;
-
     context.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = `${icon.id}${solidMode ? "-solid" : ""}.png`;
-    link.click();
-  }, [activeAssetSrc, icon.id, solidMode]);
+    triggerDownload(canvas.toDataURL("image/png"));
+  }, [activeAssetSrc, icon.category, icon.id, solidMode]);
 
   const svgDownloadHref = activeAssetSrc.endsWith(".svg")
     ? activeAssetSrc
@@ -2007,15 +2052,36 @@ export function IconDetail({
                               willChange: "transform, opacity, filter",
                             }}
                           >
-                            {solidMode ? (
-                              <SolidLogo id={icon.id} size={112} />
-                            ) : (
-                              <BrandLogo
-                                id={icon.id}
-                                variant="detail"
-                                size={PREVIEW_ART_WIDTH}
-                              />
-                            )}
+                            <div
+                              style={{
+                                // Same wrapper card geometry in Brand AND
+                                // Solid so toggling between variants is a
+                                // visually stable swap — no resize, no
+                                // reflow.
+                                width: PREVIEW_ART_WIDTH,
+                                height: PREVIEW_ART_WIDTH,
+                                borderRadius:
+                                  PREVIEW_ART_WIDTH * LOGO_WRAPPER_RADIUS_RATIO,
+                                background: LOGO_WRAPPER_BG,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexShrink: 0,
+                              }}
+                            >
+                              {solidMode ? (
+                                <SolidLogo
+                                  id={icon.id}
+                                  size={PREVIEW_ART_WIDTH}
+                                />
+                              ) : (
+                                <BrandLogo
+                                  id={icon.id}
+                                  variant="detail"
+                                  size={PREVIEW_ART_WIDTH}
+                                />
+                              )}
+                            </div>
                           </motion.div>
                         </AnimatePresence>
                       </div>
