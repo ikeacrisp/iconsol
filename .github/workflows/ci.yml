@@ -41,3 +41,19 @@ jobs:
 
       - name: Build
         run: pnpm --filter web build
+
+      # `pnpm --filter web build` runs the prebuild script that regenerates
+      # icons.generated.ts and the public SVGs from icons/<id>/. If anyone
+      # edited one without re-running the build, that drift appears as a
+      # dirty working tree here and we fail loudly instead of shipping it.
+      - name: Verify icon build output is in sync
+        run: |
+          if ! git diff --exit-code -- \
+              apps/web/src/lib/icons.generated.ts \
+              apps/web/public/brand \
+              apps/web/public/solid \
+              apps/web/public/api/icons.json \
+              icons/manifest.json; then
+            echo "::error::Icon build output is out of date. Run 'pnpm --filter web build' locally and commit the changes."
+            exit 1
+          fi

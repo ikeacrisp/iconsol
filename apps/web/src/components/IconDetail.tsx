@@ -621,8 +621,26 @@ function escapeHtmlAttr(value: string) {
     .replace(/>/g, "&gt;");
 }
 
-function buildReactNativeCode(componentName: string, assetUrl: string) {
-  return `import { SvgUri } from "react-native-svg";
+// A handful of logos (e.g. avici, infsol) render via SVG <foreignObject> with
+// embedded XHTML. That intentionally uses browser HTML/CSS rendering, so the
+// React Native (`react-native-svg`) and SwiftUI native SVG decoders won't draw
+// them. We surface that honestly in the generated snippet rather than ship
+// silently-broken code.
+const FOREIGN_OBJECT_NOTE_LINES = [
+  "// NOTE: This logo is illustrated with embedded HTML inside the SVG",
+  "// (<foreignObject>) — that's intentional for browser rendering but is",
+  "// not supported by react-native-svg or SwiftUI's AsyncImage. The URL",
+  "// will display correctly in a WebView/<img>; for a native render you'll",
+  "// need a pre-rasterised PNG.",
+];
+
+function buildReactNativeCode(
+  componentName: string,
+  assetUrl: string,
+  usesForeignObject: boolean
+) {
+  const note = usesForeignObject ? FOREIGN_OBJECT_NOTE_LINES.join("\n") + "\n\n" : "";
+  return `${note}import { SvgUri } from "react-native-svg";
 
 type ${componentName}Props = {
   size?: number;
@@ -636,8 +654,15 @@ export function ${componentName}({ size = 32 }: ${componentName}Props) {
 `;
 }
 
-function buildSwiftCode(componentName: string, assetUrl: string) {
-  return `import SwiftUI
+function buildSwiftCode(
+  componentName: string,
+  assetUrl: string,
+  usesForeignObject: boolean
+) {
+  const note = usesForeignObject
+    ? FOREIGN_OBJECT_NOTE_LINES.map((l) => l.replace(/^\/\//, "//")).join("\n") + "\n\n"
+    : "";
+  return `${note}import SwiftUI
 
 struct ${componentName}: View {
     var size: CGFloat = 32
@@ -1389,11 +1414,17 @@ export function IconDetail({
         const assetTexts = Object.fromEntries(entries);
         const markup = buildHtmlMarkup(activeSpec, assetTexts);
         const assetUrl = `https://iconsol.me${icon.src}`;
+        // Cheap structural check — only the avici / infsol art uses this.
+        // Anchoring on the open tag rules out false positives inside paths
+        // or attribute values.
+        const usesForeignObject = Object.values(assetTexts).some((text) =>
+          text.includes("<foreignObject")
+        );
 
         setExactCodeByFramework({
           react: buildReactMarkupCode(componentName, markup),
-          "react-native": buildReactNativeCode(componentName, assetUrl),
-          swift: buildSwiftCode(componentName, assetUrl),
+          "react-native": buildReactNativeCode(componentName, assetUrl, usesForeignObject),
+          swift: buildSwiftCode(componentName, assetUrl, usesForeignObject),
           html: buildHtmlCode(assetUrl),
           svg: buildSvgCode(activeSpec, assetTexts),
         });

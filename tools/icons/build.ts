@@ -46,22 +46,103 @@ function writeIfChanged(file: string, contents: string | Buffer) {
 
 /* ── public asset sync ────────────────────────────────────────────────── */
 
+/**
+ * Conservative SVG normalizer applied on the way from `icons/<id>/{brand,solid}/`
+ * into `apps/web/public/{brand,solid}/`.
+ *
+ * Goal: strip Figma export artifacts that break non-browser consumers (native
+ * SVG renderers in React Native / SwiftUI, headless rasterizers, downstream
+ * SVG-in-img CSS pipelines) WITHOUT changing how the website renders.
+ *
+ * Specifically:
+ *   1. `width="100%" height="100%"` on the root <svg> → numeric values from the
+ *      viewBox. Modern <img>/CSS already size SVGs via the host element, so the
+ *      website sees no difference; consumers that need intrinsic dimensions
+ *      (RN's SvgUri, headless renderers, image conversion tools) now have them.
+ *   2. `preserveAspectRatio="none"` on the root <svg> → removed. All shipped
+ *      logos use a square viewBox rendered into a square container so the
+ *      default `xMidYMid meet` produces an identical pixel result; non-square
+ *      consumers stop getting silent skewing.
+ *   3. `fill="var(--fill-N, <color>)"` / `stroke="var(...)"` → resolved to the
+ *      fallback color. The CSS variable is never set anywhere in the codebase,
+ *      so the browser already uses the fallback; native renderers, however,
+ *      don't understand var() and currently fail silently.
+ *
+ * Files that contain a <foreignObject> (the avici / infsol art is rendered via
+ * embedded XHTML on purpose) are passed through verbatim — touching them would
+ * risk altering the intended visual.
+ *
+ * Idempotent: running the build twice produces no further changes.
+ */
+function sanitizeSvg(buffer: Buffer): Buffer {
+  const original = buffer.toString("utf8");
+
+  // foreignObject-bearing SVGs intentionally render via HTML/CSS; leave them
+  // alone so we don't accidentally change the design.
+  if (original.includes("<foreignObject")) return buffer;
+
+  // We only rewrite the opening <svg ...> tag, never anything inside it, so
+  // path data / gradients / etc. are untouched.
+  const svgTagMatch = original.match(/<svg\b[^>]*>/);
+  if (!svgTagMatch) return buffer;
+  const openTag = svgTagMatch[0];
+
+  let rewritten = openTag;
+
+  // 1. Resolve width="100%" / height="100%" → viewBox numeric dims (if any).
+  const viewBoxMatch = openTag.match(
+    /\bviewBox\s*=\s*"\s*[-\d.]+\s+[-\d.]+\s+([\d.]+)\s+([\d.]+)\s*"/
+  );
+  if (viewBoxMatch) {
+    const vbWidth = viewBoxMatch[1];
+    const vbHeight = viewBoxMatch[2];
+    rewritten = rewritten.replace(/\bwidth\s*=\s*"100%"/, `width="${vbWidth}"`);
+    rewritten = rewritten.replace(/\bheight\s*=\s*"100%"/, `height="${vbHeight}"`);
+  }
+
+  // 2. Remove preserveAspectRatio="none" so non-square consumers don't skew.
+  rewritten = rewritten.replace(/\spreserveAspectRatio\s*=\s*"none"/, "");
+
+  let body = original.replace(openTag, rewritten);
+
+  // 3. Resolve `var(--fill-N, fallback)` / `var(--stroke-N, fallback)` →
+  //    the fallback. The CSS variable is never set; native renderers can't
+  //    parse var(). Only matches when the fallback is a single token.
+  body = body.replace(
+    /(fill|stroke)\s*=\s*"\s*var\(\s*--[a-zA-Z0-9_-]+\s*,\s*([^)]+?)\s*\)\s*"/g,
+    (_match, attr, fallback) => `${attr}="${fallback.trim()}"`
+  );
+
+  if (body === original) return buffer;
+  return Buffer.from(body, "utf8");
+}
+
 function syncPublicAssets(icons: LoadedIcon[]) {
   let copied = 0;
   let auxCopied = 0;
+  let sanitized = 0;
+
+  const copyOne = (from: string, to: string): "sanitized" | "raw" | "skip" => {
+    const raw = fs.readFileSync(from);
+    const out = sanitizeSvg(raw);
+    const changed = writeIfChanged(to, out);
+    if (!changed) return "skip";
+    return out.equals(raw) ? "raw" : "sanitized";
+  };
 
   for (const variant of VARIANTS) {
     const destDir = path.join(WEB_PUBLIC, variant);
     ensureDir(destDir);
 
-    for (const { record, dir } of icons) {
+    for (const { dir } of icons) {
       const srcDir = path.join(dir, variant);
       if (!fs.existsSync(srcDir)) continue;
       for (const file of fs.readdirSync(srcDir)) {
         if (!file.endsWith(".svg")) continue;
-        const from = path.join(srcDir, file);
-        const to = path.join(destDir, file);
-        if (writeIfChanged(to, fs.readFileSync(from))) copied++;
+        const result = copyOne(path.join(srcDir, file), path.join(destDir, file));
+        if (result === "skip") continue;
+        copied++;
+        if (result === "sanitized") sanitized++;
       }
     }
 
@@ -69,16 +150,17 @@ function syncPublicAssets(icons: LoadedIcon[]) {
     if (fs.existsSync(auxVariantDir)) {
       for (const file of fs.readdirSync(auxVariantDir)) {
         if (!file.endsWith(".svg")) continue;
-        const from = path.join(auxVariantDir, file);
-        const to = path.join(destDir, file);
-        if (writeIfChanged(to, fs.readFileSync(from))) auxCopied++;
+        const result = copyOne(path.join(auxVariantDir, file), path.join(destDir, file));
+        if (result === "skip") continue;
+        auxCopied++;
+        if (result === "sanitized") sanitized++;
       }
     }
   }
 
   if (copied || auxCopied) {
     console.log(
-      `  synced ${copied} icon asset(s) and ${auxCopied} auxiliary asset(s) to public/`
+      `  synced ${copied} icon asset(s) and ${auxCopied} auxiliary asset(s) to public/ (${sanitized} normalized)`
     );
   }
 }
