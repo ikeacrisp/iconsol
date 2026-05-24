@@ -16,7 +16,6 @@ export type LogoId =
   | "sanctum-gateway"
   | "perena"
   | "superteam"
-  | "carrot"
   | "oro"
   | "altitude"
   | "dflow"
@@ -47,11 +46,9 @@ export type LogoId =
   | "usdc"
   | "circle"
   | "bags"
-  | "powered-by-solana"
   | "jupusd"
   | "jitosol"
   | "madlads"
-  | "opos"
   | "drip-haus"
   | "jupsol"
   | "metadao"
@@ -100,7 +97,6 @@ export const LOGO_ORDER: LogoId[] = [
   "sanctum-gateway",
   "perena",
   "superteam",
-  "carrot",
   "oro",
   "altitude",
   "dflow",
@@ -131,11 +127,9 @@ export const LOGO_ORDER: LogoId[] = [
   "usdc",
   "circle",
   "bags",
-  "powered-by-solana",
   "jupusd",
   "jitosol",
   "madlads",
-  "opos",
   "drip-haus",
   "jupsol",
   "metadao",
@@ -207,13 +201,6 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   superteam: {
     layers: [
       { src: "/brand/superteam.svg", x: 0, y: 0, width: 32, height: 32 },
-    ],
-  },
-  carrot: {
-    background: "#022c22",
-    radius: 8,
-    layers: [
-      { src: "/brand/carrot.svg", x: 5.9990000000000006, y: 5.9990000000000006, width: 20.002, height: 20.002 },
     ],
   },
   oro: {
@@ -366,13 +353,6 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
       { src: "/brand/bags.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
-  "powered-by-solana": {
-    background: "#1a1a1a",
-    radius: 8,
-    layers: [
-      { src: "/brand/powered-by-solana.svg", x: 2.0020000000000007, y: 11.6325, width: 27.996, height: 8.735 },
-    ],
-  },
   jupusd: {
     layers: [
       { src: "/brand/jupusd.svg", x: 0, y: 0, width: 32, height: 32 },
@@ -386,13 +366,6 @@ export const BRAND_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   madlads: {
     layers: [
       { src: "/brand/madlads.svg", x: 0, y: 0, width: 32, height: 32 },
-    ],
-  },
-  opos: {
-    background: "#1a1a1a",
-    radius: 8,
-    layers: [
-      { src: "/brand/opos.svg", x: 2.0020000000000007, y: 10.2575, width: 27.996, height: 11.485 },
     ],
   },
   "drip-haus": {
@@ -526,11 +499,6 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   superteam: {
     layers: [
       { src: "/solid/superteam.svg", x: 0, y: 0, width: 32, height: 32 },
-    ],
-  },
-  carrot: {
-    layers: [
-      { src: "/solid/carrot.svg", x: 3, y: 3, width: 26, height: 26 },
     ],
   },
   oro: {
@@ -683,11 +651,6 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
       { src: "/solid/bags.svg", x: 0, y: 0, width: 32, height: 32 },
     ],
   },
-  "powered-by-solana": {
-    layers: [
-      { src: "/solid/powered-by-solana.svg", x: 2.0020000000000007, y: 11.6325, width: 27.996, height: 8.735 },
-    ],
-  },
   jupusd: {
     layers: [
       { src: "/solid/jupusd.svg", x: 0, y: 0, width: 32, height: 32 },
@@ -701,11 +664,6 @@ export const SOLID_LOGO_ASSETS: Record<LogoId, LogoAssetSpec> = {
   madlads: {
     layers: [
       { src: "/solid/madlads.svg", x: 0, y: 0, width: 32, height: 32 },
-    ],
-  },
-  opos: {
-    layers: [
-      { src: "/solid/opos.svg", x: 2.0020000000000007, y: 10.2575, width: 27.996, height: 11.485 },
     ],
   },
   "drip-haus": {
@@ -1039,26 +997,6 @@ export const ICON_META: Record<string, IconMeta> = {
       "colosseum",
       "sol",
       "sendai"
-    ],
-    "hasDisplay": true
-  },
-  carrot: {
-    "id": "carrot",
-    "name": "Carrot",
-    "category": "defi",
-    "aliases": [
-      "carrot"
-    ],
-    "tags": [
-      "yield",
-      "liquid-staking"
-    ],
-    "website": "https://carrot.so",
-    "description": "Carrot is a yield-bearing product on Solana that allocates deposits across curated onchain yield strategies.",
-    "relatedIds": [
-      "jitosol",
-      "marinade",
-      "jup"
     ],
     "hasDisplay": true
   },
@@ -1691,26 +1629,6 @@ export const ICON_META: Record<string, IconMeta> = {
     ],
     "hasDisplay": true
   },
-  "powered-by-solana": {
-    "id": "powered-by-solana",
-    "name": "Powered by Solana",
-    "category": "infrastructure",
-    "aliases": [
-      "powered-by-solana"
-    ],
-    "tags": [
-      "branding",
-      "ecosystem",
-      "solana"
-    ],
-    "description": "The 'Powered by Solana' mark identifies products and apps built on the Solana network.",
-    "relatedIds": [
-      "sol",
-      "opos",
-      "superteam"
-    ],
-    "hasDisplay": true
-  },
   jupusd: {
     "id": "jupusd",
     "name": "JupUSD",
@@ -1775,27 +1693,6 @@ export const ICON_META: Record<string, IconMeta> = {
       "backpack",
       "magic-eden",
       "claynosaurz"
-    ],
-    "hasDisplay": true
-  },
-  opos: {
-    "id": "opos",
-    "name": "OPOS",
-    "category": "infrastructure",
-    "aliases": [
-      "opos",
-      "only-possible-on-solana"
-    ],
-    "tags": [
-      "branding",
-      "ecosystem",
-      "solana"
-    ],
-    "description": "The 'Only Possible On Solana' mark celebrates products and moments that showcase Solana's unique capabilities.",
-    "relatedIds": [
-      "sol",
-      "powered-by-solana",
-      "superteam"
     ],
     "hasDisplay": true
   },

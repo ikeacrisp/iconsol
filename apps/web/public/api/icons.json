@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-23",
-  "count": 81,
+  "generatedAt": "2026-05-24",
+  "count": 78,
   "icons": [
     {
       "id": "sol",
@@ -273,29 +273,6 @@
       "assets": {
         "brand": "/brand/superteam.svg",
         "solid": "/solid/superteam.svg"
-      }
-    },
-    {
-      "id": "carrot",
-      "name": "Carrot",
-      "category": "defi",
-      "aliases": [
-        "carrot"
-      ],
-      "tags": [
-        "yield",
-        "liquid-staking"
-      ],
-      "website": "https://carrot.so",
-      "description": "Carrot is a yield-bearing product on Solana that allocates deposits across curated onchain yield strategies.",
-      "relatedIds": [
-        "jitosol",
-        "marinade",
-        "jup"
-      ],
-      "assets": {
-        "brand": "/brand/carrot.svg",
-        "solid": "/solid/carrot.svg"
       }
     },
     {
@@ -1018,29 +995,6 @@
       }
     },
     {
-      "id": "powered-by-solana",
-      "name": "Powered by Solana",
-      "category": "infrastructure",
-      "aliases": [
-        "powered-by-solana"
-      ],
-      "tags": [
-        "branding",
-        "ecosystem",
-        "solana"
-      ],
-      "description": "The 'Powered by Solana' mark identifies products and apps built on the Solana network.",
-      "relatedIds": [
-        "sol",
-        "opos",
-        "superteam"
-      ],
-      "assets": {
-        "brand": "/brand/powered-by-solana.svg",
-        "solid": "/solid/powered-by-solana.svg"
-      }
-    },
-    {
       "id": "jupusd",
       "name": "JupUSD",
       "ticker": "JupUSD",
@@ -1114,30 +1068,6 @@
       "assets": {
         "brand": "/brand/madlads.svg",
         "solid": "/solid/madlads.svg"
-      }
-    },
-    {
-      "id": "opos",
-      "name": "OPOS",
-      "category": "infrastructure",
-      "aliases": [
-        "opos",
-        "only-possible-on-solana"
-      ],
-      "tags": [
-        "branding",
-        "ecosystem",
-        "solana"
-      ],
-      "description": "The 'Only Possible On Solana' mark celebrates products and moments that showcase Solana's unique capabilities.",
-      "relatedIds": [
-        "sol",
-        "powered-by-solana",
-        "superteam"
-      ],
-      "assets": {
-        "brand": "/brand/opos.svg",
-        "solid": "/solid/opos.svg"
       }
     },
     {

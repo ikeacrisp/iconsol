@@ -228,25 +228,6 @@
     ]
   },
   {
-    "id": "carrot",
-    "name": "Carrot",
-    "category": "defi",
-    "aliases": [
-      "carrot"
-    ],
-    "tags": [
-      "yield",
-      "liquid-staking"
-    ],
-    "website": "https://carrot.so",
-    "description": "Carrot is a yield-bearing product on Solana that allocates deposits across curated onchain yield strategies.",
-    "relatedIds": [
-      "jitosol",
-      "marinade",
-      "jup"
-    ]
-  },
-  {
     "id": "oro",
     "name": "Oro",
     "category": "tokens",
@@ -846,25 +827,6 @@
     ]
   },
   {
-    "id": "powered-by-solana",
-    "name": "Powered by Solana",
-    "category": "infrastructure",
-    "aliases": [
-      "powered-by-solana"
-    ],
-    "tags": [
-      "branding",
-      "ecosystem",
-      "solana"
-    ],
-    "description": "The 'Powered by Solana' mark identifies products and apps built on the Solana network.",
-    "relatedIds": [
-      "sol",
-      "opos",
-      "superteam"
-    ]
-  },
-  {
     "id": "jupusd",
     "name": "JupUSD",
     "category": "tokens",
@@ -926,26 +888,6 @@
       "backpack",
       "magic-eden",
       "claynosaurz"
-    ]
-  },
-  {
-    "id": "opos",
-    "name": "OPOS",
-    "category": "infrastructure",
-    "aliases": [
-      "opos",
-      "only-possible-on-solana"
-    ],
-    "tags": [
-      "branding",
-      "ecosystem",
-      "solana"
-    ],
-    "description": "The 'Only Possible On Solana' mark celebrates products and moments that showcase Solana's unique capabilities.",
-    "relatedIds": [
-      "sol",
-      "powered-by-solana",
-      "superteam"
     ]
   },
   {
