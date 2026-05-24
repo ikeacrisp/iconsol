@@ -17,7 +17,7 @@ export default function DocsPage() {
         </p>
 
         <Section title="Installation">
-          <CodeBlock code={`npm i iconsol\n# or\npnpm add iconsol\n# or\nyarn add iconsol`} />
+          <CodeBlock code={`npm i @iconsol/react\n# or\npnpm add @iconsol/react\n# or\nyarn add @iconsol/react`} />
         </Section>
 
         <Section title="Basic Usage">
@@ -32,13 +32,13 @@ export default function DocsPage() {
             prop.
           </p>
           <CodeBlock
-            code={`import { Jupiter, Phantom, Raydium, Sol } from "iconsol";
+            code={`import { Jup, Phantom, Raydium, Sol } from "@iconsol/react";
 
 export default function App() {
   return (
     <div>
       <Sol size={32} />
-      <Jupiter size={24} />
+      <Jup size={24} />
       <Phantom size={24} className="text-purple-400" />
       <Raydium size={20} color="#9945ff" />
     </div>
@@ -118,11 +118,11 @@ export default function App() {
             The package is fully tree-shakeable. Only the icons you import are included in your bundle.
           </p>
           <CodeBlock
-            code={`// ✅ Only Jupiter component is bundled
-import { Jupiter } from "iconsol";
+            code={`// ✅ Only the Jup component is bundled
+import { Jup } from "@iconsol/react";
 
 // ✅ Also works — still tree-shaken by bundlers
-import { Jupiter, Phantom } from "iconsol";`}
+import { Jup, Phantom } from "@iconsol/react";`}
           />
         </Section>
 

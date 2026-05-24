@@ -1,8 +1,8 @@
 {
-  "name": "iconsol",
+  "name": "@iconsol/react",
   "version": "0.1.0",
   "description": "High-quality React components for Solana ecosystem logos and icons",
-  "author": "iconsol",
+  "author": "ikeacrisp (https://github.com/ikeacrisp)",
   "license": "MIT",
   "homepage": "https://iconsol.me",
   "repository": {
@@ -33,6 +33,7 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.map",
     "README.md",
     "LICENSE"
   ],

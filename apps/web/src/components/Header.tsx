@@ -22,11 +22,11 @@ const FRAMEWORK_CONFIG: Record<
   Framework,
   { label: string; npmPrefix: string; npmPkg: string }
 > = {
-  react: { label: "React", npmPrefix: "npm", npmPkg: " i iconsol" },
-  "react-native": { label: "React Native", npmPrefix: "npm", npmPkg: " i iconsol" },
-  swift: { label: "Swift", npmPrefix: "npm", npmPkg: " i iconsol" },
-  html: { label: "HTML", npmPrefix: "npm", npmPkg: " i iconsol" },
-  svg: { label: "SVG", npmPrefix: "npm", npmPkg: " i iconsol" },
+  react: { label: "React", npmPrefix: "npm", npmPkg: " i @iconsol/react" },
+  "react-native": { label: "React Native", npmPrefix: "npm", npmPkg: " i @iconsol/react" },
+  swift: { label: "Swift", npmPrefix: "npm", npmPkg: " i @iconsol/react" },
+  html: { label: "HTML", npmPrefix: "npm", npmPkg: " i @iconsol/react" },
+  svg: { label: "SVG", npmPrefix: "npm", npmPkg: " i @iconsol/react" },
 };
 
 function SearchIcon() {
@@ -1059,15 +1059,12 @@ export function Header({
               <div
                 className="flex items-center frost-dither"
                 style={{
-                  width: 176,
                   height: 32,
                   padding: "8px 10px",
                   background: copied ? "rgba(40,224,185,0.03)" : "rgba(255,255,255,0.03)",
                   backdropFilter: "blur(20px)",
                   WebkitBackdropFilter: "blur(20px)",
                   borderRadius: 8,
-                  overflow: "hidden",
-                  justifyContent: "space-between",
                   transition: "background 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               >
@@ -1075,7 +1072,7 @@ export function Header({
                   type="button"
                   onClick={async () => {
                     playConfetti();
-                    await navigator.clipboard.writeText("npm i iconsol");
+                    await navigator.clipboard.writeText("npm i @iconsol/react");
                     setCopied(true);
                     window.setTimeout(() => setCopied(false), 1800);
                   }}
@@ -1129,7 +1126,7 @@ export function Header({
                         transition: "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
                       }}
                     >
-                      {" i iconsol"}
+                      {" i @iconsol/react"}
                     </span>
                   </span>
                 </button>

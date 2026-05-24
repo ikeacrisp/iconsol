@@ -3,11 +3,11 @@
 React components for the [iconsol.me](https://iconsol.me) directory of Solana ecosystem logos and icons.
 
 ```bash
-npm i iconsol
+npm i @iconsol/react
 ```
 
 ```tsx
-import { Phantom, Jup, Sol } from "iconsol";
+import { Phantom, Jup, Sol } from "@iconsol/react";
 
 export function Brands() {
   return (

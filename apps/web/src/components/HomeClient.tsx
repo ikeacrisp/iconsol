@@ -114,7 +114,7 @@ function MobileInstallPill() {
           type="button"
           onClick={async () => {
             playConfetti();
-            await navigator.clipboard.writeText("npm i iconsol");
+            await navigator.clipboard.writeText("npm i @iconsol/react");
             setCopied(true);
             window.setTimeout(() => setCopied(false), 1800);
           }}
@@ -168,7 +168,7 @@ function MobileInstallPill() {
                 transition: "color 180ms cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             >
-              {" i iconsol"}
+              {" i @iconsol/react"}
             </span>
           </span>
         </button>
