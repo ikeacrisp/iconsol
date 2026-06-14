@@ -51,6 +51,8 @@ interface Node {
   lon: number;
   /** Icon id when rendering live solid logos (search/idle with full set). */
   id?: string;
+  /** Display name — shown in the keyboard-hover tooltip. */
+  name?: string;
   /** SVG src when rendering plain background-image dots (fallback). */
   src?: string;
 }
@@ -75,7 +77,7 @@ function fibonacciNodes(count: number): { lat: number; lon: number }[] {
 }
 
 interface IconGlobeProps {
-  icons?: Array<{ id: string }>;
+  icons?: Array<{ id: string; name?: string }>;
   mode?: "idle" | "search";
   focusedId?: string | null;
   onIconClick?: (id: string) => void;
@@ -139,6 +141,23 @@ interface IconGlobeProps {
   keepOutRectRef?: React.RefObject<HTMLElement | null> | null;
   /** Pixel barrier added on every side of `keepOutRectRef`. Default 0. */
   keepOutRectBufferPx?: number;
+  /**
+   * Enables keyboard navigation of the focused cluster (search mode only).
+   * Arrow keys move a hover highlight to the neighbouring logo in that
+   * screen direction — the camera stays on the focused logo. Tab selects
+   * the hovered logo (`onSelect`, parent recentres/reclusters onto it).
+   * Enter opens the active logo — hovered if any, else focused — via
+   * `onActivate`. Only acts while a `focusedId` exists, and listens in the
+   * capture phase so it works even while the search input is focused
+   * (combobox style). Bind on a single instance only.
+   */
+  keyboardNav?: boolean;
+  /** Keyboard hover landed on a new logo (null = back on the focused logo). */
+  onHoverChange?: (id: string | null) => void;
+  /** Tab pressed on a hovered logo — parent should recentre/recluster onto it. */
+  onSelect?: (id: string) => void;
+  /** Enter pressed — open the given logo's detail page. */
+  onActivate?: (id: string) => void;
 }
 
 export function IconGlobe({
@@ -161,6 +180,10 @@ export function IconGlobe({
   dragMarginPx = null,
   keepOutRectRef = null,
   keepOutRectBufferPx = 0,
+  keyboardNav = false,
+  onHoverChange,
+  onSelect,
+  onActivate,
 }: IconGlobeProps = {}) {
   // Drag is a separate gesture from click — defaults to whatever
   // `interactive` is so the previous (click-and-drag) behaviour holds
@@ -168,6 +191,12 @@ export function IconGlobe({
   const dragEnabled = draggable ?? interactive;
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  // Tooltip that follows the keyboard-hovered logo, positioned each frame.
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  // Eased tooltip opacity — faded imperatively in the RAF loop rather than
+  // via a CSS transition (re-setting opacity every frame stalls a CSS
+  // transition in Chrome, leaving it stuck near 0).
+  const tooltipOpacityRef = useRef(0);
   const phiRef = useRef(0);
   const thetaRef = useRef(0);
   const velPhiRef = useRef(0);
@@ -207,6 +236,41 @@ export function IconGlobe({
     onDragReleaseRef.current = onDragRelease;
   }, [onDragHighlight, onDragRelease]);
 
+  // ----- Keyboard cluster navigation -----
+  // Latest callbacks + focused id, read from the keydown handler and the
+  // animation loop without re-subscribing either.
+  const onHoverChangeRef = useRef(onHoverChange);
+  const onSelectRef = useRef(onSelect);
+  const onActivateRef = useRef(onActivate);
+  const onIconClickRef = useRef(onIconClick);
+  useEffect(() => {
+    onHoverChangeRef.current = onHoverChange;
+    onSelectRef.current = onSelect;
+    onActivateRef.current = onActivate;
+    onIconClickRef.current = onIconClick;
+  }, [onHoverChange, onSelect, onActivate, onIconClick]);
+
+  const focusedIdRef = useRef(focusedId);
+  focusedIdRef.current = focusedId;
+
+  // The keyboard-hovered logo id (null = the focused logo is active). Kept
+  // in a ref so the RAF render loop can read it each frame without a React
+  // re-render; the parent is notified of changes via onHoverChange so it
+  // can update the name pill.
+  const hoveredIdRef = useRef<string | null>(null);
+
+  // Live screen positions (local container coords) of every front-facing
+  // logo, refreshed each frame by the animation loop. Used by the keydown
+  // handler to pick the nearest neighbour in a given direction.
+  const framePosRef = useRef<Map<string, { x: number; y: number }>>(new Map());
+
+  // Whenever the focused logo changes (new search match, click, Tab select,
+  // or clearing), drop any keyboard hover and tell the parent.
+  useEffect(() => {
+    hoveredIdRef.current = null;
+    onHoverChangeRef.current?.(null);
+  }, [focusedId]);
+
   // Build the node set: parent-supplied positions take precedence (used to
   // cluster relevant icons around a focused logo); otherwise spread the
   // supplied icons across a fibonacci sphere; if no icons at all, fall
@@ -220,12 +284,17 @@ export function IconGlobe({
         const out: Node[] = [];
         for (const icon of icons) {
           const pos = nodePositions.get(icon.id);
-          if (pos) out.push({ lat: pos.lat, lon: pos.lon, id: icon.id });
+          if (pos)
+            out.push({ lat: pos.lat, lon: pos.lon, id: icon.id, name: icon.name });
         }
         if (out.length > 0) return out;
       }
       const positions = fibonacciNodes(icons.length);
-      return positions.map((p, i) => ({ ...p, id: icons[i].id }));
+      return positions.map((p, i) => ({
+        ...p,
+        id: icons[i].id,
+        name: icons[i].name,
+      }));
     }
     const positions = fibonacciNodes(FALLBACK_NODE_COUNT);
     return positions.map((p, i) => ({
@@ -335,6 +404,9 @@ export function IconGlobe({
     const animate = () => {
       const drag = dragRef.current;
       const isDragging = drag !== null;
+      // Keyboard-hovered logo for this frame (search mode only). Read once
+      // so the highlight stays consistent across both passes below.
+      const hovId = usingSearch ? hoveredIdRef.current : null;
 
       if (!isDragging) {
         if (usingSearch) {
@@ -505,6 +577,12 @@ export function IconGlobe({
                   opacity = Math.max(opacity, 0.25 + envStrength * 0.15);
                 }
               }
+              // Keyboard hover wins over pointer/wiggle: the arrow-key
+              // hovered logo brightens to 80% alpha so only its brightness
+              // signals the hover — no scale change.
+              if (node.id && node.id === hovId) {
+                opacity = 0.8;
+              }
             }
           } else {
             opacity = depth * 0.25;
@@ -532,7 +610,9 @@ export function IconGlobe({
         const SPRING = 7;
         const DAMPING = 5.5;
         const REPEL = 380;
-        const focusedCollideR = iconSize * 0.95;
+        // Larger keep-out around the focused logo so neighbours never tuck
+        // behind it (focused renders on top) — gives it breathing space.
+        const focusedCollideR = iconSize * 1.3;
         const tierCollideR = iconSize * 0.55;
 
         // Spring + damping toward home (offset → 0).
@@ -717,7 +797,18 @@ export function IconGlobe({
         }
       }
 
-      // Render pass.
+      // Render pass. Rebuild the front-facing screen-position map each
+      // frame so keyboard navigation always picks from currently visible
+      // logos (back-facing ones are dropped).
+      if (usingSearch) framePosRef.current.clear();
+      // Live position of the keyboard-hovered logo, captured during the
+      // pass so the tooltip can be parented beneath it afterwards.
+      let hoveredScreen: {
+        x: number;
+        y: number;
+        scale: number;
+        name: string;
+      } | null = null;
       for (let i = 0; i < children.length; i++) {
         const child = children[i];
         const home = homePos[i];
@@ -769,14 +860,60 @@ export function IconGlobe({
         }
         const finalSx = home.sx + ox + ax;
         const finalSy = home.sy + oy + ay;
+        // Record the on-screen centre of every front-facing logo for the
+        // keyboard neighbour search.
+        if (usingSearch && node?.id) {
+          framePosRef.current.set(node.id, { x: finalSx, y: finalSy });
+        }
+        const isKbHovered =
+          usingSearch && !!node?.id && node.id === hovId && focusedIdx !== i;
+        if (isKbHovered && node?.id) {
+          hoveredScreen = {
+            x: finalSx,
+            y: finalSy,
+            scale: home.scale,
+            name: node.name ?? node.id,
+          };
+        }
         // Translate on the button (preserves the full iconSize click hit
         // area), scale on the inner wrapper.
         child.style.transform = `translate(${finalSx - iconSize / 2}px, ${finalSy - iconSize / 2}px)`;
         child.style.opacity = `${home.opacity}`;
-        child.style.zIndex = focusedIdx === i ? "5" : "1";
+        child.style.zIndex = focusedIdx === i ? "5" : isKbHovered ? "4" : "1";
         child.style.pointerEvents = interactive ? "auto" : "none";
         const scaleWrap = child.firstElementChild as HTMLElement | null;
         if (scaleWrap) scaleWrap.style.transform = `scale(${home.scale})`;
+      }
+
+      // Name tooltip — parented (in local overlay coords) just below the
+      // keyboard-hovered logo so it tracks the logo as it floats. The
+      // inner element is counter-scaled by the live container scale so the
+      // tooltip text stays a constant viewport size regardless of zoom.
+      const tooltip = tooltipRef.current;
+      if (tooltip) {
+        const showTip = !!(usingSearch && hovId && hoveredScreen);
+        if (showTip && hoveredScreen) {
+          const tipRect = container.getBoundingClientRect();
+          const vScale = tipRect.width / Math.max(1, size);
+          const belowY =
+            hoveredScreen.y +
+            (iconSize / 2) * hoveredScreen.scale +
+            8 / vScale;
+          tooltip.style.transform = `translate(${hoveredScreen.x}px, ${belowY}px)`;
+          const inner = tooltip.firstElementChild as HTMLElement | null;
+          if (inner) {
+            inner.style.transform = `translateX(-50%) scale(${1 / vScale})`;
+            if (inner.textContent !== hoveredScreen.name) {
+              inner.textContent = hoveredScreen.name;
+            }
+          }
+        }
+        // Ease opacity toward the target each frame (no CSS transition).
+        const target = showTip ? 1 : 0;
+        const eased =
+          tooltipOpacityRef.current + (target - tooltipOpacityRef.current) * 0.25;
+        tooltipOpacityRef.current = Math.abs(eased - target) < 0.001 ? target : eased;
+        tooltip.style.opacity = `${tooltipOpacityRef.current}`;
       }
 
       if (isDragging) {
@@ -807,6 +944,100 @@ export function IconGlobe({
     keepOutRectRef,
     keepOutRectBufferPx,
   ]);
+
+  // ----- Keyboard cluster navigation (search mode) -----
+  // Arrows hover surrounding logos, Tab selects (recentres), Enter opens.
+  // Listens in the capture phase so it intercepts before the search
+  // input's own Enter handler — but only while a logo is focused, leaving
+  // plain typing (and pre-focus editing) untouched.
+  useEffect(() => {
+    if (!keyboardNav) return;
+
+    // Pick the front-facing logo best aligned with direction (dx, dy)
+    // from the anchor's screen position: must lie within a ~66° cone and
+    // is scored by distance penalised for off-axis deviation.
+    const findNeighbour = (anchorId: string, dx: number, dy: number) => {
+      const fp = framePosRef.current;
+      const anchor = fp.get(anchorId);
+      if (!anchor) return null;
+      let bestId: string | null = null;
+      let bestScore = Infinity;
+      for (const [id, p] of fp) {
+        if (id === anchorId) continue;
+        const vx = p.x - anchor.x;
+        const vy = p.y - anchor.y;
+        const dist = Math.hypot(vx, vy);
+        if (dist < 1) continue;
+        const dot = vx * dx + vy * dy;
+        if (dot <= 0) continue;
+        const cos = dot / dist;
+        if (cos < 0.4) continue;
+        const score = dist / (cos * cos);
+        if (score < bestScore) {
+          bestScore = score;
+          bestId = id;
+        }
+      }
+      return bestId;
+    };
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      const fid = focusedIdRef.current;
+      if (!fid) return;
+
+      if (e.key === "Enter") {
+        const openId = hoveredIdRef.current ?? fid;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        (onActivateRef.current ?? onIconClickRef.current)?.(openId);
+        return;
+      }
+
+      if (e.key === "Tab") {
+        const hid = hoveredIdRef.current;
+        if (hid && hid !== fid) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          hoveredIdRef.current = null;
+          onSelectRef.current?.(hid);
+        }
+        return;
+      }
+
+      let dx = 0;
+      let dy = 0;
+      switch (e.key) {
+        case "ArrowLeft":
+          dx = -1;
+          break;
+        case "ArrowRight":
+          dx = 1;
+          break;
+        case "ArrowUp":
+          dy = -1;
+          break;
+        case "ArrowDown":
+          dy = 1;
+          break;
+        default:
+          return;
+      }
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      const anchor = hoveredIdRef.current ?? fid;
+      const next = findNeighbour(anchor, dx, dy);
+      if (!next) return;
+      // Landing back on the focused logo means "no hover".
+      const resolved = next === fid ? null : next;
+      if (resolved !== hoveredIdRef.current) {
+        hoveredIdRef.current = resolved;
+        onHoverChangeRef.current?.(resolved);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [keyboardNav]);
 
   // ------- Pointer interaction (drag-to-rotate, only when draggable) -------
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -1088,6 +1319,40 @@ export function IconGlobe({
                 </div>
               ),
             )}
+
+            {/* Keyboard-hover name tooltip. Positioned + filled each frame
+                by the animation loop; hidden (opacity 0) when nothing is
+                hovered. Anchored at the hovered logo's centre-x and
+                top-aligned below it; the inner box is counter-scaled so
+                its text stays a constant size and centred under the logo. */}
+            <div
+              ref={tooltipRef}
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                opacity: 0,
+                pointerEvents: "none",
+                zIndex: 6,
+                willChange: "transform, opacity",
+              }}
+            >
+              <div
+                style={{
+                  transformOrigin: "top center",
+                  padding: "6px 10px",
+                  borderRadius: 10,
+                  background: "rgba(16,18,22,0.92)",
+                  border: "1px solid #16181B",
+                  color: "#ffffff",
+                  fontSize: 13,
+                  lineHeight: "normal",
+                  whiteSpace: "nowrap",
+                  letterSpacing: "0.01em",
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -423,6 +423,32 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
     [focusedId, icons],
   );
 
+  // Audible tick when the arrow-key hover lands on a new cluster logo,
+  // mirroring the focus-change cue below. The hovered logo's name is
+  // shown in a tooltip the globe renders beneath it, so the focused
+  // name pill stays pinned to the focused logo.
+  const handleHoverChange = useCallback(
+    (id: string | null) => {
+      if (id) playLogoHover();
+    },
+    [playLogoHover],
+  );
+
+  // Tab selects the hovered logo: recentre + recluster around it (same as
+  // clicking a non-focused cluster logo). Enter opens the active logo.
+  const handleClusterSelect = useCallback((id: string) => {
+    setManualFocusId(id);
+    setSearchMode(true);
+  }, []);
+
+  const handleClusterActivate = useCallback(
+    (id: string) => {
+      setIconBackOrigin("/");
+      router.push(`/icon/${id}`);
+    },
+    [router],
+  );
+
   // Audio cue: every time the focused logo changes to a real id, play
   // the dashboard hover tone. Covers typed-search match, click-to-
   // refocus, and surprise-me — but not the initial mount or transitions
@@ -678,6 +704,13 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                 mode="search"
                 focusedId={focusedId}
                 onIconClick={handleGlobeIconClick}
+                // Arrow keys hover the surrounding cluster logos, Tab
+                // selects (recentres), Enter opens — active only while a
+                // logo is focused and the page is in search mode.
+                keyboardNav={searchMode}
+                onHoverChange={handleHoverChange}
+                onSelect={handleClusterSelect}
+                onActivate={handleClusterActivate}
                 interactive={searchMode}
                 // Drag the cluster, but stop 96px from every viewport
                 // edge so the focused logo (and its surrounding cluster)
@@ -696,9 +729,10 @@ export function HomeClient({ icons }: { icons: Icon[] }) {
                 }
                 // The focused-name pill is a static collision element for
                 // the cluster — logos can't overlap or intersect it, with
-                // a 4px barrier on every side.
+                // a generous barrier on every side so they keep clear of
+                // the pill and the focused logo above it.
                 keepOutRectRef={pillRef}
-                keepOutRectBufferPx={4}
+                keepOutRectBufferPx={16}
               />
             </motion.div>
           ) : null}
