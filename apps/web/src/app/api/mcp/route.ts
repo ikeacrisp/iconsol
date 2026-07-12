@@ -26,6 +26,7 @@ function serializeIcon(origin: string, icon: Icon) {
     name: icon.name,
     ticker: icon.ticker,
     category: icon.category,
+    mintAddress: icon.mintAddress,
     tags: icon.tags,
     aliases: icon.aliases,
     website: icon.website,
@@ -79,7 +80,7 @@ function createServer(origin: string) {
     {
       title: "Get a Solana logo",
       description:
-        "Fetch a single logo from iconsol by its id. Returns name, category, website, description, tags, and the direct SVG URL.",
+        "Fetch a single logo from iconsol by its id. Returns name, ticker, category, mint address (when applicable), tags, aliases, website, description, related ids, and the direct SVG URL.",
       inputSchema: {
         id: z.string().describe("The logo id, e.g. 'jup', 'sol', 'phantom'"),
       },

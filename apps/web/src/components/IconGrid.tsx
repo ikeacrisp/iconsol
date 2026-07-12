@@ -22,6 +22,7 @@ import { BlurFade } from "@/components/BlurFade";
 import { DotField } from "@/components/DotField";
 import { MaskIcon } from "@/components/UiIcon";
 import { easingGradient } from "@/lib/easing-gradient";
+import { ICON_COUNT } from "@/lib/icon-count";
 import { logoVariantHasIntrinsicSurface } from "@/lib/logo-assets";
 
 // Subtle near-monochrome gradient — a longer easing chain keeps the
@@ -1028,7 +1029,7 @@ export function IconGrid({ icons, categories }: IconGridProps) {
                   type="text"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder={`Search over ${Math.floor(icons.length / 5) * 5} logos...`}
+                  placeholder={`Search over ${ICON_COUNT} logos...`}
                   className="sidebar-search-input flex-1 bg-transparent border-none outline-none"
                   style={{
                     color: searchQuery ? "#ffffff" : "rgba(255,255,255,0.25)",
@@ -1896,7 +1897,7 @@ function MobileBottomSearch({
             whiteSpace: "nowrap",
           }}
         >
-          {value || "Search over 60 logos..."}
+          {value || `Search over ${ICON_COUNT} logos...`}
         </span>
       </button>
     </div>
@@ -1979,7 +1980,7 @@ function MobileCategoryDrawer({
             type="text"
             value={searchQuery}
             onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search over 60 logos..."
+            placeholder={`Search over ${ICON_COUNT} logos...`}
             className="sidebar-search-input flex-1 bg-transparent border-none outline-none"
             style={{
               color: "#fff",

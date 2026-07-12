@@ -33,6 +33,12 @@ Thumbs.db
 .cursor/
 .aider*
 
+# Local scratch / raw asset folders (not repo content)
+/Refined Icons*/
+
+# Standalone local demo app (not repo content)
+/mcp-demo/
+
 # Logs
 *.log
 npm-debug.log*

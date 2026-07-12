@@ -159,6 +159,7 @@ GET https://iconsol.me/api/logos/jup`}
   "name": "Jupiter",
   "ticker": "JUP",
   "category": "tokens",
+  "mintAddress": "JUPyiwrYJFskUPiHa7hkeR8VUtAeFoSYbKedZNsDvCN",
   "tags": ["governance", "dex", "aggregator"],
   "aliases": ["jupiter", "jup.ag"],
   "website": "https://jup.ag",
