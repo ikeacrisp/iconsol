@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import { useSound } from "@web-kits/audio/react";
 import { MaskIcon } from "@/components/UiIcon";
+import { McpPlayground } from "@/components/McpPlayground";
 import { confetti, sync } from "@/lib/audio/core";
 
 type ToolId = "claude-code" | "codex" | "cursor" | "v0";
@@ -234,6 +235,24 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
             </p>
           </Section>
         </ScrollRevealBlock>
+
+        <ScrollRevealBlock scrollRef={scrollRef} amount={0.15} once>
+          <Section heading="4. Try it live">
+            <p
+              style={{
+                fontSize: 14,
+                lineHeight: 1.6,
+                color: "rgba(255,255,255,0.6)",
+                marginBottom: 14,
+                textWrap: "balance",
+              }}
+            >
+              The same two tools your agent gets, running against this server —
+              every request appears on the wire as it happens.
+            </p>
+            <McpPlayground />
+          </Section>
+        </ScrollRevealBlock>
       </main>
     </div>
   );
@@ -241,20 +260,27 @@ export function McpInstallClient({ configSnippet }: { configSnippet: string }) {
 
 // Wraps a chunk of body content so it springs from blurred → sharp as it
 // scrolls into the visible portion of the body scroller. When the content
-// passes behind the header or footer (less than 50 % in view of the scroll
-// container) it goes back to the blurred initial state.
+// passes behind the header or footer (less than `amount` in view of the
+// scroll container) it goes back to the blurred initial state — unless
+// `once` is set, which keeps it revealed after the first entrance (used by
+// the playground section: it grows tall while the user interacts, so it
+// must never re-blur mid-use).
 function ScrollRevealBlock({
   scrollRef,
   children,
+  amount = 0.5,
+  once = false,
 }: {
   scrollRef: React.RefObject<HTMLDivElement | null>;
   children: ReactNode;
+  amount?: number;
+  once?: boolean;
 }) {
   return (
     <motion.div
       initial={{ filter: "blur(8px)", opacity: 0 }}
       whileInView={{ filter: "blur(0px)", opacity: 1 }}
-      viewport={{ root: scrollRef, amount: 0.5 }}
+      viewport={{ root: scrollRef, amount, once }}
       transition={{ type: "spring", duration: 0.6, bounce: 0 }}
       style={{ willChange: "filter, opacity" }}
     >
